@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static "css/style.css" %}}">
+
+<div id="quiz">
+    {% for word in words %}
+        <div class="question">
+        <form action="{% url 'check_answer' %}" method="POST" style='text-align: center;' id="question-form">
+            {% csrf_token %}
+            <input type="hidden" value="{{ word.pk }}" name="question_id">
+            <h2>{{ word.name }}</h2>
+            Definition:
+            <ol>
+                {% for option in word.options %}
+                    <input type="submit" class="btn btn-outline-primary" value="{{ option }}" name="answer">
+                {% endfor %}
+            </ol>
+        </form>
+        
+        </div>
+    {% endfor %}
+</div>
+
+
+<!-- Check whether the answer is correct or not. -->
+<script type="text/javascript">
+    $(document).on("submit", '#question-form', function(e) {
+        e.preventDefault();
+        let clickedInput = $(this).find('input[type="submit"]:focus');
+        clickedInput.addClass('clicked');
+        let answerValue = clickedInput.val();
+        $.ajax({
+            type: "POST",
+            url: $(this).attr('action'),
+            data: {
+                'question_id': $(this).find('input[name="question_id"]').val(),
+                'answer': answerValue,
+                'csrfmiddlewaretoken': $(this).find('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (data) {
+                console.log(data);
+                if (data == 'true') {
+                    clickedInput.css('background-color', 'green');
+                } else {
+                    clickedInput.css('background-color', 'red');
+                }
+                clickedInput.removeClass('clicked');
+            }
+            
+        })
+    })
+</script>
+
+{% endblock %}

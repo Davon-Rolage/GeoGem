@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    li .list-group-item {
+        padding: 3;
+    }
+</style>
+
+<div class="card">
+    <div class="card-body">
+        <h class="display-6">{{ learning_block.name }}</h>
+        <br>
+        <form method="POST" action="{% url 'run_quiz' %}">
+            {% csrf_token %}
+            <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+            <input type='submit' class="btn btn-primary" value="Study">
+        </form>
+    </div>
+</div>
+<div class="card" style="width: 18rem;">
+    <div class="card-header">List of words</div>
+    <ul class="list-group list-group-flush">
+        {% for word in block_words %}
+            <div class="card card-body">
+                <li class="list-group-item">{{ word.name }}</li>
+            </div>
+        {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}
