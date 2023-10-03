@@ -7,26 +7,36 @@
     }
 </style>
 
-<div class="card">
-    <div class="card-body">
-        <h class="display-6">{{ learning_block.name }}</h>
-        <br>
-        <form method="POST" action="{% url 'run_quiz' %}">
-            {% csrf_token %}
-            <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-            <input type='submit' class="btn btn-primary" value="Study">
-        </form>
+<div class="container-fluid">
+    <div class="card">
+        <div class="card-body">
+            <h class="display-6">{{ learning_block.name }}</h>
+            Mastery level: {{ block_mastery_level|floatformat:2 }} / 6 ~ {{ block_mastery_level_pct }}%
+            <h3 style="color: #1F6F9A;">
+                {{ block_words|length }} words
+            </h>    
+            <br>
+            <form method="POST" action="{% url 'run_quiz' %}">
+                {% csrf_token %}
+                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                <input type='submit' class="btn btn-primary" value="Start Quiz" style="margin-top: 10px;">
+            </form>
+
+            <form method="POST" action="">
+                {% csrf_token %}
+                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                <input disabled type='submit' class="btn btn-outline-primary" value="Review" style="margin-top: 10px;">
+            </form>
+        </div>
     </div>
-</div>
-<div class="card" style="width: 18rem;">
-    <div class="card-header">List of words</div>
-    <ul class="list-group list-group-flush">
-        {% for word in block_words %}
-            <div class="card card-body">
-                <li class="list-group-item">{{ word.name }}</li>
-            </div>
-        {% endfor %}
-    </ul>
+    <div class="card" style="width: 18rem; margin-top: 10px;">
+        <div class="card-header">List of words</div>
+        <ul class="list-group list-group-flush" style="padding: 7px;">
+            {% for word in block_words %}
+                {{ word.name }}
+            {% endfor %}
+        </ul>
+    </div>
 </div>
 
 {% endblock %}

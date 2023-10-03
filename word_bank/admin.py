@@ -16,12 +16,11 @@ class WordInfoAdmin(admin.ModelAdmin):
 
 class UserWordAdmin(admin.ModelAdmin):
     list_display = ['word', 'user', 'points', 'mastery_level']
-    list_filter = ['word', 'user', 'points', 'mastery_level']
+    list_filter = ['user', 'points', 'mastery_level']
     sortable_by = ['word', 'user', 'points', 'mastery_level']
 
 
 admin.site.register(Block)
 admin.site.register(WordInfo, WordInfoAdmin)
 admin.site.register(UserWord, UserWordAdmin)
-admin.site.register(QuizResult)
 

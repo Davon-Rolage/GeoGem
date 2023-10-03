@@ -20,6 +20,7 @@ class BlockDetailView(DetailView):
         learning_block = self.get_object()
         block_words = WordInfo.objects.filter(blocks=learning_block)
         context['learning_block'] = learning_block
+        context['block_mastery_level'], context['block_mastery_level_pct'] = learning_block.get_mastery_level()
         context['block_words'] = block_words
         return context
     
