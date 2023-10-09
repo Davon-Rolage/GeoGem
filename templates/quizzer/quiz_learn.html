@@ -1,0 +1,130 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  body {
+    background-color: aliceblue;
+  }
+</style>
+
+<div id="quiz">
+    {% for word in words %}
+        <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
+            <form id="question-form" action="{% url 'add_to_learned' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
+                {% csrf_token %}
+                <input type="hidden" value="{{ word.pk }}" name="question_id">
+                <span style="text-align: right;">{{ forloop.counter }} / {{ words|length }}</span>
+                <br>
+                <span style="font-size: 80px; margin-bottom: 10px;">{{ word.name }}</span>
+                    <ol style="padding: 0;">
+                        <div class="col">
+                            <span style="font-size: 60px;">{{ word.translation }}</span>
+                        </div>
+                    </ol>
+
+                {% if word.example %}
+                {{ word.example }}
+                {% endif %}
+                {% if word.example_image %}
+                <img src="{{ word.example_image.url }}" alt="example_image" style="max-height: 20px;">
+                {% endif %}
+                <br>
+                <input type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
+                {% if not forloop.last %}
+                    <input type="submit" onclick="move()" style='float: right' class="btn btn-primary" id="btn-next" value="Next">
+                {% else %}
+                    <input type="submit" onclick="quizResults()" style='float: right' value="End Quiz" class="btn btn-secondary">
+                {% endif %}
+            </form>
+        </div>
+    {% endfor %}
+</div>
+
+
+<!-- Quiz Results -->
+<div class="container-fluid" id="quiz-results" style="display: none; width: 50%; margin: 0 auto;">
+    <h2 style="margin-bottom: 20px">Results</h2>
+    <div class="card" style="width: 18rem; margin: 0 auto 20px;">
+        <div class="card-body">
+            <h5 class="card-title">{{ learning_block.name }}</h5>
+
+            <form method="POST" action="{% url 'quiz_review' %}" style="margin-bottom: 10px;">
+                {% csrf_token %}
+                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                <input type='submit' class="btn btn-outline-primary" value="Review" style="margin-top: 10px;">
+            </form>
+            
+            <a href="{% url 'learn' %}">Go to index</a>
+        </div>
+    </div>
+
+    <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Translation</th>
+            <th scope="col">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for word in words %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td>{{ word.name }}</td>
+                <td>{{ word.translation }}</td>
+                <td>{% if word.example %}{{ word.example }}{% else %}-{% endif %}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    
+</div>
+
+<!-- Show quiz results div -->
+<script>
+    function quizResults() {
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("quiz-results").style.display = "block";
+    }
+</script>
+
+<!-- Show one question at a time -->
+<script>
+    let currentWord = 1;
+    function move(go_next = 1) {
+        document.getElementById("word" + currentWord).style.display = "none";
+        go_next ? currentWord++ : currentWord--;
+        document.getElementById("word" + currentWord).style.display = "block";
+    }
+</script>
+
+
+<!-- Add a word to learned words -->
+<script type="text/javascript">
+    $(document).on("submit", '#question-form', function(e) {
+        e.preventDefault();
+        const questionForm = $(this);
+        const questionId = questionForm.find('input[name="question_id"]').val();
+        
+        $.ajax({
+            type: "POST",
+            url: questionForm.attr('action'),
+            data: {
+                'question_id': questionId,
+                'csrfmiddlewaretoken': questionForm.find('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (data) {
+                if (data == 'true') {
+                    // do something if success == 'true'
+                } else {
+                    // do something if success != 'true'
+                }
+            }
+        })
+    })
+</script>
+
+{% endblock %}

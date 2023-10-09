@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+  body {
+    background-color: aliceblue;
+  }
+</style>
+
+<div id="quiz">
+    {% for word in words %}
+        <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
+            <form id="question-form" action="{% url 'check_answer_quiz' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
+                {% csrf_token %}
+                <input type="hidden" value="{{ word.pk }}" name="question_id">
+                <span style="text-align: right;">{{ forloop.counter }} / {{ words|length }}</span>
+                <h2 style="margin-bottom: 10px;">{{ word.name }}</h2>
+                Definition:
+                <div class="question_options" style="margin: 10px auto 10px auto;">
+                    <ol style="padding: 0;">
+                        <div class="col">
+                            {% for option in word.options %}
+                                <div class="row" style="width: 0; margin-left: 0;">
+                                    <p style="margin-bottom: 3px;"><input style="width: 365px;" type="submit" class="btn btn-outline-primary" value="{{ option }}" name="answer"></p>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    </ol>
+                </div>
+
+                <input type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
+                {% if not forloop.last %}
+                    <input disabled style='float: right' id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="Next">
+                {% else %}
+                    <input type="button" onclick="quizResults()" style='float: right' value="End Quiz" class="btn btn-secondary">
+                {% endif %}
+            </form>
+        </div>
+    {% endfor %}
+</div>
+
+
+<!-- Quiz Results -->
+<div id="quiz-results" style="display: none; margin: 0 auto;">
+    <h2 style="margin-bottom: 20px">Results</h2>
+    <div class="card" style="width: 18rem; margin: 0 auto;">
+        <div class="card-body">
+            <h5 class="card-title">{{ learning_block.name }}</h5>
+            <p class="card-text"><h3><span id="score">{{ score }}</span> / {{ words|length }}</h3></p>
+            <a href="{% url 'learn' %}">Go to index</a>
+        <br>
+            <form method="POST" action="{% url 'quiz_multi_choice' %}">
+                {% csrf_token %}
+                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                <input type='submit' class="btn btn-outline-primary" value="Quiz Again" style="margin-top: 10px;">
+            </form>
+          
+        </div>
+      </div>
+</div>
+
+<!-- Show quiz results div -->
+<script>
+    function quizResults() {
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("quiz-results").style.display = "block";
+    }
+</script>
+
+<!-- Show one question at a time -->
+<script>
+    let currentWord = 1;
+    function move(go_next = 1) {
+            document.getElementById("word" + currentWord).style.display = "none";
+            go_next ? currentWord++ : currentWord--;
+            document.getElementById("word" + currentWord).style.display = "block";
+    }
+</script>
+
+<!-- Check whether the answer is correct or not (ajax request) -->
+<script type="text/javascript">
+    let incorrectlyAnswered = [];
+    let score = 0;
+    
+    $(document).on("submit", '#question-form', function(e) {
+        e.preventDefault();
+        const questionForm = $(this);
+        const questionId = questionForm.find('input[name="question_id"]').val();
+
+        const nextButton = questionForm.find('input[id="btn-next"]');
+        nextButton.removeAttr('disabled');
+        
+        let clickedInput = questionForm.find('input[type="submit"]:focus');
+        clickedInput.addClass('clicked');
+        let answerValue = clickedInput.val();
+        
+        $.ajax({
+            type: "POST",
+            url: questionForm.attr('action'),
+            data: {
+                'question_id': questionId,
+                'answer': answerValue,
+                'csrfmiddlewaretoken': questionForm.find('input[name="csrfmiddlewaretoken"]').val()
+            },
+            success: function (data) {
+                if (data == 'true') {
+                    clickedInput.css('background-color', '#4CAF50');
+                    clickedInput.css('color', 'white');
+
+                    questionForm.find('input[type="submit"]').css('pointer-events', 'none');
+                } else {
+                    clickedInput.css('background-color', '#f44336');
+                    clickedInput.css('color', 'white');
+                    if (!incorrectlyAnswered.includes(questionId)) {
+                        incorrectlyAnswered.push(questionId);
+                    }
+                }
+                clickedInput.removeClass('clicked');
+                score = {{ words|length }} - incorrectlyAnswered.length
+                $('#score').html(score);
+            }
+        })
+    })
+</script>
+
+{% endblock %}
