@@ -1,28 +1,43 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1 class="display-6">Learning Blocks</h1>
-<div class="learning_sections container-fluid">
-  <div class="row">
+<style>
+  body {
+    background-color: aliceblue;
+  }
+</style>
+
+<div class="container-fluid" style="width: 80%; margin-top: 10px; background-color: white;">
+  <h1 class="display-6">Learning Blocks</h1>
+  <div class="row justify-content-center" style="width: 50%;">
+    {% for block in object_list %}
     <div class="col-lg-6 col-xs-12">
       <div class="card-deck mb-1 text-center">
-        {% for block in object_list %}
-        <form method="POST" action="{% url 'run_quiz' %}" style="width: 40%;">
+
+        <form method="POST" action="{% url 'quiz_multi_choice' %}" style="width: 100%;">
           {% csrf_token %}
           <input type="hidden" value="{{ block.slug }}" name="learning_block">
-          <div class="card mb-4 box-shadow" style="margin-bottom: 0.5rem !important;">
-            <div class="card-body">
+          <div class="card mb-4 box-shadow" style="margin-bottom: 0.5rem !important; height: 80px;">
+            <div class="card-body" style="padding: 10px;">
               <i class="fas fa-shield-alt fa-4x com-icon"></i>
-              <h5 class="card-title"><a href="{% url 'block_detail' slug=block.slug %}">{{ block.name }}</a></h5> <!-- Details of the section, what words -->
-              <p class="card-text">{{ block.description }}</p>
-              
-                  <input type='submit' class="btn btn-primary btn-sm" value="Study">
+              <div class="row">
+                <div class="col" style="text-align: left;">
+                  <h6 class="card-title" style="margin-bottom: 0;"><a href="{% url 'block_detail' slug=block.slug %}">{{ block.name }}</a></h5>
+                </div>
+                <div class="col-4" style="text-align: right;">
+                  <input type='submit' class="btn btn-primary btn-sm" value="Quiz">
+                </div>
+              </div>
+              <div class="row">
+                <p class="card-text" style="text-align: left;">{{ block.description }}</p>
               </div>
             </div>
+          </div>
         </form>
-        {% endfor %}
+
       </div>
     </div>
+    {% endfor %}
   </div>
 </div>
 

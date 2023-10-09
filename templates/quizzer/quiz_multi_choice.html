@@ -2,15 +2,17 @@
 {% load static %}
 
 {% block content %}
+
 <style>
-    body {
-        background-color: aliceblue;
-    }
+  body {
+    background-color: aliceblue;
+  }
 </style>
+
 <div id="quiz">
     {% for word in words %}
-        <div class="question" id="word{{ word.pk }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-            <form id="question-form" action="{% url 'check_answer' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
+        <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
+            <form id="question-form" action="{% url 'check_answer_quiz' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
                 {% csrf_token %}
                 <input type="hidden" value="{{ word.pk }}" name="question_id">
                 <span style="text-align: right;">{{ forloop.counter }} / {{ words|length }}</span>
@@ -28,9 +30,9 @@
                     </ol>
                 </div>
 
-                <button type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %}>Previous</button>
+                <input type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
                 {% if not forloop.last %}
-                    <button disabled style='float: right' id="btn-next" type="button" onclick="move()" class="btn btn-primary">Next</button>
+                    <input disabled style='float: right' id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="Next">
                 {% else %}
                     <input type="button" onclick="quizResults()" style='float: right' value="End Quiz" class="btn btn-secondary">
                 {% endif %}
@@ -49,7 +51,7 @@
             <p class="card-text"><h3><span id="score">{{ score }}</span> / {{ words|length }}</h3></p>
             <a href="{% url 'learn' %}">Go to index</a>
         <br>
-            <form method="POST" action="{% url 'run_quiz' %}">
+            <form method="POST" action="{% url 'quiz_multi_choice' %}">
                 {% csrf_token %}
                 <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
                 <input type='submit' class="btn btn-outline-primary" value="Quiz Again" style="margin-top: 10px;">
@@ -77,10 +79,9 @@
     }
 </script>
 
-<!-- Check whether the answer is correct or not. -->
+<!-- Check whether the answer is correct or not (ajax request) -->
 <script type="text/javascript">
     let incorrectlyAnswered = [];
-    console.log(incorrectlyAnswered.length);
     let score = 0;
     
     $(document).on("submit", '#question-form', function(e) {
@@ -88,7 +89,7 @@
         const questionForm = $(this);
         const questionId = questionForm.find('input[name="question_id"]').val();
 
-        const nextButton = questionForm.find('button[id="btn-next"]');
+        const nextButton = questionForm.find('input[id="btn-next"]');
         nextButton.removeAttr('disabled');
         
         let clickedInput = questionForm.find('input[type="submit"]:focus');

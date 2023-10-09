@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
+
 <style>
     li .list-group-item {
         padding: 3;
@@ -10,23 +12,52 @@
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
-            <h class="display-6">{{ learning_block.name }}</h>
-            Mastery level: {{ block_mastery_level|floatformat:2 }} / 6 ~ {{ block_mastery_level_pct }}%
-            <h3 style="color: #1F6F9A;">
-                {{ block_words|length }} words
-            </h>    
-            <br>
-            <form method="POST" action="{% url 'run_quiz' %}">
-                {% csrf_token %}
-                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                <input type='submit' class="btn btn-primary" value="Start Quiz" style="margin-top: 10px;">
-            </form>
+            <div class="row">
+                <div class="col">
+                    <h class="display-6">{{ learning_block.name }}</h>
+                    <h3 style="color: #1F6F9A; margin-bottom: 0;">
+                        {{ block_words|length }} words
+                    </h>
+                    <h6 style="color: green; margin-left: 35px;">
+                        {{ num_learned_words }} learned
+                    </h6>
 
-            <form method="POST" action="">
-                {% csrf_token %}
-                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                <input disabled type='submit' class="btn btn-outline-primary" value="Review" style="margin-top: 10px;">
-            </form>
+                    <!-- Button to quiz_learn -->
+                    <form method="POST" action="{% url 'quiz_learn' %}">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                        <span class="tt" title="You have learned all words in this block!">
+                            <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" {% if num_learned_words == block_words|length %}disabled{% endif %}> 
+                        </span>
+                    </form>
+                    
+                    <!-- Button to quiz_review -->
+                    <form method="POST" action="{% url 'quiz_review' %}">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                        <input type='submit' class="btn btn-success" value="Review" style="margin-top: 10px; color: white;" {% if num_learned_words == 0 %}disabled{% endif %}>
+                    </form>
+
+                    <!-- Button to quiz_multi_choice -->
+                    <form method="POST" action="{% url 'quiz_multi_choice' %}">
+                        {% csrf_token %}
+                        <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                        <input type='submit' class="btn btn-outline-secondary" value="Start Quiz" style="margin-top: 10px;">
+                    </form>
+                    
+                </div>
+                <div class="col-10">
+                    <div class="row">
+                        Mastery level: {{ block_mastery_level|floatformat:2 }} / 6 ~ {{ block_mastery_level_pct|floatformat:1 }}%
+                    </div>
+                    <div class="row">
+                        <div id="ml-chart" class="chart">
+                            {{ ml_chart|json_script:"ml-chart-data" }}
+                            <canvas id="chart" style="max-width: 600px; max-height: 200px;"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
     <div class="card" style="width: 18rem; margin-top: 10px;">
@@ -38,5 +69,50 @@
         </ul>
     </div>
 </div>
+
+<!-- Activate bootstrap tooltips -->
+<script>
+    const tooltips = document.querySelectorAll('.tt')
+    tooltips.forEach(t => {
+      new bootstrap.Tooltip(t)
+    })
+</script>
+
+<!-- Show block mastery chart -->
+<script>
+    let ctx = document.getElementById("chart").getContext("2d");
+    const mlChartData = JSON.parse(document.getElementById("ml-chart-data").textContent);
+
+    let chart = new Chart(ctx, {
+    type: "bar",
+    data: {
+        labels: mlChartData["x"],
+        datasets: [
+            {
+            label: "Number of words",
+            backgroundColor: "#79AEC8",
+            borderColor: "#417690",
+            data: mlChartData["y"]
+            }
+        ]
+    },
+    options: {
+        scales: {
+            x: {
+                title: {
+                    display: true,
+                    text: "Mastery level"
+                }
+            },
+            y: {
+                title: {
+                    display: true,
+                    text: "Number of words"
+                }
+            }
+        }
+    }
+    });
+</script>
 
 {% endblock %}

@@ -7,10 +7,7 @@ class CustomUser(AbstractUser):
         default=False,
         help_text='Designates whether the user is a premium user.'
     )
-    is_active = models.BooleanField(
-        default=False
-    )
-    # token = models.CharField(max_length=36, blank=True)
+    is_active = models.BooleanField(default=False)
     
     def __str__(self):
         return self.username
