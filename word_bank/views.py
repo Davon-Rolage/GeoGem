@@ -1,6 +1,10 @@
 from collections import Counter
 
-from django.views.generic import DetailView, ListView
+from django.contrib.auth.decorators import user_passes_test
+from django.shortcuts import render
+from django.urls import reverse_lazy
+from django.utils.decorators import method_decorator
+from django.views.generic import View, DetailView, ListView
 
 from word_bank.models import Block, WordInfo, UserWord
 
@@ -10,6 +14,14 @@ from .config import MASTERY_LEVELS
 class BlockListView(ListView):
     template_name = 'word_bank/learn.html'
     model = Block
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        blocks = context['object_list']
+        block_fully_learned_list = [block.is_fully_learned(user) for block in blocks]
+        context['block_list'] = zip(blocks, block_fully_learned_list)
+        return context
 
 
 class BlockDetailView(DetailView):
@@ -36,7 +48,9 @@ class BlockDetailView(DetailView):
             context['ml_chart'] = get_ml_chart_data(word_mastery_levels)
             
         else:
-            context['block_mastery_level'], context['block_mastery_level_pct'] = learning_block.get_mastery_level()
+            block_mastery_level = learning_block.get_mastery_level(user=self.request.user)
+            context['block_mastery_level'] = block_mastery_level
+            context['block_mastery_level_pct'] = block_mastery_level / len(MASTERY_LEVELS) * 100
             context['ml_chart'] = get_ml_chart_data()
         
         return context
@@ -52,3 +66,43 @@ def get_ml_chart_data(mastery_levels=None):
     x = sorted(list(mastery_levels_dct.keys()))
     y = list(mastery_levels_dct.values())
     return {'x': x, 'y': y}
+
+
+def staff_member_required(view_func):
+    decorated_view_func = user_passes_test(
+        lambda u: u.is_active and u.is_staff,
+        login_url=reverse_lazy('login')
+    )
+    return decorated_view_func(view_func)
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class EditBlocksView(View):
+    template_name = 'word_bank/blocks_table.html'
+    model = Block
+    
+    def get(self, request):
+        blocks = Block.objects.all()
+        for block in blocks:
+            block.word_count = WordInfo.objects.filter(blocks=block).count()
+        
+        context = {
+            'blocks': blocks
+        }            
+        return render(request, self.template_name, context=context)
+
+
+@method_decorator(staff_member_required, name='dispatch')
+class EditBlockDetailView(DetailView):
+    template_name = 'word_bank/block_edit.html'
+    model = Block
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        learning_block = self.get_object()
+        block_words = WordInfo.objects.filter(blocks=learning_block)
+        
+        context['learning_block'] = learning_block
+        context['block_words'] = block_words
+        
+        return context

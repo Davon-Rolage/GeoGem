@@ -23,21 +23,30 @@ class Block(models.Model):
         self.slug = slugify(self.name)
         super(Block, self).save(*args, **kwargs)
         
-    def get_mastery_level(self, user=None):
-        block_words = UserWord.objects.filter(word__blocks=self, user=user) if user else []
-        mastery_levels = dict(Counter([word.mastery_level for word in block_words]))
-        for level in MASTERY_LEVELS.keys():
-            if level not in mastery_levels:
-                mastery_levels[level] = 0
+    def get_mastery_level(self, user):
+        if user.is_authenticated:
+            block_words = UserWord.objects.filter(word__blocks=self, user=user)
+            mastery_levels = dict(Counter([word.mastery_level for word in block_words]))
+            for level in MASTERY_LEVELS.keys():
+                if level not in mastery_levels:
+                    mastery_levels[level] = 0
 
-        if len(block_words) > 0:
-            numerator = sum(k * v for k, v in mastery_levels.items())
-            denominator = sum(mastery_levels.values())
-            weighted_avg = numerator / denominator
-            
-            return weighted_avg
+            if len(block_words) > 0:
+                numerator = sum(k * v for k, v in mastery_levels.items())
+                denominator = sum(mastery_levels.values())
+                weighted_avg = numerator / denominator
+                
+                return weighted_avg
 
         return 0
+    
+    def is_fully_learned(self, user):
+        if user.is_authenticated:
+            block_words = WordInfo.objects.filter(blocks=self)
+            block_user_words = UserWord.objects.filter(word__blocks=self, user=user)
+            return len(block_words) == len(block_user_words)
+
+        return False
 
 
 class WordInfo(models.Model):

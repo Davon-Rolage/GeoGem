@@ -12,7 +12,7 @@
 <div id="quiz">
     {% for word in words %}
         <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-            <form id="question-form" action="{% url 'check_answer_review' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
+            <form id="question-form" action="{% url 'check_answer_review' %}" method="POST" style='text-align: center; width: 400px; height: 380px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
                 {% csrf_token %}    
                 <input type="hidden" value="{{ word.pk }}" name="question_id">
                 <span style="text-align: right;">{{ forloop.counter }} / {{ words|length }}</span>
@@ -28,6 +28,17 @@
                             {% endfor %}
                         </div>
                     </ol>
+
+                    <span id="span_word_example" style="display: none;">
+                        {% if word.word.example %}
+                            {{ word.word.example }}
+                        {% endif %}
+    
+                        {% if word.word.example_image %}
+                            <img src="{{ word.word.example_image.url }}" alt="example_image" style="max-height: 20px;">
+                        {% endif %}
+                    </span>
+                    <br>
                 </div>
 
                 <input type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
@@ -71,7 +82,7 @@
 
 <!-- Show one question at a time -->
 <script>
-    let currentWord = 1;
+    let currentWord = 1;getElementByTagName
     function move(go_next = 1) {
             document.getElementById("word" + currentWord).style.display = "none";
             go_next ? currentWord++ : currentWord--;
@@ -95,6 +106,8 @@
         let clickedInput = questionForm.find('input[type="submit"]:focus');
         clickedInput.addClass('clicked');
         let answerValue = clickedInput.val();
+
+        const exampleSpan = questionForm.find('span[id="span_word_example"]');
         
         $.ajax({
             type: "POST",
@@ -108,6 +121,8 @@
                 if (data == 'true') {
                     clickedInput.css('background-color', '#4CAF50');
                     clickedInput.css('color', 'white');
+                    exampleSpan.css('display', 'inline');
+
 
                     questionForm.find('input[type="submit"]').css('pointer-events', 'none');
                 } else {

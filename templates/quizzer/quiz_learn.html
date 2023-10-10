@@ -25,12 +25,13 @@
                     </ol>
 
                 {% if word.example %}
-                {{ word.example }}
+                    {{ word.example }}
                 {% endif %}
                 {% if word.example_image %}
-                <img src="{{ word.example_image.url }}" alt="example_image" style="max-height: 20px;">
+                    <img src="{{ word.example_image.url }}" alt="example_image" style="max-height: 20px;">
                 {% endif %}
                 <br>
+                
                 <input type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
                 {% if not forloop.last %}
                     <input type="submit" onclick="move()" style='float: right' class="btn btn-primary" id="btn-next" value="Next">

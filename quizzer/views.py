@@ -6,12 +6,9 @@ from django.views.generic import View
 
 from word_bank.models import Block, UserWord, WordInfo
 
-from .models import Quiz
-
 
 class QuizMultipleChoiceView(View):
     template_name = 'quizzer/quiz_multi_choice.html'
-    model = Quiz
     
     def post(self, request):
         learning_block = request.POST.get('learning_block')
@@ -21,6 +18,8 @@ class QuizMultipleChoiceView(View):
             word.generate_options(block, n_wrong=3)
 
         words = shuffle(list(block_words))
+        if not words:
+            return render(request, "quizzer/quiz_empty.html")
 
         context = {
             'learning_block': block,
@@ -32,7 +31,6 @@ class QuizMultipleChoiceView(View):
 
 class QuizLearnView(View):
     template_name = 'quizzer/quiz_learn.html'
-    model = Quiz
     
     def post(self, request):
         num_questions = 5
@@ -54,7 +52,6 @@ class QuizLearnView(View):
     
 class QuizReviewView(View):
     template_name = 'quizzer/quiz_review.html'
-    model = Quiz
     
     def post(self, request):
         learning_block = request.POST.get('learning_block')
@@ -70,6 +67,8 @@ class QuizReviewView(View):
             review_words.append(word)
         
         words = shuffle(list(review_words))
+        if not words:
+            return render(request, "quizzer/quiz_empty.html")
         
         context = {
             'learning_block': block,
@@ -142,12 +141,18 @@ def add_to_learned(request):
 
 
 def shuffle(words: list, n_questions=None):
+    if len(words) == 0:
+        return 0
+    
     if n_questions is None:
         if len(words) <= 10:
-            n_questions = 2 * len(words)
-            words = 2 * words
+            n_questions, words = 2 * len(words), 2 * words
+        
         else:
             n_questions = len(words)
             
+    elif n_questions > len(words):
+        n_questions = (n_questions // len(words) + 1) * len(words)
+        
     shuffled_words = random.sample(words, n_questions)
     return shuffled_words

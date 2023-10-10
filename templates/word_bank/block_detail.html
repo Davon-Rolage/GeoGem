@@ -18,24 +18,34 @@
                     <h3 style="color: #1F6F9A; margin-bottom: 0;">
                         {{ block_words|length }} words
                     </h>
-                    <h6 style="color: green; margin-left: 35px;">
-                        {{ num_learned_words }} learned
-                    </h6>
+                    {% if user.is_authenticated %}
+                        <h6 style="color: green; margin-left: 35px;">
+                            {{ num_learned_words }} learned
+                        </h6>
+                    {% endif %}
 
                     <!-- Button to quiz_learn -->
                     <form method="POST" action="{% url 'quiz_learn' %}">
                         {% csrf_token %}
                         <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                        <span class="tt" title="You have learned all words in this block!">
-                            <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" {% if num_learned_words == block_words|length %}disabled{% endif %}> 
-                        </span>
+                        {% if not user.is_authenticated %}
+                            <span class="tt" title="Sign in to save your progress">
+                                <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" disabled> 
+                            </span>
+                        {% elif num_learned_words == block_words|length %}
+                            <span class="tt" title="You have learned all words in this block!">
+                                <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" disabled> 
+                            </span>
+                        {% else %}
+                            <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;"> 
+                        {% endif %}
                     </form>
                     
                     <!-- Button to quiz_review -->
                     <form method="POST" action="{% url 'quiz_review' %}">
                         {% csrf_token %}
                         <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                        <input type='submit' class="btn btn-success" value="Review" style="margin-top: 10px; color: white;" {% if num_learned_words == 0 %}disabled{% endif %}>
+                        <input type='submit' class="btn btn-success" value="Review" style="margin-top: 10px; color: white;" {% if num_learned_words == 0 or not user.is_authenticated %}disabled{% endif %}>
                     </form>
 
                     <!-- Button to quiz_multi_choice -->

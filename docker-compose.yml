@@ -1,0 +1,45 @@
+version: '3.9'
+
+services:
+  postgres:
+    build:
+      context: .
+      dockerfile: ./postgres_image/Dockerfile
+    container_name: ${PG_CONTAINER_NAME}
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      PGDATA: ${PGDATA}
+    volumes:
+       - postgres_data_geogem:/data/davon-geogem-postgres
+    restart: unless-stopped
+
+  web:
+    image: davon/geogem
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: ${GEOGEM_CONTAINER_NAME}
+    environment:
+      DJANGO_SECRET_KEY: ${DJANGO_SECRET_KEY}
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      EMAIL_FROM: ${EMAIL_FROM}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      RECAPTCHA_PUBLIC_KEY: ${RECAPTCHA_PUBLIC_KEY}
+      RECAPTCHA_PRIVATE_KEY: ${RECAPTCHA_PRIVATE_KEY}
+
+    volumes:
+      - ./templates:/app/templates
+      - ./static:/app/static
+    ports:
+      - "8005:8000"
+    depends_on:
+      - postgres
+
+volumes:
+    postgres_data_geogem:
+      external: true
