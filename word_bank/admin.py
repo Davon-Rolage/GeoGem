@@ -23,4 +23,3 @@ class UserWordAdmin(admin.ModelAdmin):
 admin.site.register(Block)
 admin.site.register(WordInfo, WordInfoAdmin)
 admin.site.register(UserWord, UserWordAdmin)
-

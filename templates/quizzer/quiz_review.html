@@ -12,29 +12,50 @@
 <div id="quiz">
     {% for word in words %}
         <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-            <form id="question-form" action="{% url 'check_answer_review' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
+            <form id="question-form" action="{% url 'check_answer_review' %}" method="POST" style='position: relative; text-align: center; min-width: 400px; width: fit-content; min-height: 250px; height: fit-content; margin: 0 auto; background-color: white; border-radius: 10px; padding: 10px 20px 50px 20px;'>
                 {% csrf_token %}    
                 <input type="hidden" value="{{ word.pk }}" name="question_id">
                 <span style="text-align: right;">{{ forloop.counter }} / {{ words|length }}</span>
-                <h2 style="margin-bottom: 10px;">{{ word.word.name }}</h2>
+                <br>
+                
+                <span style="font-size: 30px; margin-bottom: 10px;">{{ word.word.name }}</span>
+
+                <!-- Word Audio -->
+                {% if word.word.audio %}
+                    <audio id="audio_{{ word.word.name }}" preload="none" src="{{ word.word.audio.url }}"></audio>
+                    <a href="{{ word.word.audio.url }}" onclick="document.getElementById('audio_{{ word.word.name }}').play(); return false;">
+                        <span style="display: inline-block; font-size: 20px;">&#x1F50A;</span>
+                    </a>
+                {% endif %}
+                    
+                <br>
                 Definition:
                 <div class="question_options" style="margin: 10px auto 10px auto;">
-                    <ol style="padding: 0;">
-                        <div class="col">
-                            {% for option in word.options %}
-                                <div class="row" style="width: 0; margin-left: 0;">
-                                    <p style="margin-bottom: 3px;"><input style="width: 365px;" type="submit" class="btn btn-outline-primary" value="{{ option }}" name="answer"></p>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    </ol>
-                </div>
+                    <div class="col">
+                        {% for option in word.options %}
+                            <div class="row">
+                                <input type="submit" class="btn btn-outline-primary" value="{{ option }}" name="answer" style="margin-bottom: 8px;">
+                            </div>
+                        {% endfor %}
+                    </div>
 
-                <input type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
+                    <span id="span_word_example" style="display: none;">
+                        {% if word.word.example %}
+                            {{ word.word.example }}
+                        {% endif %}
+    
+                        {% if word.word.example_image %}
+                            <img src="{{ word.word.example_image.url }}" alt="example_image" style="max-height: 20px;">
+                        {% endif %}
+                    </span>
+                    <br>
+                </div>
+                
+                <input type="button" onclick="move(0)" class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous" style="position: absolute; bottom: 10px; left: 10px;">
                 {% if not forloop.last %}
-                    <input disabled style='float: right' id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="Next">
+                    <input disabled id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="Next" style="position: absolute; bottom: 10px; right: 10px;">
                 {% else %}
-                    <input type="button" onclick="quizResults()" style='float: right' value="End Quiz" class="btn btn-secondary">
+                    <input type="button" onclick="quizResults()" value="End Quiz" class="btn btn-secondary" style="position: absolute; bottom: 10px; right: 10px;">
                 {% endif %}
             </form>
         </div>
@@ -59,6 +80,41 @@
           
         </div>
       </div>
+
+      <table class="table table-hover">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Audio</th>
+            <th scope="col">Transliteration</th>
+            <th scope="col">Translation</th>
+            <th scope="col">Example</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for word in distinct_words %}
+            {% with word=word.word %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ word.name }}</td>
+                    <td>
+                    {% if word.audio %}
+                        <a href="{{ word.audio.url }}" onclick="document.getElementById('audio_{{ word.name }}').play(); return false;">
+                            <span style="display: inline-block; font-size: 20px;">
+                                &#x1F50A;
+                            </span>
+                        </a>
+                    {% endif %}
+                    </td>
+                    <td>{{ word.transliteration }}</td>
+                    <td>{{ word.translation }}</td>
+                    <td>{% if word.example %}{{ word.example }}{% else %}-{% endif %}</td>
+                </tr>
+            {% endwith %}
+        {% endfor %}
+        </tbody>
+      </table>
 </div>
 
 <!-- Show quiz results div -->
@@ -95,6 +151,8 @@
         let clickedInput = questionForm.find('input[type="submit"]:focus');
         clickedInput.addClass('clicked');
         let answerValue = clickedInput.val();
+
+        const exampleSpan = questionForm.find('span[id="span_word_example"]');
         
         $.ajax({
             type: "POST",
@@ -108,6 +166,8 @@
                 if (data == 'true') {
                     clickedInput.css('background-color', '#4CAF50');
                     clickedInput.css('color', 'white');
+                    exampleSpan.css('display', 'inline');
+
 
                     questionForm.find('input[type="submit"]').css('pointer-events', 'none');
                 } else {

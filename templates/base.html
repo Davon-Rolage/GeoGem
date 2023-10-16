@@ -13,6 +13,12 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
 
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+
+    <style>
+      body {
+        background-color: aliceblue;
+      }
+    </style>
     
   </head>
   <body>
@@ -31,6 +37,9 @@
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'learn' %}">Learn</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'my_words' %}">My Words</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="#">About</a>
@@ -56,6 +65,13 @@
                 </div>
                 {% endif %}
             </li>
+            {% if user.is_staff %}
+              <li>
+                <div class="edit-blocks" style="margin: 15px;">
+                  <a class="btn btn-warning" href="{% url 'blocks_table' %}">Edit blocks</a>
+                </div>
+              </li>
+            {% endif %}
 
           </ul>
         </div>

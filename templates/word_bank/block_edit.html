@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+
+<style>
+    input[type="file"] {
+        display: none;
+    }
+    label[for="file-upload"] {
+        font-size: 40px;
+        font-weight: bold;
+        color: green;
+        border-radius: 5px;
+        cursor: pointer;
+        text-align: right;
+      }
+      
+</style>
+
+<div class="container-fluid" style="padding: 30px;">
+    <h class="display-6">Editing <span style="color: blue; font-weight: bold">{{ learning_block.name }}</span></h>
+    <a type="button" class="btn btn-success" href="/admin/word_bank/wordinfo/?blocks__id__exact={{ learning_block.id }}">Change Block</a>
+
+    <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Name</th>
+            <th scope="col">Image</th>
+            <th scope="col">Audio</th>
+            <th scope="col">Transliteration</th>
+            <th scope="col">Translation</th>
+            <th scope="col">Example</th>
+            <th scope="col">Example Image</th>
+            <th scope="col">Added at</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for word in block_words %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><input type="text" value="{{ word.name }}" class="form-control"></td>
+                <td style="text-align: end;">{{ word.image }} <label for="file-upload">+<input id="file-upload" type="file"></label></td>
+                <td style="text-align: end;">{{ word.audio }} <label for="file-upload">+<input id="file-upload" type="file"></label></td>
+                <td><input type="text" value="{{ word.transliteration }}" class="form-control"></td>
+                <td><input type="text" value="{{ word.translation }}" class="form-control"></td>
+                <td><input type="text" value="{{ word.example }}" class="form-control"></td>
+                <td style="text-align: end;">{{ word.example_image }} <label for="file-upload">+<input id="file-upload" type="file"></label></td>
+                <td>{{ word.added_at }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    
+</div>
+{% endblock %}

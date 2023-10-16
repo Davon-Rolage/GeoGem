@@ -13,29 +13,39 @@
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col">
+                <div class="col-3">
                     <h class="display-6">{{ learning_block.name }}</h>
                     <h3 style="color: #1F6F9A; margin-bottom: 0;">
                         {{ block_words|length }} words
                     </h>
-                    <h6 style="color: green; margin-left: 35px;">
-                        {{ num_learned_words }} learned
-                    </h6>
+                    {% if user.is_authenticated %}
+                        <h6 style="color: green; margin-left: 35px;">
+                            {{ num_learned_words }} learned
+                        </h6>
+                    {% endif %}
 
                     <!-- Button to quiz_learn -->
                     <form method="POST" action="{% url 'quiz_learn' %}">
                         {% csrf_token %}
                         <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                        <span class="tt" title="You have learned all words in this block!">
-                            <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" {% if num_learned_words == block_words|length %}disabled{% endif %}> 
-                        </span>
+                        {% if not user.is_authenticated %}
+                            <span class="tt" title="Sign in to save your progress">
+                                <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" disabled> 
+                            </span>
+                        {% elif num_learned_words == block_words|length %}
+                            <span class="tt" title="You have learned all words in this block!">
+                                <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" disabled> 
+                            </span>
+                        {% else %}
+                            <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;"> 
+                        {% endif %}
                     </form>
                     
                     <!-- Button to quiz_review -->
                     <form method="POST" action="{% url 'quiz_review' %}">
                         {% csrf_token %}
                         <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                        <input type='submit' class="btn btn-success" value="Review" style="margin-top: 10px; color: white;" {% if num_learned_words == 0 %}disabled{% endif %}>
+                        <input type='submit' class="btn btn-success" value="Review" style="margin-top: 10px; color: white;" {% if num_learned_words == 0 or not user.is_authenticated %}disabled{% endif %}>
                     </form>
 
                     <!-- Button to quiz_multi_choice -->
@@ -46,7 +56,7 @@
                     </form>
                     
                 </div>
-                <div class="col-10">
+                <div class="col-9">
                     <div class="row">
                         Mastery level: {{ block_mastery_level|floatformat:2 }} / 6 ~ {{ block_mastery_level_pct|floatformat:1 }}%
                     </div>
@@ -60,14 +70,38 @@
             </div>
         </div>
     </div>
-    <div class="card" style="width: 18rem; margin-top: 10px;">
-        <div class="card-header">List of words</div>
-        <ul class="list-group list-group-flush" style="padding: 7px;">
-            {% for word in block_words %}
-                {{ word.name }}
-            {% endfor %}
-        </ul>
+
+    <div class="row">
+        <div class="col-lg-2 col-sm-12">
+            <!-- List of words block -->
+            <div class="card" style="width: 18rem; margin-top: 10px;">
+                <div class="card-header">List of words</div>
+                <ol class="list-group list-group-flush" style="padding: 7px;">
+                    {% for word in block_words %}
+                        <li style="margin-left: 20px;">
+                            <div class="row">
+                                <div class="col">{{ word.name }}</div>
+                                <div class="col">{{ word.translation }}</div>
+                            </div>
+                        </li>
+                    {% endfor %}
+                </ol>
+            </div>
+        </div>
+
+        <div class="col-lg-6 col-sm-12">
+            <!-- Theory block -->
+            <div class="card" style="width: 100%; margin-top: 10px;">
+                <div class="card-header">Theory</div>
+                <div class="card-body">
+                    <!-- <p class="card-text">{{ learning_block.theory }}</p> -->
+                    <p class="card-text">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Unde sapiente sint temporibus sit sequi, maxime ea asperiores aspernatur at provident recusandae pariatur tenetur ad minima error quo quasi eos, quidem porro voluptatum cum laudantium deserunt. Temporibus numquam velit non aspernatur impedit commodi, sed distinctio atque accusamus amet veniam repellat labore? Esse consequatur eos, optio pariatur ipsum culpa repellat quam consectetur labore deleniti doloremque. Magni quasi odit eius veniam cupiditate, suscipit in neque adipisci quam vitae? Quas a enim quaerat, exercitationem sed cupiditate voluptas aperiam totam facere aut, dolores praesentium aliquid est delectus animi odit voluptates provident vitae assumenda dignissimos. Quibusdam reiciendis tempora doloremque animi odit inventore, maiores culpa dolores facere. Eligendi deleniti esse cupiditate eos odit, laboriosam maiores, pariatur architecto minima, nobis cum quis perferendis quasi consequuntur vel nihil mollitia natus officiis! Labore numquam architecto possimus officiis velit laboriosam tenetur explicabo magni animi reiciendis, consequuntur aperiam voluptas ipsam necessitatibus cumque vel incidunt laborum ipsa tempora non quam? Magnam dolore quibusdam temporibus? Necessitatibus, dolor ut. Ad voluptatibus minima sed voluptatum, numquam ratione doloribus placeat explicabo, optio cumque debitis architecto! Veritatis voluptatibus temporibus, iure quis eaque incidunt velit inventore sunt harum sint accusantium alias, repellat illo nobis ut in libero. Aspernatur, nostrum!</p>
+                </div>
+            </div>
+        </div>
     </div>
+
+
 </div>
 
 <!-- Activate bootstrap tooltips -->

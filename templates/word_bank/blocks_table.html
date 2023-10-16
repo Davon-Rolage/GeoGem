@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container-fluid">
+    <table class="table table-hover table-striped">
+        <thead>
+          <tr>
+            <th scope="col">#</th>
+            <th scope="col">Block</th>
+            <th scope="col">Slug</th>
+            <th scope="col">Word Count</th>
+            <th scope="col">Description</th>
+            <th scope="col">Updated at</th>
+            <th scope="col">Added at</th>
+          </tr>
+        </thead>
+        <tbody>
+        {% for block in blocks %}
+            <tr>
+                <th scope="row">{{ forloop.counter }}</th>
+                <td><a href="{% url 'block_edit' slug=block.slug %}">{{ block.name }}</a></td>
+                <td>{{ block.slug }}</td>
+                <td>{{ block.word_count }}</td>
+                <td>{{ block.description }}</td>
+                <td>{{ block.updated_at }}</td>
+                <td>{{ block.added_at }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+</div>
+{% endblock %}
