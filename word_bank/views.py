@@ -54,8 +54,8 @@ class BlockDetailView(DetailView):
             context['ml_chart'] = get_ml_chart_data()
         
         return context
-    
-    
+
+
 def get_ml_chart_data(mastery_levels=None):
     mastery_levels_dct = dict(Counter(mastery_levels))
     for level in MASTERY_LEVELS.keys():
@@ -106,3 +106,16 @@ class EditBlockDetailView(DetailView):
         context['block_words'] = block_words
         
         return context
+    
+    
+class MyWordsListView(ListView):
+    template_name = 'word_bank/my_words.html'
+    model = UserWord
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        user_words = self.model.objects.filter(user=user).order_by('-added_at') if user.is_authenticated else []
+        context['words'] = user_words
+        return context
+

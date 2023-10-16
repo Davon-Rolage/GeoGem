@@ -39,12 +39,15 @@ class QuizLearnView(View):
         words = WordInfo.objects.filter(blocks=block)
         learned_words = UserWord.objects.filter(word__blocks=block, user=request.user)
         words_to_learn = []
+        
+        # Limit the number of quiz questions to num_questions
         for word in words:
             if (len(words_to_learn) < num_questions) and (not learned_words.filter(word=word).exists()):
                 words_to_learn.append(word)
+                
         context = {
             'learning_block': block,
-            'words': words_to_learn
+            'words': words_to_learn,
         }
 
         return render(request, self.template_name, context=context)
@@ -70,9 +73,11 @@ class QuizReviewView(View):
         if not words:
             return render(request, "quizzer/quiz_empty.html")
         
+        distinct_words = set(words)            
         context = {
             'learning_block': block,
-            'words': words
+            'words': words,
+            'distinct_words': distinct_words,
         }
 
         return render(request, self.template_name, context=context)
@@ -122,6 +127,7 @@ def check_answer_review(request):
         user_word.save()
         
         return HttpResponse(success)
+
 
 def add_to_learned(request):
     if request.method == "POST":

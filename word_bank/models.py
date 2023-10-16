@@ -13,6 +13,7 @@ class Block(models.Model):
     name = models.CharField(max_length=100)
     slug = models.SlugField(null=False, unique=True)
     description = models.TextField(blank=True, null=True)
+    theory = models.TextField(blank=True, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -54,9 +55,9 @@ class WordInfo(models.Model):
     transliteration = models.CharField(max_length=100)
     translation = models.CharField(max_length=100)
     example = models.TextField(blank=True, null=True)
-    example_image = models.ImageField(upload_to='static/images/word_example/', blank=True, null=True)
-    audio = models.FileField(upload_to='media/audio/word/', blank=True, null=True)
-    image = models.ImageField(upload_to='static/images/word/', blank=True, null=True)
+    example_image = models.ImageField(upload_to='images/word_example/', blank=True, null=True)
+    audio = models.FileField(upload_to='audio/word_info/', blank=True, null=True)
+    image = models.ImageField(upload_to='images/word_info/', blank=True, null=True)
     blocks = models.ManyToManyField(Block)
     added_at = models.DateTimeField(auto_now_add=True)
     
