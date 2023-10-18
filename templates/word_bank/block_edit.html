@@ -38,18 +38,34 @@
         {% for word in block_words %}
             <tr>
                 <th scope="row">{{ forloop.counter }}</th>
-                <td><input type="text" value="{{ word.name }}" class="form-control"></td>
-                <td style="text-align: end;">{{ word.image }} <label for="file-upload">+<input id="file-upload" type="file"></label></td>
-                <td style="text-align: end;">{{ word.audio }} <label for="file-upload">+<input id="file-upload" type="file"></label></td>
-                <td><input type="text" value="{{ word.transliteration }}" class="form-control"></td>
-                <td><input type="text" value="{{ word.translation }}" class="form-control"></td>
-                <td><input type="text" value="{{ word.example }}" class="form-control"></td>
-                <td style="text-align: end;">{{ word.example_image }} <label for="file-upload">+<input id="file-upload" type="file"></label></td>
+                <td><input type="text" value="{{ word.name }}" class="form-control editable-field"></td>
+                <td style="text-align: end;">        
+                  {% if word.image %}<img src="{{ word.image.url }}" alt="image" style="max-height: 20px;">{% endif %}
+                  <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label>
+                </td>
+                
+                <!-- Audio column -->
+                <td style="text-align: end;">
+                  {% if word.audio %}
+                    <audio id="audio{{ forloop.counter }}" preload="none" src="{{ word.audio.url }}"></audio>
+                    <a href="{{ word.audio.url }}" onclick="document.getElementById('audio{{ forloop.counter }}').play(); return false;">
+                        <span style="display: inline-block; font-size: 30px;">
+                            &#x1F50A;
+                        </span>
+                    </a>
+                  {% endif %}
+                  <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label>
+                </td>
+
+                <td><input type="text" value="{{ word.transliteration }}" class="form-control editable-field"></td>
+                <td><input type="text" value="{{ word.translation }}" class="form-control editable-field"></td>
+                <td><input type="text" value="{{ word.example }}" class="form-control editable-field"></td>
+                <td style="text-align: end;">{{ word.example_image }} <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label></td>
                 <td>{{ word.added_at }}</td>
+
             </tr>
         {% endfor %}
         </tbody>
       </table>
-    
 </div>
 {% endblock %}

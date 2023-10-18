@@ -83,49 +83,49 @@ class QuizReviewView(View):
         return render(request, self.template_name, context=context)
 
 
+def update_user_word_points(user_answer, correct_answer, user_word):
+    if user_answer == correct_answer:
+        success = 'true'
+        user_word.points = min(100, user_word.points + 1)
+
+    else:
+        success = 'false'
+        user_word.points = max(0, user_word.points - 1)
+        
+    user_word.save()
+    return success
+
+
 def check_answer_quiz(request):
     if request.method == "POST":
-        success = None
         question_id = request.POST.get('question_id')
-        answer = request.POST.get('answer')
         word = WordInfo.objects.get(pk=question_id)
+        
+        user_answer = request.POST.get('answer')
+        correct_answer = word.translation
 
         if request.user.is_authenticated:
             user_word, created = UserWord.objects.get_or_create(
                 user=request.user,
                 word=word
             )
-            if answer == word.translation:
-                success = 'true'
-                user_word.points += 1
-            else:
-                success = 'false'
-                user_word.points -= 1 if user_word.points > 0 else 0
-
-            user_word.save()
+            success = update_user_word_points(user_answer, correct_answer, user_word)
         else:
-            success = 'true' if answer == word.translation else 'false'
+            success = 'true' if user_answer == correct_answer else 'false'
         
         return HttpResponse(success)
 
 
 def check_answer_review(request):
     if request.method == "POST":
-        success = None
         question_id = request.POST.get('question_id')
-        answer = request.POST.get('answer')
         user_word = UserWord.objects.get(pk=question_id, user=request.user)
         word = WordInfo.objects.get(pk=user_word.word_id)
-        
-        if answer == word.translation:
-            success = 'true'
-            user_word.points += 1
-        else:
-            success = 'false'
-            user_word.points -= 1 if user_word.points > 0 else 0
 
-        user_word.save()
-        
+        user_answer = request.POST.get('answer')
+        correct_answer = word.translation
+
+        success = update_user_word_points(user_answer, correct_answer, user_word)
         return HttpResponse(success)
 
 
@@ -150,15 +150,14 @@ def shuffle(words: list, n_questions=None):
     if len(words) == 0:
         return 0
     
+    if len(words) <= 5:
+        n_questions = 5
+    
     if n_questions is None:
-        if len(words) <= 10:
-            n_questions, words = 2 * len(words), 2 * words
-        
-        else:
-            n_questions = len(words)
+        n_questions = 10
             
-    elif n_questions > len(words):
-        n_questions = (n_questions // len(words) + 1) * len(words)
+    if n_questions > len(words):
+        words *= (n_questions // len(words) + 1)
         
     shuffled_words = random.sample(words, n_questions)
     return shuffled_words

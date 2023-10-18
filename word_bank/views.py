@@ -41,7 +41,11 @@ class BlockDetailView(DetailView):
             context['num_learned_words'] = block_user_words.count()
             
             block_mastery_level = learning_block.get_mastery_level(user=self.request.user)
-            context['block_mastery_level'] = block_mastery_level
+
+            bml_whole_part, bml_fractional_part = divmod(block_mastery_level, 1)
+            context['bml_whole_part'] = bml_whole_part
+            context['bml_fractional_part'] = round(bml_fractional_part, 3)
+
             context['block_mastery_level_pct'] = block_mastery_level / len(MASTERY_LEVELS) * 100
 
             word_mastery_levels = block_user_words.values_list('mastery_level', flat=True)
@@ -49,7 +53,6 @@ class BlockDetailView(DetailView):
             
         else:
             block_mastery_level = learning_block.get_mastery_level(user=self.request.user)
-            context['block_mastery_level'] = block_mastery_level
             context['block_mastery_level_pct'] = block_mastery_level / len(MASTERY_LEVELS) * 100
             context['ml_chart'] = get_ml_chart_data()
         
@@ -82,7 +85,7 @@ class EditBlocksView(View):
     model = Block
     
     def get(self, request):
-        blocks = Block.objects.all()
+        blocks = Block.objects.all().order_by('-updated_at')
         for block in blocks:
             block.word_count = WordInfo.objects.filter(blocks=block).count()
         
@@ -109,7 +112,7 @@ class EditBlockDetailView(DetailView):
     
     
 class MyWordsListView(ListView):
-    template_name = 'word_bank/my_words.html'
+    template_name = 'word_bank/user_words.html'
     model = UserWord
     
     def get_context_data(self, **kwargs):
@@ -119,3 +122,18 @@ class MyWordsListView(ListView):
         context['words'] = user_words
         return context
 
+
+class UserBlockDetailView(DetailView):
+    template_name = 'word_bank/user_block_detail.html'
+    model = Block
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        user_words = UserWord.objects.filter(user=user, word__blocks=self.get_object()) if user.is_authenticated else []
+        context = {
+            'learning_block': self.get_object(),
+            'words': user_words,
+        }
+        return context
+    

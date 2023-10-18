@@ -30,7 +30,7 @@
                     
                 <br>
                 Definition:
-                <div class="question_options" style="margin: 10px auto 10px auto;">
+                <div class="question{{ forloop.counter }}_options" style="margin: 10px auto 10px auto;">
                     <div class="col">
                         {% for option in word.options %}
                             <div class="row">
@@ -39,15 +39,18 @@
                         {% endfor %}
                     </div>
 
-                    <span id="span_word_example" style="display: none;">
-                        {% if word.word.example %}
-                            {{ word.word.example }}
-                        {% endif %}
-    
-                        {% if word.word.example_image %}
-                            <img src="{{ word.word.example_image.url }}" alt="example_image" style="max-height: 20px;">
-                        {% endif %}
-                    </span>
+                    <div style="height: 20px;">
+                        <span id="span_word_example" style="display: none;">
+                            {% if word.word.example_image %}
+                                <img src="{{ word.word.example_image.url }}" alt="example_image" style="max-height: 30px;">
+                            {% endif %}
+
+                            {% if word.word.example %}
+                                {{ word.word.example }}
+                            {% endif %}
+                        </span>
+                    </div>
+
                     <br>
                 </div>
                 
@@ -70,9 +73,10 @@
         <div class="card-body">
             <h5 class="card-title">{{ learning_block.name }}</h5>
             <p class="card-text"><h3><span id="score">{{ score }}</span> / {{ words|length }}</h3></p>
+            <p style="font-size: 18px;">Go back to <a href="{% url 'block_detail' slug=learning_block.slug %}" style="text-decoration: none; font-weight: 400;">{{ learning_block.name }}</a></p>
             <a href="{% url 'learn' %}">Go to index</a>
         <br>
-            <form method="POST" action="{% url 'quiz_review' %}">
+            <form method="POST" action="{% url 'quiz_review' %}" class="text-center">
                 {% csrf_token %}
                 <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
                 <input type='submit' class="btn btn-outline-primary" value="Review Again" style="margin-top: 10px;">
@@ -117,28 +121,16 @@
       </table>
 </div>
 
-<!-- Show quiz results div -->
-<script>
-    function quizResults() {
-        document.getElementById("quiz").style.display = "none";
-        document.getElementById("quiz-results").style.display = "block";
-    }
-</script>
-
-<!-- Show one question at a time -->
-<script>
-    let currentWord = 1;
-    function move(go_next = 1) {
-            document.getElementById("word" + currentWord).style.display = "none";
-            go_next ? currentWord++ : currentWord--;
-            document.getElementById("word" + currentWord).style.display = "block";
-    }
-</script>
-
-<!-- Check whether the answer is correct or not (ajax request) -->
-<script type="text/javascript">
+<!-- AJAX request to check whether the answer is correct or not -->
+<script type="text/javascript">    
     let incorrectlyAnswered = [];
     let score = 0;
+    let x, y;
+
+    $(document).on("mouseup", '#question-form', function(e) {
+        x = e.clientX;
+        y = e.clientY;
+    });
     
     $(document).on("submit", '#question-form', function(e) {
         e.preventDefault();
@@ -166,23 +158,55 @@
                 if (data == 'true') {
                     clickedInput.css('background-color', '#4CAF50');
                     clickedInput.css('color', 'white');
+
+                    const audioCorrectAnswer = document.getElementById('audioCorrectAnswer');
+                    audioCorrectAnswer.play();
+
                     exampleSpan.css('display', 'inline');
-
-
                     questionForm.find('input[type="submit"]').css('pointer-events', 'none');
+                                        
+                    x -= 30;
+                    y -= 30;
+                    let div = document.createElement("div");
+                    div.style = "position: absolute; left: " + x + "px; top: " + y + "px;";
+                    div.innerHTML = '<div style="width: 30px; height: 30px; border-radius: 50%; background-color: green; display: flex; justify-content: center; align-items: center;"><span style="color: white; font-size: 16px;">+1</span></div>';
+                    document.body.append(div);
+                    gsap.to(div, {duration: 1, opacity: 0, y: -50, ease: "power1.out", onComplete: function() { div.remove(); }});
+
                 } else {
                     clickedInput.css('background-color', '#f44336');
                     clickedInput.css('color', 'white');
+                    clickedInput.css('pointer-events', 'none');
                     if (!incorrectlyAnswered.includes(questionId)) {
                         incorrectlyAnswered.push(questionId);
                     }
                 }
                 clickedInput.removeClass('clicked');
-                score = {{ words|length }} - incorrectlyAnswered.length
+                score = {{ words|length }} - incorrectlyAnswered.length;
                 $('#score').html(score);
             }
         })
     })
 </script>
+
+<!-- Show quiz results div -->
+<script>
+    function quizResults() {
+        document.getElementById("quiz").style.display = "none";
+        document.getElementById("quiz-results").style.display = "block";
+    }
+</script>
+
+<!-- Show one question at a time -->
+<script>
+    let currentWord = 1;
+    function move(go_next = 1) {
+            document.getElementById("word" + currentWord).style.display = "none";
+            go_next ? currentWord++ : currentWord--;
+            document.getElementById("word" + currentWord).style.display = "block";
+    }
+</script>
+
+
 
 {% endblock %}

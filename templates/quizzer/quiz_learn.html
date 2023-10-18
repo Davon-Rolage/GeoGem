@@ -77,7 +77,7 @@
                 <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
                 <input type='submit' class="btn btn-outline-primary" value="Review" style="margin-top: 10px;">
             </form>
-            
+            <p style="font-size: 18px;">Go back to <a href="{% url 'block_detail' slug=learning_block.slug %}" style="text-decoration: none; font-weight: 400;">{{ learning_block.name }}</a></p>
             <a href="{% url 'learn' %}">Go to index</a>
         </div>
     </div>

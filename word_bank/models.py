@@ -1,4 +1,5 @@
 from collections import Counter
+from datetime import datetime
 import secrets
 
 from django.db import models
@@ -11,7 +12,7 @@ from .config import MASTERY_LEVELS
 
 class Block(models.Model):
     name = models.CharField(max_length=100)
-    slug = models.SlugField(null=False, unique=True)
+    slug = models.SlugField(unique=True, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     theory = models.TextField(blank=True, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
@@ -21,7 +22,8 @@ class Block(models.Model):
         return self.name
     
     def save(self, *args, **kwargs):
-        self.slug = slugify(self.name)
+        if self.slug is None:
+            self.slug = slugify(self.name)
         super(Block, self).save(*args, **kwargs)
         
     def get_mastery_level(self, user):
@@ -64,6 +66,16 @@ class WordInfo(models.Model):
     def __str__(self):
         return f'{self.name} - {self.translation}'
     
+    def block_list(self):
+        return ", ".join([block.slug for block in self.blocks.all()])
+    
+    def has_audio(self):
+        return bool(self.audio)
+    
+    def example_short(self):
+        example_length = len(self.example) if isinstance(self.example, str) else 0
+        return self.example[:15] + '...' if example_length > 15 else self.example
+    
     def generate_options(self, block, n_wrong=3):
         self.options = [self.translation]
         words = WordInfo.objects.filter(blocks=block).exclude(id=self.id)
@@ -82,11 +94,13 @@ class UserWord(models.Model):
     points = models.PositiveIntegerField(default=0)
     mastery_level = models.PositiveBigIntegerField(default=0)
     added_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
         return f'{self.user} - {self.word}'
     
     def save(self, *args, **kwargs):
+        self.updated_at = datetime.now()
         self.mastery_level = max([level for level, threshold in MASTERY_LEVELS.items() if self.points >= threshold] or [0])
         super(UserWord, self).save(*args, **kwargs)
 

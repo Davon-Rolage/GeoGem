@@ -49,6 +49,7 @@
         <div class="card-body">
             <h5 class="card-title">{{ learning_block.name }}</h5>
             <p class="card-text"><h3><span id="score">{{ score }}</span> / {{ words|length }}</h3></p>
+            <p style="font-size: 18px;">Go back to <a href="{% url 'block_detail' slug=learning_block.slug %}" style="text-decoration: none; font-weight: 400;">{{ learning_block.name }}</a></p>
             <a href="{% url 'learn' %}">Go to index</a>
         <br>
             <form method="POST" action="{% url 'quiz_multi_choice' %}">
@@ -79,10 +80,16 @@
     }
 </script>
 
-<!-- Check whether the answer is correct or not (ajax request) -->
-<script type="text/javascript">
+<!-- AJAX request to check whether the answer is correct or not -->
+<script type="text/javascript">    
     let incorrectlyAnswered = [];
     let score = 0;
+    let x, y;
+
+    $(document).on("mouseup", '#question-form', function(e) {
+        x = e.clientX;
+        y = e.clientY;
+    });
     
     $(document).on("submit", '#question-form', function(e) {
         e.preventDefault();
@@ -109,16 +116,29 @@
                     clickedInput.css('background-color', '#4CAF50');
                     clickedInput.css('color', 'white');
 
+                    const audioCorrectAnswer = document.getElementById('audioCorrectAnswer');
+                    audioCorrectAnswer.play();
+
                     questionForm.find('input[type="submit"]').css('pointer-events', 'none');
+                    
+                    x -= 30;
+                    y -= 30;
+                    let div = document.createElement("div");
+                    div.style = "position: absolute; left: " + x + "px; top: " + y + "px;";
+                    div.innerHTML = '<div style="width: 30px; height: 30px; border-radius: 50%; background-color: green; display: flex; justify-content: center; align-items: center;"><span style="color: white; font-size: 16px;">+1</span></div>';
+                    document.body.append(div);
+                    gsap.to(div, {duration: 1, opacity: 0, y: -50, ease: "power1.out", onComplete: function() { div.remove(); }});
+
                 } else {
                     clickedInput.css('background-color', '#f44336');
                     clickedInput.css('color', 'white');
+                    clickedInput.css('pointer-events', 'none');
                     if (!incorrectlyAnswered.includes(questionId)) {
                         incorrectlyAnswered.push(questionId);
                     }
                 }
                 clickedInput.removeClass('clicked');
-                score = {{ words|length }} - incorrectlyAnswered.length
+                score = {{ words|length }} - incorrectlyAnswered.length;
                 $('#score').html(score);
             }
         })

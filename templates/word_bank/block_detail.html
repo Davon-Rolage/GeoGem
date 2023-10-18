@@ -7,13 +7,28 @@
     li .list-group-item {
         padding: 3;
     }
+    .doughnut-chart-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        position: relative;
+    }
+    .doughnut-chart-text {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 65px;
+        font-weight: bold;
+    }
 </style>
 
 <div class="container-fluid">
     <div class="card">
         <div class="card-body">
             <div class="row">
-                <div class="col-3">
+                <div class="col-2">
                     <h class="display-6">{{ learning_block.name }}</h>
                     <h3 style="color: #1F6F9A; margin-bottom: 0;">
                         {{ block_words|length }} words
@@ -34,7 +49,7 @@
                             </span>
                         {% elif num_learned_words == block_words|length %}
                             <span class="tt" title="You have learned all words in this block!">
-                                <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;" disabled> 
+                                <input type='submit' class="btn btn-outline-secondary" value="Learn Words" style="margin-top: 10px;" disabled> 
                             </span>
                         {% else %}
                             <input type='submit' class="btn btn-primary" value="Learn Words" style="margin-top: 10px;"> 
@@ -56,23 +71,36 @@
                     </form>
                     
                 </div>
-                <div class="col-9">
-                    <div class="row">
-                        Mastery level: {{ block_mastery_level|floatformat:2 }} / 6 ~ {{ block_mastery_level_pct|floatformat:1 }}%
-                    </div>
-                    <div class="row">
-                        <div id="ml-chart" class="chart">
-                            {{ ml_chart|json_script:"ml-chart-data" }}
-                            <canvas id="chart" style="max-width: 600px; max-height: 200px;"></canvas>
+                <div class="col-2 text-center">
+                        <!-- Mastery level block -->
+                        <nobr>
+                            <a href="{% url 'user_block_detail' learning_block.slug %}" style="width: fit-content;">Block Mastery Level</a> {{ block_mastery_level_pct|floatformat:1 }}%
+                            <span class="tt" title="Every time you answer a question correctly, you get a point. Incorrect answers decrease points. The more points you have, the higher your mastery level is." style="margin-right: 10px;">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-question-circle" viewBox="0 0 16 16"><path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/><path d="M5.255 5.786a.237.237 0 0 0 .241.247h.825c.138 0 .248-.113.266-.25.09-.656.54-1.134 1.342-1.134.686 0 1.314.343 1.314 1.168 0 .635-.374.927-.965 1.371-.673.489-1.206 1.06-1.168 1.987l.003.217a.25.25 0 0 0 .25.246h.811a.25.25 0 0 0 .25-.25v-.105c0-.718.273-.927 1.01-1.486.609-.463 1.244-.977 1.244-2.056 0-1.511-1.276-2.241-2.673-2.241-1.267 0-2.655.59-2.75 2.286zm1.557 5.763c0 .533.425.927 1.01.927.609 0 1.028-.394 1.028-.927 0-.552-.42-.94-1.029-.94-.584 0-1.009.388-1.009.94z"/></svg>
+                            </span>
+                        </nobr>
+                        
+                        <!-- Doughnut chart -->
+                        <div id="ml-doughnut" class="chart doughnut-chart-container">
+                            {{ bml_fractional_part|json_script:"bml-doughnut-fractional" }}
+                            <canvas id="doughnut" style="max-width: 200px; max-height: 200px;">erter</canvas>
+                            <p class="doughnut-chart-text">{{ bml_whole_part|floatformat:0 }}</p>
                         </div>
+                </div>
+
+                <div class="col-8">
+                    <div id="ml-chart" class="chart">
+                        {{ ml_chart|json_script:"ml-chart-data" }}
+                        <canvas id="chart" style="max-width: 600px; max-height: 200px;"></canvas>
                     </div>
                 </div>
+
             </div>
         </div>
     </div>
 
-    <div class="row">
-        <div class="col-lg-2 col-sm-12">
+    <div class="row justify-content-between">
+            <div class="col-lg-2 col-sm-12">
             <!-- List of words block -->
             <div class="card" style="width: 18rem; margin-top: 10px;">
                 <div class="card-header">List of words</div>
@@ -89,13 +117,12 @@
             </div>
         </div>
 
-        <div class="col-lg-6 col-sm-12">
+        <div class="col-lg-9 col-sm-12">
             <!-- Theory block -->
             <div class="card" style="width: 100%; margin-top: 10px;">
                 <div class="card-header">Theory</div>
                 <div class="card-body">
-                    <!-- <p class="card-text">{{ learning_block.theory }}</p> -->
-                    <p class="card-text">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Unde sapiente sint temporibus sit sequi, maxime ea asperiores aspernatur at provident recusandae pariatur tenetur ad minima error quo quasi eos, quidem porro voluptatum cum laudantium deserunt. Temporibus numquam velit non aspernatur impedit commodi, sed distinctio atque accusamus amet veniam repellat labore? Esse consequatur eos, optio pariatur ipsum culpa repellat quam consectetur labore deleniti doloremque. Magni quasi odit eius veniam cupiditate, suscipit in neque adipisci quam vitae? Quas a enim quaerat, exercitationem sed cupiditate voluptas aperiam totam facere aut, dolores praesentium aliquid est delectus animi odit voluptates provident vitae assumenda dignissimos. Quibusdam reiciendis tempora doloremque animi odit inventore, maiores culpa dolores facere. Eligendi deleniti esse cupiditate eos odit, laboriosam maiores, pariatur architecto minima, nobis cum quis perferendis quasi consequuntur vel nihil mollitia natus officiis! Labore numquam architecto possimus officiis velit laboriosam tenetur explicabo magni animi reiciendis, consequuntur aperiam voluptas ipsam necessitatibus cumque vel incidunt laborum ipsa tempora non quam? Magnam dolore quibusdam temporibus? Necessitatibus, dolor ut. Ad voluptatibus minima sed voluptatum, numquam ratione doloribus placeat explicabo, optio cumque debitis architecto! Veritatis voluptatibus temporibus, iure quis eaque incidunt velit inventore sunt harum sint accusantium alias, repellat illo nobis ut in libero. Aspernatur, nostrum!</p>
+                    <p class="card-text" style="font-size: 24px;">{{ learning_block.theory|safe }}</p>
                 </div>
             </div>
         </div>
@@ -104,20 +131,30 @@
 
 </div>
 
-<!-- Activate bootstrap tooltips -->
+
+<!-- Show block mastery doughnut chart -->
 <script>
-    const tooltips = document.querySelectorAll('.tt')
-    tooltips.forEach(t => {
-      new bootstrap.Tooltip(t)
-    })
+    let ctx = document.getElementById('doughnut').getContext('2d');
+    let bmlDoughnutFractional = JSON.parse(document.getElementById("bml-doughnut-fractional").textContent);
+    bmlDoughnutFractional *= 100;
+
+    let doughnutChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            datasets: [{
+                data: [bmlDoughnutFractional, 100 - bmlDoughnutFractional],
+                backgroundColor: ['#50C878', '#D3D3D3'],
+            }],
+        },
+});
 </script>
 
 <!-- Show block mastery chart -->
 <script>
-    let ctx = document.getElementById("chart").getContext("2d");
+    let ctx2 = document.getElementById("chart").getContext("2d");
     const mlChartData = JSON.parse(document.getElementById("ml-chart-data").textContent);
 
-    let chart = new Chart(ctx, {
+    let chart = new Chart(ctx2, {
     type: "bar",
     data: {
         labels: mlChartData["x"],
