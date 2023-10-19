@@ -1,3 +1,4 @@
+import json
 import random
 
 from django.http import HttpResponse
@@ -37,18 +38,26 @@ class QuizLearnView(View):
         learning_block = request.POST.get('learning_block')
         block = Block.objects.get(slug=learning_block)
         words = WordInfo.objects.filter(blocks=block)
-        learned_words = UserWord.objects.filter(word__blocks=block, user=request.user)
-        words_to_learn = []
-        
-        # Limit the number of quiz questions to num_questions
-        for word in words:
-            if (len(words_to_learn) < num_questions) and (not learned_words.filter(word=word).exists()):
-                words_to_learn.append(word)
-                
-        context = {
-            'learning_block': block,
-            'words': words_to_learn,
-        }
+
+        if request.user.is_authenticated:
+            learned_words = UserWord.objects.filter(word__blocks=block, user=request.user)
+            words_to_learn = []
+            
+            # Limit the number of quiz questions to num_questions
+            for word in words:
+                if (len(words_to_learn) < num_questions) and (not learned_words.filter(word=word).exists()):
+                    words_to_learn.append(word)
+                    
+            context = {
+                'learning_block': block,
+                'words': words_to_learn,
+            }
+
+        else:
+            context = {
+                'learning_block': block,
+                'words': words,
+            }
 
         return render(request, self.template_name, context=context)
     
@@ -83,7 +92,23 @@ class QuizReviewView(View):
         return render(request, self.template_name, context=context)
 
 
-def update_user_word_points(user_answer, correct_answer, user_word):
+def update_user_word_points(user_answer, correct_answer, user_word) -> str:
+    """
+    Update the points of a user word based on the user's answer and the correct answer.
+
+    Parameters:
+    - user_answer (str): The user's answer to the word.
+    - correct_answer (str): The correct answer to the word.
+    - user_word (UserWord): The user word object.
+
+    Returns:
+    - str: The success status of the update ('true' or 'false').
+
+    Remarks:
+    - If the user's answer matches the correct answer, the user's word points will be incremented by 1, capped at 100.
+    - If the user's answer does not match the correct answer, the user's word points will be decremented by 1, capped at 0.
+    - The updated user word object will be saved to the database.
+    """
     if user_answer == correct_answer:
         success = 'true'
         user_word.points = min(100, user_word.points + 1)
@@ -103,6 +128,7 @@ def check_answer_quiz(request):
         
         user_answer = request.POST.get('answer')
         correct_answer = word.translation
+        example_span = ''
 
         if request.user.is_authenticated:
             user_word, created = UserWord.objects.get_or_create(
@@ -113,7 +139,14 @@ def check_answer_quiz(request):
         else:
             success = 'true' if user_answer == correct_answer else 'false'
         
-        return HttpResponse(success)
+        json_data = json.dumps([
+            {
+                'success': success,
+                'example_span': example_span,
+            }
+        ]) 
+        
+        return HttpResponse(json_data)
 
 
 def check_answer_review(request):
@@ -126,7 +159,30 @@ def check_answer_review(request):
         correct_answer = word.translation
 
         success = update_user_word_points(user_answer, correct_answer, user_word)
-        return HttpResponse(success)
+        example_span = populate_example_span(success, word)
+                
+        json_data = json.dumps([
+            {
+                'success': success,
+                'example_span': example_span,
+            }
+        ])   
+        return HttpResponse(json_data)
+
+
+def populate_example_span(success, word):
+    example_span = ''
+    if success == 'true':
+        word_example = word.example if word.example else None
+        word_example_image = word.example_image.url if word.example_image else None
+        
+        if word_example_image:
+            example_span += f'<img src="{ word.example_image.url }" alt="example_image" style="max-height: 30px;"> '
+        
+        if word_example:
+            example_span += word.example
+        
+    return example_span
 
 
 def add_to_learned(request):
