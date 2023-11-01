@@ -3,13 +3,8 @@
 
 {% block content %}
 
-<style>
-  body {
-    background-color: aliceblue;
-  }
-</style>
-
 <div id="quiz">
+    <input type="hidden" id="num_questions" value="{{ words|length }}">
     {% for word in words %}
         <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
             <form id="question-form" action="{% url 'check_answer_review' %}" method="POST" style='position: relative; text-align: center; min-width: 400px; width: fit-content; min-height: 250px; height: fit-content; margin: 0 auto; background-color: white; border-radius: 10px; padding: 10px 20px 50px 20px;'>
@@ -40,14 +35,8 @@
                     </div>
 
                     <div style="height: 20px;">
-                        <span id="span_word_example" style="display: none;">
-                            {% if word.word.example_image %}
-                                <img src="{{ word.word.example_image.url }}" alt="example_image" style="max-height: 30px;">
-                            {% endif %}
-
-                            {% if word.word.example %}
-                                {{ word.word.example }}
-                            {% endif %}
+                        <span id="span_word_example" style="display: inline;">
+                            <!-- AJAX populates it -->
                         </span>
                     </div>
 
@@ -121,92 +110,7 @@
       </table>
 </div>
 
-<!-- AJAX request to check whether the answer is correct or not -->
-<script type="text/javascript">    
-    let incorrectlyAnswered = [];
-    let score = 0;
-    let x, y;
-
-    $(document).on("mouseup", '#question-form', function(e) {
-        x = e.clientX;
-        y = e.clientY;
-    });
-    
-    $(document).on("submit", '#question-form', function(e) {
-        e.preventDefault();
-        const questionForm = $(this);
-        const questionId = questionForm.find('input[name="question_id"]').val();
-
-        const nextButton = questionForm.find('input[id="btn-next"]');
-        nextButton.removeAttr('disabled');
-        
-        let clickedInput = questionForm.find('input[type="submit"]:focus');
-        clickedInput.addClass('clicked');
-        let answerValue = clickedInput.val();
-
-        const exampleSpan = questionForm.find('span[id="span_word_example"]');
-        
-        $.ajax({
-            type: "POST",
-            url: questionForm.attr('action'),
-            data: {
-                'question_id': questionId,
-                'answer': answerValue,
-                'csrfmiddlewaretoken': questionForm.find('input[name="csrfmiddlewaretoken"]').val()
-            },
-            success: function (data) {
-                if (data == 'true') {
-                    clickedInput.css('background-color', '#4CAF50');
-                    clickedInput.css('color', 'white');
-
-                    const audioCorrectAnswer = document.getElementById('audioCorrectAnswer');
-                    audioCorrectAnswer.play();
-
-                    exampleSpan.css('display', 'inline');
-                    questionForm.find('input[type="submit"]').css('pointer-events', 'none');
-                                        
-                    x -= 30;
-                    y -= 30;
-                    let div = document.createElement("div");
-                    div.style = "position: absolute; left: " + x + "px; top: " + y + "px;";
-                    div.innerHTML = '<div style="width: 30px; height: 30px; border-radius: 50%; background-color: green; display: flex; justify-content: center; align-items: center;"><span style="color: white; font-size: 16px;">+1</span></div>';
-                    document.body.append(div);
-                    gsap.to(div, {duration: 1, opacity: 0, y: -50, ease: "power1.out", onComplete: function() { div.remove(); }});
-
-                } else {
-                    clickedInput.css('background-color', '#f44336');
-                    clickedInput.css('color', 'white');
-                    clickedInput.css('pointer-events', 'none');
-                    if (!incorrectlyAnswered.includes(questionId)) {
-                        incorrectlyAnswered.push(questionId);
-                    }
-                }
-                clickedInput.removeClass('clicked');
-                score = {{ words|length }} - incorrectlyAnswered.length;
-                $('#score').html(score);
-            }
-        })
-    })
-</script>
-
-<!-- Show quiz results div -->
-<script>
-    function quizResults() {
-        document.getElementById("quiz").style.display = "none";
-        document.getElementById("quiz-results").style.display = "block";
-    }
-</script>
-
-<!-- Show one question at a time -->
-<script>
-    let currentWord = 1;
-    function move(go_next = 1) {
-            document.getElementById("word" + currentWord).style.display = "none";
-            go_next ? currentWord++ : currentWord--;
-            document.getElementById("word" + currentWord).style.display = "block";
-    }
-</script>
-
-
+<script src="{% static 'js/quiz.js' %}"></script>
+<script src="{% static 'js/quiz_interact.js' %}"></script>
 
 {% endblock %}

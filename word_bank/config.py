@@ -8,6 +8,7 @@ MASTERY_LEVELS = {
     5: 40,
     6: 70,
 }
+LEVEL_INCREMENT = 1 / (len(MASTERY_LEVELS) - 1)
 
 georgian_syllables = [
     ("ბა", "ba"), ("ბე", "be"), ("ბი", "bi"), ("ბო", "bo"), ("ბუ", "bu"),

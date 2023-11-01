@@ -7,7 +7,7 @@ from django.template.defaultfilters import slugify
 
 from accounts.models import CustomUser
 
-from .config import MASTERY_LEVELS
+from .config import MASTERY_LEVELS, LEVEL_INCREMENT
 
 
 class Block(models.Model):
@@ -28,17 +28,27 @@ class Block(models.Model):
         
     def get_mastery_level(self, user):
         if user.is_authenticated:
-            block_words = UserWord.objects.filter(word__blocks=self, user=user)
-            mastery_levels = dict(Counter([word.mastery_level for word in block_words]))
-            for level in MASTERY_LEVELS.keys():
-                if level not in mastery_levels:
-                    mastery_levels[level] = 0
-
-            if len(block_words) > 0:
-                numerator = sum(k * v for k, v in mastery_levels.items())
-                denominator = sum(mastery_levels.values())
-                weighted_avg = numerator / denominator
+            block_user_words = UserWord.objects.filter(word__blocks=self, user=user)
+            if block_user_words.count() > 0:
+                num_block_words = WordInfo.objects.filter(blocks=self).count()
                 
+                block_mastery_levels = {}
+                for level, threshold in MASTERY_LEVELS.items():
+                    block_mastery_levels[level] = threshold * num_block_words
+                
+                user_points = 0
+                for user_word in block_user_words:
+                    user_points += user_word.points
+                
+                user_word_levels = Counter([user_word.mastery_level for user_word in block_user_words])
+                for level in MASTERY_LEVELS.keys():
+                    if level not in user_word_levels:
+                        user_word_levels[level] = 0
+                        
+                numerator = sum(lvl * lvl_count for lvl, lvl_count in user_word_levels.items())
+                denominator = num_block_words
+                
+                weighted_avg = numerator / denominator
                 return weighted_avg
 
         return 0

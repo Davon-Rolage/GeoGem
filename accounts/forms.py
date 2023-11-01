@@ -19,24 +19,32 @@ class CustomUserCreationForm(UserCreationForm):
         
     username = forms.CharField(required=True, max_length=15, widget=forms.TextInput(
         attrs={
-            'class': 'form-control border-info placeicon',
-            'placeholder': mark_safe('&#xf007; &nbsp; Username'),
+            'class': 'form-control',
+            'placeholder': 'Username',
+            'aria-label': 'Username',
+            'aria-describedby': 'basic-addon1',
             }))
     email = forms.EmailField(required=True, widget=forms.EmailInput(
         attrs={
-            'class': 'form-control border-info placeicon',
-            'placeholder': mark_safe('&#xf0e0; &nbsp; Email'),
+            'class': 'form-control',
+            'placeholder': 'Email',
+            'aria-label': 'Email',
+            'aria-describedby': 'basic-addon1',
         }
     ))
     password1 = forms.CharField(required=True, widget=forms.PasswordInput(
         attrs={
-            'class': 'form-control border-info placeicon',
-            'placeholder': mark_safe('&#xf084; &nbsp; Enter password...'),
+            'class': 'form-control',
+            'placeholder': 'Enter password...',
+            'aria-label': 'Password',
+            'aria-describedby': 'basic-addon1',
             }))
     password2 = forms.CharField(required=True, widget=forms.PasswordInput(
         attrs={
-            'class': 'form-control border-info placeicon',
-            'placeholder': mark_safe('&#xf084; &nbsp; Confirm password...'),
+            'class': 'form-control',
+            'placeholder': 'Confirm password...',
+            'aria-label': 'Password',
+            'aria-describedby': 'basic-addon1',
         }
     ))
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())
@@ -97,14 +105,14 @@ class CustomUserLoginForm(forms.Form):
         
     username = forms.CharField(required=True, max_length=15, widget=forms.TextInput(
         attrs={
-            'class': 'form-control border-info placeicon',
-            'placeholder': mark_safe('&#xf007; &nbsp; Username'),
+            'class': 'form-control',
+            'placeholder': ' Username',
         }
     ))
     password = forms.CharField(required=True, widget=forms.PasswordInput(
         attrs={
-            'class': 'form-control border-info placeicon',
-            'placeholder': mark_safe('&#xf084; &nbsp; Enter password...'),
+            'class': 'form-control',
+            'placeholder': 'Enter password...',
         }
     ))
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())

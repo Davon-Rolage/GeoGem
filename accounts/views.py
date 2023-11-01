@@ -8,7 +8,6 @@ from django.utils.translation import gettext as _
 from django.views.generic import DeleteView, View
 
 from accounts.models import MyProfile
-# from poetry_translation.models import Poem
 
 from .forms import CustomUserCreationForm, CustomUserLoginForm
 from .models import CustomUser
@@ -68,7 +67,7 @@ def activate(request, uidb64, token):
     
 
 def activate_email(request, user, to_email):
-    mail_subject = _('Confirm your account on Poetriumph')
+    mail_subject = _('Confirm your account on GeoGem')
     message = render_to_string('accounts/activate_email.html', {
         'user': user.username,
         'domain': get_current_site(request).domain,
