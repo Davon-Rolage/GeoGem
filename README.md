@@ -16,7 +16,7 @@ POSTGRES_USER='your_postgres_db_user'
 POSTGRES_PASSWORD='postgres_db_password'
 PG_CONTAINER_NAME='postgres_container_name'
 GEOGEM_CONTAINER_NAME='site_container_name'
-PGDATA='/data/geogeom-postgres'
+PGDATA='/data/geogem-postgres'
 
 EMAIL_FROM='email_from'
 EMAIL_HOST_USER='your_email_host_user'
