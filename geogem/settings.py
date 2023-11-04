@@ -47,7 +47,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-ROOT_URLCONF = 'geo_gem.urls'
+ROOT_URLCONF = 'geogem.urls'
 
 TEMPLATES = [
     {
@@ -65,7 +65,7 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'geo_gem.wsgi.application'
+WSGI_APPLICATION = 'geogem.wsgi.application'
 
 
 # Database
