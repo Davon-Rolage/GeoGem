@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'captcha',
     'word_bank',
     'quizzer',
+    'django_dump_load_utf8',
 ]
 
 MIDDLEWARE = [
@@ -79,8 +80,8 @@ DATABASES = {
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': os.environ.get('POSTGRES_HOST'),
-        'PORT': 5432,
-    }
+        'PORT': 5432
+    },
 }
 
 

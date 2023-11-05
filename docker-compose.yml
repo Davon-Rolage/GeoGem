@@ -2,6 +2,7 @@ version: '3.9'
 
 services:
   postgres:
+    image: geogem/postgres
     build:
       context: .
       dockerfile: ./postgres_image/Dockerfile
