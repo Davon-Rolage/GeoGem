@@ -19,10 +19,10 @@ EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = []
-TRUSTED_ORIGINS = []
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS')
+TRUSTED_ORIGINS = os.environ.get('TRUSTED_ORIGINS')
 
 
 INSTALLED_APPS = [
@@ -78,7 +78,7 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': '127.0.0.1',
+        'HOST': os.environ.get('POSTGRES_HOST'),
         'PORT': 5432,
     }
 }
