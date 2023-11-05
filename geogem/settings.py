@@ -21,8 +21,8 @@ EMAIL_USE_TLS = True
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', False)
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS')
-TRUSTED_ORIGINS = os.environ.get('TRUSTED_ORIGINS')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
+TRUSTED_ORIGINS = os.environ.get('TRUSTED_ORIGINS', '').split(',')
 
 
 INSTALLED_APPS = [
