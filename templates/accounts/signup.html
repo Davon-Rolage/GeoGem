@@ -1,113 +1,140 @@
 {% extends "base.html" %}
+{% load static %}
 {% load i18n %}
 
-{% block title %}Sign Up{% endblock %}
 {% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-social/5.1.1/bootstrap-social.css">
 
-<style>
-  .row {
-    margin-bottom: 10px;
-  }
-</style>
-
-<div class="container-md">
+<div class="container-fluid">
     <div class="row justify-content-center">
       <div class="col-12 col-md-9 col-lg-7 col-xl-6">
-        <div class="container bg-white rounded mt-2 mb-2 px-0" style="border-radius: 10px !important;">
+        <div class="container bg-white">
 
           <!-- Register title -->
-          <div class="pt-3" style="text-align: center;">
-            <h1><strong>{% trans "Register" %}</strong></h1>
+          <div class="row pt-2 text-center">
+            <h1><strong>{{ gui_messages.register }}</strong></h1>
           </div>
 
-          <div class="pt-3 pb-3" style="display: flex; justify-content: center; align-items: center;">
-            <form method="post">
-              {% csrf_token %}
+          <form id="form-signup" method="post">
+            {% csrf_token %}
+            <!-- Username input -->
+            <div class="row my-2 justify-content-center">
+              <div class="col-10 col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fa-solid fa-user"></i></span>
+                  <div class="form-floating">
+                    {{ form.username }}
+                    <input type="hidden" id="url-check-username" value="{% url 'check_username_exists' %}">
+                    <label for="floatingInputGroupUsername">{{ gui_messages.username }}</label>
+                  </div>
 
-              <!-- Username input -->
-              <div class="input-group mb-3 form-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-person" viewBox="0 0 16 16"><path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/></svg></span>
+                  <div class="col-12">
+                    <span id="username-taken-error" class="text-danger display-none">{{ gui_messages.username_taken }}</span>
+                  </div>
+
                 </div>
-                {{ form.username }}
-              </div>
-              {% for error in form.username.errors %}
-                <p class="text-danger">{{ error }}</p>
-              {% endfor %}
 
-              <!-- Email input -->
-              <div class="input-group mb-3 form-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16"><path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4Zm2-1a1 1 0 0 0-1 1v.217l7 4.2 7-4.2V4a1 1 0 0 0-1-1H2Zm13 2.383-4.708 2.825L15 11.105V5.383Zm-.034 6.876-5.64-3.471L8 9.583l-1.326-.795-5.64 3.47A1 1 0 0 0 2 13h12a1 1 0 0 0 .966-.741ZM1 11.105l4.708-2.897L1 5.383v5.722Z"/></svg></span>
+                <div class="col-12">
+                  {% for error in form.username.errors %}
+                  <span class="text-danger">{{ error }}</span>
+                  {% endfor %}
                 </div>
-                {{ form.email }}
-              </div>
-              {% for error in form.email.errors %}
-                <p class="text-danger">{{ error }}</p>
-              {% endfor %}
 
-              <!-- Password Input -->
-              <div class="input-group mb-3 form-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16"><path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z"/><path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></span>
+              </div>
+            </div>
+
+            <!-- Email input -->
+            <div class="row my-2 justify-content-center">
+              <div class="col-10 col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fa-solid fa-envelope fa-sm"></i></span>
+                  <div class="form-floating">
+                    {{ form.email }}
+                    <label for="floatingInputGroupEmail">{{ gui_messages.email }}</label>
+                  </div>
+
+                  <div class="col-12">
+                    {% for error in form.email.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                    {% endfor %}
+                  </div>
+
                 </div>
-                {{ form.password1 }}
               </div>
-              {% for error in form.password1.errors %}
-                <p class="text-danger">{{ error }}</p>
-              {% endfor %}
+            </div>
 
-              <!-- Password confirmation input -->
-              <div class="input-group mb-3 form-group">
-                <div class="input-group-prepend">
-                  <span class="input-group-text" id="basic-addon1"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="25" fill="currentColor" class="bi bi-key" viewBox="0 0 16 16"><path d="M0 8a4 4 0 0 1 7.465-2H14a.5.5 0 0 1 .354.146l1.5 1.5a.5.5 0 0 1 0 .708l-1.5 1.5a.5.5 0 0 1-.708 0L13 9.207l-.646.647a.5.5 0 0 1-.708 0L11 9.207l-.646.647a.5.5 0 0 1-.708 0L9 9.207l-.646.647A.5.5 0 0 1 8 10h-.535A4 4 0 0 1 0 8zm4-3a3 3 0 1 0 2.712 4.285A.5.5 0 0 1 7.163 9h.63l.853-.854a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.646-.647a.5.5 0 0 1 .708 0l.646.647.793-.793-1-1h-6.63a.5.5 0 0 1-.451-.285A3 3 0 0 0 4 5z"/><path d="M4 8a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/></svg></span>
+            <!-- Password Input -->
+            <div class="row my-2 justify-content-center">
+              <div class="col-10 col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                  <div class="form-floating">
+                    {{ form.password1 }}
+                    <label for="floatingInputGroupPassword1">{{ gui_messages.password }}</label>
+                  </div>
+
+                  <div class="col-12">
+                    <span class="text-danger">{{ form.password1.errors.0 }}</span>
+                  </div>
+
                 </div>
-                {{ form.password2 }}
               </div>
-              {% for error in form.password2.errors %}
-                <p class="text-danger">{{ error }}</p>
-              {% endfor %}
+            </div>
 
-              <!-- CAPTCHA Checkbox -->
-							<div class="form-group row px-3">
-								<div class="col-9 px-0">
-									{{ form.captcha }}
-								</div>
-							</div>
-              {% if form.captcha.errors %}
-                <div class="alert alert-danger" role="alert">
-                  {{ form.captcha.errors.1 }}
+            <!-- Password repeat input -->
+            <div class="row my-2 justify-content-center">
+              <div class="col-10 col-md-6">
+                <div class="input-group">
+                  <span class="input-group-text"><i class="fa-solid fa-lock"></i></span>
+                  <div class="form-floating">
+                    {{ form.password2 }}
+                    <label for="floatingInputGroupPassword2">{{ gui_messages.password_repeat }}</label>
+                  </div>
+
+                  <div class="col-12">
+                    <span class="text-danger">{{ form.password2.errors.0 }}</span>
+                  </div>
+
                 </div>
-              {% endif %}
-
-
-              <!-- Register button -->
-              <div class="form-group text-center">
-                  <input type="submit" value="{% trans 'Register' %}" class="btn btn-block btn-info shadow-none" style="width: fit-content; color: white;">
               </div>
+            </div>
 
-            </form>
+            <!-- CAPTCHA Checkbox -->
+            <div class="row justify-content-center">
+              <div class="col-10 col-md-6">
+                <div class="form-group">
+                  {{ form.captcha }}
+                </div>
+                
+                <div class="col-12 my-2">
+                  {% if form.captcha.errors %}
+                    <div class="alert alert-danger" role="alert">
+                      {{ form.captcha.errors.1 }}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
 
-          </div>
+            <!-- Register button -->
+            <div class="row justify-content-center text-center">
+              <div class="col-6">
+                <input type="submit" value="{{ gui_messages.register_button }}" class="btn btn-primary shadow-none">
+              </div>
+            </div>
+
+          </form>
+
 
           <!-- Sign in now -->
-          <div class="pt-2 text-center">
-              <h5>{% trans "Already have an account?" %} <span><a href="{% url 'login' %}" class="text-danger">{% trans "Sign in now!" %}</a></span></h5>
+          <div class="row my-3 justify-content-center text-center">
+            <h5>{{ gui_messages.already_have_account }} <span><a href="{% url 'login' %}" class="text-danger">{{ gui_messages.sign_in_now }}</a></span></h5>
           </div>
 
+          <!-- Registration requirements -->
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">{% trans 'Registration prerequisites' %}</h5>
-              <ul>
-                <li>{% trans 'Only latin letters are allowed.' %}</li>
-                <li>{% trans 'Username must contain only letters, digits and' %} @ . + - _</li>
-                <li>{% trans 'Username must be at least 3 characters and no more than 15.' %}</li>
-                <li>{% trans "Your password can't be too similar to your other personal information." %}</li>
-                <li>{% trans 'Your password must contain at least 8 characters.' %}</li>
-                <li>{% trans "Your password can't be a commonly used password." %}</li>
-                <li>{% trans "Your password can't be entirely numeric." %}</li>
-              </ul>
+              <h5 class="card-title">{{ gui_messages.registration_requirements }}</h5>
+              <ul>{{ gui_messages.registration_requirements_text|safe }}</ul>
             </div>
           </div>
 
@@ -115,4 +142,7 @@
       </div>
     </div>
 </div>
+
+<script src="{% static 'js/signup.js' %}"></script>
+
 {% endblock %}

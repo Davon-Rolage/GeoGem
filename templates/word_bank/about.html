@@ -1,0 +1,16 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+<div class="container-wrapper">
+    <div class="container-fluid container-about-us p-4">
+        <h class="display-6">{{ gui_messages.about_geogem }}</h>
+        <p>{{ gui_messages.about_geogem_text }}</p>
+        <p>
+            {{ gui_messages.source_code }}
+            <a href="https://github.com/Davon-Rolage/GeoGem" target="_blank"><img class="image-github mx-2" src="{% static 'images/logo_github.png' %}">Davon-Rolage</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

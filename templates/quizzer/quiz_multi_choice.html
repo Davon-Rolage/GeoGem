@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div id="quiz">
+<div id="quiz" class="container-wrapper">
     <input type="hidden" id="num_questions" value="{{ words|length }}">
     {% for word in words %}
         <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>

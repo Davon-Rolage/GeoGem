@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<div id="quiz">
+<div id="quiz" class="container-wrapper">
     {% for word in words %}
         <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
             <form id="question-form" action="{% url 'add_to_learned' %}" method="POST" style='text-align: center; min-width: 400px; width: fit-content; min-height: 450px; height: fit-content; margin: 0 auto; background-color: white; border-radius: 10px; padding: 10px 20px 50px 20px;'>
@@ -17,9 +17,7 @@
                 {% if word.audio %}
                     <audio id="audio{{ forloop.counter }}" preload="none" src="{{ word.audio.url }}"></audio>
                     <a href="{{ word.audio.url }}" onclick="document.getElementById('audio{{ forloop.counter }}').play(); return false;">
-                        <span style="display: inline-block; font-size: 50px;">
-                            &#x1F50A;
-                        </span>
+                        <i class="fa-regular fa-circle-play"></i>
                     </a>
                 {% endif %}
                 </col>

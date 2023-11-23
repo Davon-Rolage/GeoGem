@@ -1,8 +1,10 @@
 {% extends "base.html" %}
 {% block content %}
-<div class="container-fluid" style="margin: 0 auto; width: 50%; padding: 20px; background-color: white;">
-    <span style="font-size: 30px; margin-bottom: 10px;">Nobody here but us chickens.</span>
-    <br>
-    <a href="{% url 'learn' %}"><input type="button" class="btn btn-primary btn-lg" value="Return to index page"></a>
+<div class="wrapper">
+    <div class="container-fluid text-center p-2 bg-white">
+        <span class="mb-2">Nobody here but us chickens.</span>
+        <br>
+        <a href="{% url 'learn' %}"><input type="button" class="btn btn-primary btn-lg" value="Return to index page"></a>
+    </div>
 </div>
 {% endblock %}

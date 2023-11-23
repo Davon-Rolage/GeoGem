@@ -5,6 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import View
 
+from geogem.gui_messages import GUI_MESSAGES
 from word_bank.models import Block, UserWord, WordInfo
 
 
@@ -23,6 +24,7 @@ class QuizMultipleChoiceView(View):
             return render(request, "quizzer/quiz_empty.html")
 
         context = {
+            'gui_messages': GUI_MESSAGES['base'],
             'learning_block': block,
             'words': words
         }
@@ -58,7 +60,7 @@ class QuizLearnView(View):
                 'learning_block': block,
                 'words': words,
             }
-
+        context['gui_messages'] = GUI_MESSAGES['base']
         return render(request, self.template_name, context=context)
     
     
@@ -84,6 +86,7 @@ class QuizReviewView(View):
         
         distinct_words = set(words)            
         context = {
+            'gui_messages': GUI_MESSAGES['base'],
             'learning_block': block,
             'words': words,
             'distinct_words': distinct_words,

@@ -17,7 +17,7 @@ services:
     restart: unless-stopped
 
   web:
-    image: davon/geogem
+    image: newa/geogem
     build:
       context: .
       dockerfile: ./Dockerfile

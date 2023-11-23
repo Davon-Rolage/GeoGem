@@ -1,37 +1,22 @@
 {% extends "base.html" %}
 {% block content %}
 
-<style>
-    input[type="file"] {
-        display: none;
-    }
-    label[for="file-upload"] {
-        font-size: 40px;
-        font-weight: bold;
-        color: green;
-        border-radius: 5px;
-        cursor: pointer;
-        text-align: right;
-      }
-      
-</style>
-
-<div class="container-fluid" style="padding: 30px;">
-    <h class="display-6">Editing <span style="color: blue; font-weight: bold">{{ learning_block.name }}</span></h>
+<div class="container-fluid p-3">
+    <h class="display-6">Editing <span class="edit-block-name">{{ learning_block.name }}</span></h>
     <a type="button" class="btn btn-success" href="/admin/word_bank/wordinfo/?blocks__id__exact={{ learning_block.id }}">Change Block</a>
 
-    <table class="table table-hover table-striped">
+    <table class="table table-striped">
         <thead>
           <tr>
             <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Image</th>
-            <th scope="col">Audio</th>
-            <th scope="col">Transliteration</th>
-            <th scope="col">Translation</th>
-            <th scope="col">Example</th>
-            <th scope="col">Example Image</th>
-            <th scope="col">Added at</th>
+            <th scope="col">{{ gui_messages.title_word_name }}</th>
+            <th scope="col">{{ gui_messages.title_image }}</th>
+            <th scope="col">{{ gui_messages.title_audio }}</th>
+            <th scope="col">{{ gui_messages.title_transliteration }}</th>
+            <th scope="col">{{ gui_messages.title_translation }}</th>
+            <th scope="col">{{ gui_messages.title_example }}</th>
+            <th scope="col">{{ gui_messages.title_example_image }}</th>
+            <th scope="col">{{ gui_messages.title_added_at }}</th>
           </tr>
         </thead>
         <tbody>
@@ -39,19 +24,17 @@
             <tr>
                 <th scope="row">{{ forloop.counter }}</th>
                 <td><input type="text" value="{{ word.name }}" class="form-control editable-field"></td>
-                <td style="text-align: end;">        
-                  {% if word.image %}<img src="{{ word.image.url }}" alt="image" style="max-height: 20px;">{% endif %}
+                <td class="text-end">        
+                  {% if word.image %}<img src="{{ word.image.url }}" class="img-in-table" alt="image">{% endif %}
                   <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label>
                 </td>
                 
                 <!-- Audio column -->
-                <td style="text-align: end;">
+                <td class="text-end">
                   {% if word.audio %}
                     <audio id="audio{{ forloop.counter }}" preload="none" src="{{ word.audio.url }}"></audio>
                     <a href="{{ word.audio.url }}" onclick="document.getElementById('audio{{ forloop.counter }}').play(); return false;">
-                        <span style="display: inline-block; font-size: 30px;">
-                            &#x1F50A;
-                        </span>
+                        <i class="fa-regular fa-circle-play"></i>
                     </a>
                   {% endif %}
                   <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label>
@@ -60,7 +43,7 @@
                 <td><input type="text" value="{{ word.transliteration }}" class="form-control editable-field"></td>
                 <td><input type="text" value="{{ word.translation }}" class="form-control editable-field"></td>
                 <td><input type="text" value="{{ word.example }}" class="form-control editable-field"></td>
-                <td style="text-align: end;">{{ word.example_image }} <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label></td>
+                <td class="text-end">{{ word.example_image }} <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label></td>
                 <td>{{ word.added_at }}</td>
 
             </tr>

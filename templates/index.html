@@ -3,20 +3,19 @@
 
 {% block content %}
 
-<div class="container-fluid">
-</div>
-
-<div class="card text-center">
-  <div class="card-header">
-    Featured
-  </div>
-  <div class="card-body">
-    <h5 class="card-title">Learn New Words</h5>
-    <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
-    <a href="{% url 'learn' %}"><input type="button" class="btn btn-success btn-lg" value="Learn"></a>
-  </div>
-  <div class="card-footer text-muted">
-    ...
+<div class="container-wrapper">
+  <div class="card text-center">
+    <div class="card-header">
+      Featured
+    </div>
+    <div class="card-body">
+      <h5 class="card-title">Learn New Words</h5>
+      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+      <a href="{% url 'learn' %}"><input type="button" class="btn btn-success btn-lg" value="Learn"></a>
+    </div>
+    <div class="card-footer text-muted">
+      ...
+    </div>
   </div>
 </div>
 

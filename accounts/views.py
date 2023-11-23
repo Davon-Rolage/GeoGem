@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, get_user_model
+from django.contrib.auth import authenticate, login, logout
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -8,78 +8,49 @@ from django.utils.translation import gettext as _
 from django.views.generic import DeleteView, View
 
 from accounts.models import MyProfile
+from geogem.gui_messages import GUI_MESSAGES
+from word_bank.models import UserWord
 
 from .forms import CustomUserCreationForm, CustomUserLoginForm
 from .models import CustomUser
-from .tokens import account_activation_token
-
-from django.template.loader import render_to_string
-from django.contrib.sites.shortcuts import get_current_site
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
-from django.utils.encoding import force_bytes, force_str
-from django.core.mail import EmailMessage
-from django.contrib.auth.views import LogoutView
+from .utils import *
 
 
 class IndexView(View):
     template_name = 'index.html'
     
     def get(self, request):
-        return render(request, self.template_name)
+        context = {
+            'gui_messages': GUI_MESSAGES['base'],
+        }
+        return render(request, self.template_name, context)
 
 
 class SignUpView(View):
     template_name = 'accounts/signup.html'
-    
+    form_class = CustomUserCreationForm
+        
     def get(self, request):
-        form = CustomUserCreationForm()
-        return render(request, self.template_name, {'form': form})
+        form = self.form_class()
+        context = {
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'form': form
+        }
+        return render(request, self.template_name, context)
     
     def post(self, request):
-        form = CustomUserCreationForm(request.POST)
+        form = self.form_class(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             user.save()
             activate_email(request, user, form.cleaned_data.get('email'))
             return HttpResponseRedirect(reverse('home'))
-     
-        return render(request, self.template_name, {'form': form})
-    
-    
-def activate(request, uidb64, token):
-    User = get_user_model()
-    try:
-        uid = force_str(urlsafe_base64_decode(uidb64))
-        user = User.objects.get(pk=uid)
-    except:
-        user = None
-    
-    if user is not None and account_activation_token.check_token(user, token):
-        user.is_active = True
-        user.save()
-        
-        messages.success(request, _('Thank you for confirming your email. You can now log in to your account.'))
-        return HttpResponseRedirect(reverse('login'))
-    else:
-        messages.error(request, _('Activation link is invalid!'))
-    
-    return HttpResponseRedirect(reverse('home'))
-    
 
-def activate_email(request, user, to_email):
-    mail_subject = _('Confirm your account on GeoGem')
-    message = render_to_string('accounts/activate_email.html', {
-        'user': user.username,
-        'domain': get_current_site(request).domain,
-        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
-        'token': account_activation_token.make_token(user),
-        'protocol': 'https' if request.is_secure() else 'http'
-    })
-    email = EmailMessage(mail_subject, message, to=[to_email])
-    if email.send():
-        messages.success(request, _(f'<b>{user}</b>, please check your email <b>{to_email}</b> to activate your account.'))
-    else:
-        messages.error(request, _(f'Problem sending email to <b>{to_email}</b>, please try again.'))
+        context = {
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'form': form
+        }
+        return render(request, self.template_name, context)
 
 
 class LoginView(View):
@@ -87,7 +58,11 @@ class LoginView(View):
     
     def get(self, request):
         form = CustomUserLoginForm()
-        return render(request, self.template_name, {'form': form})
+        context = {
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'form': form
+        }
+        return render(request, self.template_name, context)
     
     def post(self, request):
         form = CustomUserLoginForm(request.POST)
@@ -99,22 +74,29 @@ class LoginView(View):
                 login(request, user)
                 return HttpResponseRedirect(reverse('home'))
             
-        return render(request, self.template_name, {'form': form})
-    
+        context = {
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'form': form
+        }
+        return render(request, self.template_name, context)
 
-class LogoutView(LogoutView):
-    next_page = reverse_lazy('home')
+
+def logout_view(request):
+    logout(request)
+    return HttpResponseRedirect(reverse('home'))
 
 
 class MyProfileView(View):
-    template_name = 'poetry_translation/my_profile.html'
+    template_name = 'accounts/my_profile.html'
     model = MyProfile
     
     def get(self, request):
-        # total_poems = Poem.objects.filter(saved_by=request.user).count()
+        total_words = UserWord.objects.filter(user=request.user).count()
+        
         context = {
-            'model': self.model,
-            # 'total_poems': total_poems,
+            'total_words': total_words,
+            'gui_messages': GUI_MESSAGES['base']
+                          | GUI_MESSAGES['my_profile'],
         }
         return render(request, self.template_name, context=context)
 
@@ -122,7 +104,7 @@ class MyProfileView(View):
 class DeleteUserView(SuccessMessageMixin, DeleteView):
     model = CustomUser
     success_url = reverse_lazy('home')    
-    success_message = _('The user has been successfully deleted.')
+    success_message = GUI_MESSAGES['messages']['user_deleted']
 
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
