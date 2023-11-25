@@ -22,12 +22,12 @@
 
                 {% for word in words %}
                     <div class="question position-relative" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-                        <form class="question_form_review px-4 py-3 bg-white rounded-3" action="{% url 'check_answer_review' %}" method="POST">
+                        <form class="question_form_multiple_choice px-4 py-3 bg-white rounded-3" action="{% url 'check_answer_multiple_choice' %}" method="POST">
                             {% csrf_token %}
 
                             {% if request.user.is_staff %}
                                 <!-- Go to results (for debug purposes) -->
-                                <button type="button" class="btn btn-warning position-absolute top-0 end-0" type="button" onclick="quizResults('review')">Go to results</button>
+                                <button type="button" class="btn btn-warning position-absolute top-0 end-0" type="button" onclick="quizResults('multiple_choice')">Go to results</button>
                             {% endif %}
 
                             <input type="hidden" value="{{ word.pk }}" name="question_id">
@@ -38,15 +38,7 @@
                             <div class="row">
                                 <!-- Word name -->
                                 <div class="col text-center">
-                                    <span class="word_name">{{ word.word.name }}</span>
-                                    
-                                    <!-- Word Audio -->
-                                    {% if word.word.audio %}
-                                    <audio id="audio_{{ word.word.name }}" preload="none" src="{{ word.word.audio.url }}"></audio>
-                                    <a href="{{ word.word.audio.url }}" onclick="document.getElementById('audio_{{ word.word.name }}').play(); return false;">
-                                        <i class="fa-regular fa-circle-play"></i>
-                                    </a>
-                                    {% endif %}
+                                    <span class="word_name">{{ word.name }}</span>
                                 </div>
                             </div>
                             <div class="row my-3 fs-5">Definition:</div>
@@ -57,13 +49,6 @@
                                         <input type="submit" class="btn btn-outline-primary text-start px-2 fs-5" value="{{ option }}" name="answer">
                                     </div>
                                 {% endfor %}
-                            </div>
-
-                            <!-- Word example -->
-                            <div class="row my-3">
-                                <span id="span_word_example" class="word_example">
-                                    <!-- AJAX populates it -->
-                                </span>
                             </div>
                             
                             <!-- Navigation buttons -->
@@ -78,7 +63,7 @@
                                         <input disabled id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="Next">
                                     {% else %}
                                         <!-- Button end quiz -->
-                                        <input type="button" onclick="quizResults('review')" value="End Quiz" class="btn btn-secondary">
+                                        <input type="button" onclick="quizResults('multiple_choice')" value="End Quiz" class="btn btn-secondary">
                                     {% endif %}
                                 </div>
                             </div>

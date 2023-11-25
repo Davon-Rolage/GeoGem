@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.mail import EmailMessage
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseRedirect, JsonResponse
 from django.template.loader import render_to_string
 from django.urls import reverse
 from django.utils.encoding import force_bytes, force_str
@@ -17,10 +17,8 @@ from .tokens import account_activation_token
 def check_username_exists(request):
     if request.method == 'GET':
         username = request.GET.get('username')
-        if CustomUser.objects.filter(username=username).exists():
-            return HttpResponse('true')
-        else:
-            return HttpResponse('false')
+        exists = CustomUser.objects.filter(username=username).exists()
+        return JsonResponse({'exists': exists})
     
     
 def activate(request, uidb64, token):
@@ -45,7 +43,7 @@ def activate(request, uidb64, token):
 
 def activate_email(request, user, to_email):
     mail_subject = GUI_MESSAGES['messages']['email_subject']
-    message = render_to_string('registration/activate_email.html', {
+    message = render_to_string('accounts/activate_email.html', {
         'user': user.username,
         'domain': get_current_site(request).domain,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),

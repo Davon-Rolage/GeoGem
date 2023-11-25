@@ -32,7 +32,7 @@
     
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a href="{% url 'learn' %}">
-          <img class="logo" src="{% static 'images/logo.png' %}" alt="logo">
+          <img class="logo mx-3" src="{% static 'images/logo.png' %}" alt="logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -65,9 +65,11 @@
             <li class="nav-item">
               <a class="nav-link" href="{% url 'learn' %}">{{ gui_messages.learn }}</a>
             </li>
+            {% if user.is_authenticated %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'user_words' %}">{{ gui_messages.my_words }}</a>
             </li>
+            {% endif %}
             <li class="nav-item">
               <a class="nav-link" href="{% url 'about' %}">{{ gui_messages.about }}</a>
             </li>
@@ -76,20 +78,15 @@
               <a class="nav-link" href="{% url 'premium' %}">{{ gui_messages.premium }}</a>
             </li>
             <li>
-              <div class="user_authentication text-center">
+              <div class="ms-5 text-center">
                 {% if user.is_authenticated %}
-                  <span class="row my-1 justify-content-center">
-                    {{ gui_messages.greetings }} {% if user.is_premium %}<img id="premium-badge-icon" class="gx-0 mx-1" src="{% static 'images/badges/badge_premium.png' %}" alt="premium_badge">{% endif %}
-                    {{ user.username }}!
-                  </span>
+
+                  {{ gui_messages.greetings }} {% if user.is_premium %}<img id="premium-badge-icon" src="{% static 'images/badges/badge_premium.png' %}" alt="premium_badge">{% endif %}
+                  {{ user.username }}!
                   
                   <a href="{% url 'my_profile' %}">{{ gui_messages.my_profile }}</a>
                   ·
                   <a href="{% url 'logout' %}">{{ gui_messages.logout }}</a>
-                
-                  {% if user.is_staff %}
-                    <a href="/admin/">&#9881;{{ gui_messages.admin_panel }}</a>
-                  {% endif %}
     
                 {% else %}
                 <div class="login_register my-2">
@@ -100,11 +97,28 @@
                 {% endif %}
             </li>
             {% if user.is_staff %}
-              <li>
-                <div class="edit-blocks">
-                  <a class="btn btn-warning" href="{% url 'blocks_table' %}">Edit blocks</a>
+              <div class="row ms-5 p-1 border align-items-center">
+                <div class="col-auto">
+                  <a class="text-decoration-none" href="/admin/">&#9881;{{ gui_messages.admin_panel }}</a>
                 </div>
-              </li>
+                <div class="col-auto">
+                  <a class="btn btn-outline-warning" href="{% url 'blocks_table' %}">Edit blocks</a>
+                </div>
+                
+                <!-- Reset test block -->
+                <div class="col-auto">
+                  <form id="form_reset_test_block" action="{% url 'reset_test_block' %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-warning">
+                      &#128465; Reset test block
+                      <span class="icon-success">
+                        <i id="check-icon" class="fa-solid fa-check"></i>
+                      </span>
+                    </button>
+                  </form>
+                </div>
+
+              </div>
             {% endif %}
 
           </ul>
@@ -113,7 +127,7 @@
 
     <!-- Alerts -->
     {% for message in messages %}
-      <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show text-center" role="alert">
+      <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %} alert-dismissible fade show text-center m-1" role="alert">
         {{ message|safe }}
         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>
@@ -125,7 +139,7 @@
     {% endblock %}
 
     <footer class="ps-3 pt-3 ms-3">
-      <p>&copy; 2023 GeoGem, <a href="https://newa.fun" target="_blank">Newa Fun</a>. {{ gui_messages.copyright }}</p>
+      <p>&copy; 2023 GeoGem, <a href="https://newa.fun" target="_blank">Newa Fun</a></p>
     </footer>
 
 </body>

@@ -1,0 +1,16 @@
+.word_name {
+    font-size: 40px;
+}
+
+.word_example {
+    display: inline;
+    height: 20px;
+}
+
+.card-text-go-back {
+    font-size: 18px;
+}
+
+.example_image {
+    max-height: 30px;
+}

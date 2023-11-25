@@ -1,3 +1,24 @@
+<div align = "center">
+
+<img src="./static/images/logo.png"></img>
+
+<p>Unearth the Hidden Gems of Georgian Language and Culture</p>
+
+[![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
+
+</div>
+
+
+# Description
+Learn Georgian language with this django/python project.
+
+
+# Test User Experience
+Here are test user login credentials:
+> Username: TestUserGeogem<br>
+> Password: 5xPzUpKFZiQcHRa
+
+
 # Installation
 1. Create a virtual environment and activate it:
 ```
@@ -29,6 +50,7 @@ RECAPTCHA_PRIVATE_KEY='your_recaptcha_private_key'
 
 ALLOWED_HOSTS=127.0.0.1
 CSRF_TRUSTED_ORIGINS=http://127.0.0.1
+DEBUG=1
 ```
 3. Make migrations and migrate:
 ```
@@ -40,11 +62,3 @@ python manage.py migrate
 ```
 python manage.py runserver
 ```
-
-# Test User Experience
-If you want to test out user experience, here are test user credentials:
-> Username: TestUser <br>
-> Password: 68ZpXQ2CqQ
-
-# Beta version
-This project is in its very early stage, so there's still lots to add, remove and update.

@@ -3,139 +3,96 @@
 
 {% block content %}
 
-<div id="quiz" class="container-wrapper">
-    {% for word in words %}
-        <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-            <form id="question-form" action="{% url 'add_to_learned' %}" method="POST" style='text-align: center; min-width: 400px; width: fit-content; min-height: 450px; height: fit-content; margin: 0 auto; background-color: white; border-radius: 10px; padding: 10px 20px 50px 20px;'>
-                {% csrf_token %}
-                <input type="hidden" value="{{ word.pk }}" name="question_id">
-                <span style="text-align: right;">{{ forloop.counter }} / {{ words|length }}</span>
-                <br>
+<link rel="stylesheet" href="{% static 'css/quiz.css' %}">
+
+<div class="container-wrapper overflow-hidden">
+    <div class="row justify-content-center">
+        <div class="col-sm-12 col-md-3">
+            
+            <h1>{{ learning_block.name }}</h1>
+            
+            <div id="quiz">
                 
-                <col><span style="font-size: 80px; margin-bottom: 10px;">{{ word.name }}</span></col>
-                <col>
-                {% if word.audio %}
-                    <audio id="audio{{ forloop.counter }}" preload="none" src="{{ word.audio.url }}"></audio>
-                    <a href="{{ word.audio.url }}" onclick="document.getElementById('audio{{ forloop.counter }}').play(); return false;">
-                        <i class="fa-regular fa-circle-play"></i>
-                    </a>
-                {% endif %}
-                </col>
-                <br>
-                {% if word.image %}
-                <img src="{{ word.image.url }}" alt="image" style="max-height: 100px;">
-                <br>
-                {% endif %}
-                <ol style="padding: 0;">
-                    <div class="col">
-                        <span style="font-size: 60px;">{{ word.translation }}</span>
+                {% with num_questions=words|length %}
+                    {{ num_questions|json_script:"num_questions" }}
+                {% endwith %}
+                
+                {% with current_learning_block=learning_block.slug %}
+                    {{ current_learning_block|json_script:"learning_block" }}
+                {% endwith %}
+
+                {% for word in words %}
+                    <div class="question position-relative" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
+                        <form class="question_form_learn px-4 py-3 bg-white rounded-3" action="{% url 'add_to_learned' %}" method="POST">
+                            {% csrf_token %}
+
+                            <input type="hidden" value="{{ word.pk }}" name="question_id">
+                            <div class="row justify-content-center fs-5">
+                                {{ forloop.counter }} / {{ words|length }}
+                            </div>
+                            
+                            <div class="row">
+                                <!-- Word name -->
+                                <div class="col text-center">
+                                    <span class="fs-1">{{ word.name }}</span>
+                                    
+                                    <!-- Word Audio -->
+                                    {% if word.audio %}
+                                    <audio id="audio_{{ word.name }}" preload="none" src="{{ word.audio.url }}"></audio>
+                                    <a href="{{ word.audio.url }}" onclick="document.getElementById('audio_{{ word.name }}').play(); return false;">
+                                        <i class="fa-regular fa-circle-play"></i>
+                                    </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            <!-- Word translation -->
+                            <div class="row">
+                                <div class="col text-center">
+                                    <span class="fs-1">{{ word.translation }}</span>
+                                </div>
+                            </div>
+
+                            <!-- Word example -->
+                            <div class="row my-3">
+                                {% if word.example %}
+                                    {{ word.example }}
+                                {% endif %}
+                                {% if word.example_image %}
+                                    <img src="{{ word.example_image.url }}" alt="example_image" style="max-height: 20px;">
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Navigation buttons -->
+                            <div class="row justify-content-between">
+                                <!-- Button back -->
+                                <div class="col text-start p-0">
+                                    <input type="button" onclick="move(0)" class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
+                                </div>
+                                <div class="col text-end p-0">
+                                    {% if not forloop.last %}
+                                        <!-- Button next -->
+                                        <input id="btn-next" type="submit" onclick="move()" class="btn btn-primary" value="Next">
+                                    {% else %}
+                                        <!-- Button end quiz -->
+                                        <input type="hidden" name="is_last" value="true">
+                                        <input type="submit" value="End Quiz" class="btn btn-secondary">
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </form>
                     </div>
-                </ol> 
+                {% endfor %}
 
-                {% if word.example %}
-                    {{ word.example }}
-                {% endif %}
-                {% if word.example_image %}
-                    <img src="{{ word.example_image.url }}" alt="example_image" style="max-height: 20px;">
-                {% endif %}
-                <br>
-                
-                <!-- Navigation Buttons -->
-                <div class="navigation-buttons" style="margin-top: 20px;">
-                    <input type="button" onclick="move(0)" style='float: left;' class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
-                    {% if not forloop.last %}
-                    <input type="submit" onclick="move()" style='float: right' class="btn btn-primary" id="btn-next" value="Next">
-                    {% else %}
-                    <input type="submit" onclick="quizResults()" style='float: right' value="End Quiz" class="btn btn-secondary">
-                    {% endif %}
-                </div>
-
-            </form>
-        </div>
-    {% endfor %}
-</div>
-
-
-<!-- Quiz Results -->
-<div class="container-fluid" id="quiz-results" style="display: none; width: 50%; margin: 0 auto;">
-    <h2 style="margin-bottom: 20px">Results</h2>
-    <div class="card" style="width: 18rem; margin: 0 auto 20px;">
-        <div class="card-body">
-            <div class="row">
-                <h5 class="card-title">{{ learning_block.name }}</h5>
+                <!-- Quiz results form -->
+                <form hidden id="form-results" action="{% url 'quiz_results' %}" method="POST">
+                    {% csrf_token %}
+                </form>
             </div>
-            <form method="POST" action="{% url 'quiz_review' %}" style="margin-bottom: 10px;">
-                {% csrf_token %}
-                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                {% if user.is_authenticated %}
-                    <input type='submit' class="btn btn-outline-primary" value="Review" style="margin-top: 10px;">
-                {% endif %}
-            </form>
-            <p style="font-size: 18px;">Go back to <a href="{% url 'block_detail' slug=learning_block.slug %}" style="text-decoration: none; font-weight: 400;">{{ learning_block.name }}</a></p>
-            <a href="{% url 'learn' %}">Go to index</a>
         </div>
     </div>
-
-    <table class="table table-hover">
-        <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">Name</th>
-            <th scope="col">Audio</th>
-            <th scope="col">Transliteration</th>
-            <th scope="col">Translation</th>
-            <th scope="col">Example</th>
-          </tr>
-        </thead>
-        <tbody>
-        {% for word in words %}
-            <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td>{{ word.name }}</td>
-                <td>
-                    {% if word.audio %}
-                        <a href="{{ word.audio.url }}" onclick="document.getElementById('audio{{ forloop.counter }}').play(); return false;">
-                            <span style="display: inline-block; font-size: 20px;">
-                                &#x1F50A;
-                            </span>
-                        </a>
-                    {% endif %}
-                </td>
-                <td>{{ word.transliteration }}</td>
-                <td>{{ word.translation }}</td>
-                <td>{% if word.example %}{{ word.example }}{% else %}-{% endif %}</td>
-            </tr>
-        {% endfor %}
-        </tbody>
-      </table>
-    
 </div>
 
 <script src="{% static 'js/quiz.js' %}"></script>
-
-<!-- Add a word to learned words -->
-<script type="text/javascript">
-    $(document).on("submit", '#question-form', function(e) {
-        e.preventDefault();
-        const questionForm = $(this);
-        const questionId = questionForm.find('input[name="question_id"]').val();
-        
-        $.ajax({
-            type: "POST",
-            url: questionForm.attr('action'),
-            data: {
-                'question_id': questionId,
-                'csrfmiddlewaretoken': questionForm.find('input[name="csrfmiddlewaretoken"]').val()
-            },
-            success: function (data) {
-                if (data == 'true') {
-                    // do something if success == 'true'
-                } else {
-                    // do something if success != 'true'
-                }
-            }
-        })
-    })
-</script>
 
 {% endblock %}

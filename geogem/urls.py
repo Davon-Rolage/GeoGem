@@ -15,8 +15,5 @@ urlpatterns += i18n_patterns(
     path('', include('accounts.urls')),
     path('learn/', include('word_bank.urls')),
     path('quizzer/', include('quizzer.urls')),
-
-    path('premium/', PremiumView.as_view(), name='premium'),
-    path('get-premium/', GetPremiumView.as_view(), name='get_premium'),
-    path('cancel-premium/', CancelPremiumView.as_view(), name='cancel_premium'),
+    path('__debug__/', include('debug_toolbar.urls')),
 ) + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

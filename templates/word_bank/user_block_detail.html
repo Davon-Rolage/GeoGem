@@ -1,50 +1,54 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 {% if user.is_authenticated %}
-<div class="container-fluid px-5 py-4">
-    <h class="display-6">{{ learning_block.name }}</h>
-    <table class="table table-hover my-2">
-        <thead>
-            <tr>
-            <th scope="col">#</th>
-            <th scope="col">{{ gui_messages.title_word_name }}</th>
-            <th scope="col">{{ gui_messages.title_word_audio }}</th>
-            <th scope="col">{{ gui_messages.title_points }}</th>
-            <th scope="col">{{ gui_messages.title_level }}</th>
-            <th scope="col">{{ gui_messages.title_transliteration }}</th>
-            <th scope="col">{{ gui_messages.title_translation }}</th>
-            <th scope="col">{{ gui_messages.title_example }}</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% for word in words %}
+<div class="container-wrapper">
+    <div class="container-fluid px-5 py-4">
+        <h class="display-6">{{ learning_block.name }}</h>
+        <table class="table table-hover my-2">
+            <thead>
                 <tr>
-                    <th scope="row">{{ forloop.counter }}</th>
-                    <td>{{ word.word.name }}</td>
-                    <td>
-                        {% if word.word.audio %}
-                            <audio id="audio_{{ word.word.name }}" preload="none" src="{{ word.word.audio.url }}"></audio>
-                            <a href="{{ word.word.audio.url }}" onclick="document.getElementById('audio_{{ word.word.name }}').play(); return false;">
-                                <i class="fa-regular fa-circle-play"></i>
-                            </a>
-                        {% endif %}
-                    </td>
-                    <td>{{ word.points }}</td>
-                    <td>{{ word.mastery_level }}</td>
-                    <td>{{ word.word.transliteration }}</td>
-                    <td>{{ word.word.translation }}</td>
-                    <td>{% if word.word.example %}{{ word.word.example }}{% else %}-{% endif %}</td>
+                <th scope="col">#</th>
+                <th scope="col">{{ gui_messages.title_word_name }}</th>
+                <th scope="col">{{ gui_messages.title_word_audio }}</th>
+                <th scope="col">{{ gui_messages.title_points }}</th>
+                <th scope="col">{{ gui_messages.title_level }}</th>
+                <th scope="col">{{ gui_messages.title_transliteration }}</th>
+                <th scope="col">{{ gui_messages.title_translation }}</th>
+                <th scope="col">{{ gui_messages.title_example }}</th>
                 </tr>
-            {% endfor %}
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                {% for word in words %}
+                    <tr>
+                        <th scope="row">{{ forloop.counter }}</th>
+                        <td>{{ word.word.name }}</td>
+                        <td>
+                            {% if word.word.audio %}
+                                <audio id="audio_{{ word.word.name }}" preload="none" src="{{ word.word.audio.url }}"></audio>
+                                <a href="{{ word.word.audio.url }}" onclick="document.getElementById('audio_{{ word.word.name }}').play(); return false;">
+                                    <i class="fa-regular fa-circle-play"></i>
+                                </a>
+                            {% endif %}
+                        </td>
+                        <td>{{ word.points }}</td>
+                        <td>{{ word.mastery_level }}</td>
+                        <td>{{ word.word.transliteration }}</td>
+                        <td>{{ word.word.translation }}</td>
+                        <td>{% if word.word.example %}{{ word.word.example }}{% else %}-{% endif %}</td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
 </div>
 {% else %}
-    <div class="container-fluid">
-        <div class="alert alert-info" role="alert">
-            Nobody here but us chickens. Please <a href="{% url 'login' %}">log in</a>
-        </div>
+<div class="container-wrapper">
+    <div class="alert alert-info m-3" role="alert">
+        Nobody here but us chickens. Please <a href="{% url 'login' %}">log in</a>
     </div>
+</div>
 {% endif %}
+
 {% endblock %}

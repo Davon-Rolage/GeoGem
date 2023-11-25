@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
+
 {% if user.is_authenticated %}
 <div class="container-wrapper">
     <div class="container-fluid px-5 py-4">
@@ -44,11 +45,10 @@
 </div>
 {% else %}
 <div class="container-wrapper">
-    <div class="container-fluid">
-        <div class="alert alert-info" role="alert">
-            Nobody here but us chickens. Please <a href="{% url 'login' %}">log in</a>
-        </div>
+    <div class="alert alert-info m-3" role="alert">
+        Nobody here but us chickens. Please <a href="{% url 'login' %}">log in</a>
     </div>
 </div>
 {% endif %}
+
 {% endblock %}

@@ -9,8 +9,8 @@ usernameInput.on("change", function() {
         data: {
         username: usernameInput.val(),
         },
-        success: function(exists) {
-        if (exists == 'true') {
+        success: function(username) {
+        if (username.exists) {
             usernameInput.addClass("is-invalid");
             usernameTakenError.show();
         }

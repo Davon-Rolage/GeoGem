@@ -96,7 +96,8 @@ class MyProfileView(View):
         context = {
             'total_words': total_words,
             'gui_messages': GUI_MESSAGES['base']
-                          | GUI_MESSAGES['my_profile'],
+                          | GUI_MESSAGES['my_profile']
+                          | GUI_MESSAGES['tooltips'],
         }
         return render(request, self.template_name, context=context)
 
@@ -109,4 +110,35 @@ class DeleteUserView(SuccessMessageMixin, DeleteView):
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
         return super().delete(request, *args, **kwargs)
+
+
+class PremiumView(View):
+    template_name = 'word_bank/premium.html'
+
+    def get(self, request):
+        context = {
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['premium'],
+        }
+        return render(request, self.template_name, context)
+
+
+class GetPremiumView(View):
+    model = CustomUser
+
+    def post(self, request):
+        user = request.user
+        if user.is_authenticated:
+            user.is_premium = True
+            user.save()
+        return HttpResponseRedirect(reverse('learn'))
     
+
+class CancelPremiumView(View):
+    model = CustomUser
+
+    def post(self, request):
+        user = request.user
+        if user.is_authenticated:
+            user.is_premium = False
+            user.save()
+        return HttpResponseRedirect(reverse('learn'))

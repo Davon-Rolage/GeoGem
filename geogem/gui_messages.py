@@ -65,7 +65,6 @@ GUI_MESSAGES = {
         'login': _('Login'),
         # Translators: this is a navbar item
         'register': _('Register'),
-        'copyright': _('All Rights Reserved'),
     },
     'messages': {
         'badge_earned': _('You have earned a badge! Check out your profile!'),
@@ -119,7 +118,7 @@ GUI_MESSAGES = {
 <li>And many more...</li>'''),
         # Translators: this is a "Get Premium" button
         'button_get_premium': _('Try out for free!'),
-        'thank_you_premium': _('Thank you for upgrading to premium!\nEnjoy all the features we have to offer!'),
+        'thank_you_premium': _('Thank you for upgrading to premium!<br>Enjoy all the features we have to offer!'),
         # Translators: this is a "Cancel Premium" button
         'button_cancel_premium': _('Cancel Premium'),
     },
@@ -128,6 +127,7 @@ GUI_MESSAGES = {
         'block_fully_learned': _('You have learned all words in this block!'),
         'log_in_to_review': _('Sign in to save your progress'),
         'no_review_words': _('No words to review'),
+        'never_give_up': _('Never give up!'),
     },
     'column_titles': {
         # Translators: this is a column title

@@ -1,13 +1,10 @@
-from django.http import HttpResponseRedirect
 from django.shortcuts import render
-from django.urls import reverse
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
 
-from accounts.models import CustomUser
 from geogem.gui_messages import GUI_MESSAGES
-from word_bank.models import Block, UserWord, WordInfo
 
+from .models import Block, UserWord, WordInfo
 from .utils import *
 
 
@@ -139,35 +136,3 @@ class AboutView(View):
             'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['about'],
         }
         return render(request, self.template_name, context)
-
-
-class PremiumView(View):
-    template_name = 'word_bank/premium.html'
-
-    def get(self, request):
-        context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['premium'],
-        }
-        return render(request, self.template_name, context)
-
-
-class GetPremiumView(View):
-    model = CustomUser
-
-    def post(self, request):
-        user = request.user
-        if user.is_authenticated:
-            user.is_premium = True
-            user.save()
-        return HttpResponseRedirect(reverse('learn'))
-    
-
-class CancelPremiumView(View):
-    model = CustomUser
-
-    def post(self, request):
-        user = request.user
-        if user.is_authenticated:
-            user.is_premium = False
-            user.save()
-        return HttpResponseRedirect(reverse('learn'))

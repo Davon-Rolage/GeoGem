@@ -1,9 +1,11 @@
 from collections import Counter
 
 from django.contrib.auth.decorators import user_passes_test
+from django.http import JsonResponse
 from django.urls import reverse_lazy
 
 from .config import MASTERY_LEVELS
+from .models import UserWord
 
 
 def get_ml_chart_data(mastery_levels=None):
@@ -24,3 +26,12 @@ def staff_member_required(view_func):
         login_url=reverse_lazy('login')
     )
     return decorated_view_func(view_func)
+
+
+def reset_test_block(request):
+    if request.method == 'POST':
+        user = request.user
+        test_words = UserWord.objects.filter(user=user, word__blocks__id=0)
+        test_words.delete()
+        return JsonResponse({'success': True})
+    

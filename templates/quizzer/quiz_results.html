@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% load static %}
+{% load i18n %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'css/quiz.css' %}">
+
+<div class="container-wrapper">
+    <div id="quiz-results" class="quiz_results px-4">
+        <div class="row">
+            <h2 class="text-center">Results</h2>
+        </div>
+
+        <div class="row mb-2 justify-content-center">
+            <div class="col-sm-10 col-md-2">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ learning_block.name }}</h5>
+                        {% if quiz_mode != 'learn' %}
+                            <!-- Show score if the quiz type is not "learn" -->
+                            <p class="card-text"><h3><span id="quiz-score">{{ quiz_score }}</span> / {{ num_questions }}</h3></p>
+                        {% endif %}
+                        <p class="card-text-go-back">Go back to <a href="{% url 'block_detail' slug=learning_block.slug %}" class="text-decoration-none">{{ learning_block.name }}</a></p>
+                        <a href="{% url 'learn' %}">Go to index</a>
+                        
+                        <!-- Go again -->                    
+                        {% if quiz_mode == 'learn' %}
+                            <form method="POST" action="{% url 'quiz_learn' %}" class="text-center">
+                                {% csrf_token %}
+                                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                                <input type='submit' class="btn btn-outline-primary mt-2" value="Learn More Words">
+                            </form>
+                        {% elif quiz_mode == 'review' %}
+                        <form method="POST" action="{% url 'quiz_review' %}" class="text-center">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                            <input type='submit' class="btn btn-outline-primary mt-2" value="Review Again">
+                        </form>
+                        {% else %}
+                        <form method="POST" action="{% url 'quiz_multiple_choice' %}" class="text-center">
+                            {% csrf_token %}
+                            <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
+                            <input type='submit' class="btn btn-outline-primary mt-2" value="Start Again">
+                        </form>
+                        {% endif %}
+                        
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if not request.user.is_authenticated %}
+        <h5 class="text-center">Sign in to save your progress</h5>
+        {% else %}
+        <table class="table table-hover">
+            <thead>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">Name</th>
+                <th scope="col">Audio</th>
+                <th scope="col">Points</th>
+                <th scope="col">Level</th>
+                <th scope="col">Transliteration</th>
+                <th scope="col">Translation</th>
+                <th scope="col">Example</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for word in quiz_words %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ word.word.name }}</td>
+                    <td>
+                    {% if word.word.audio %}
+                        <audio id="audio_{{ word.word.name }}" preload="none" src="{{ word.word.audio.url }}"></audio>
+                        <a href="{{ word.audio.url }}" class="text-decoration-none" onclick="document.getElementById('audio_{{ word.word.name }}').play(); return false;">
+                            &#x1F50A;
+                        </a>
+                    {% endif %}
+                    </td>
+                    <td>{{ word.points }}</td>
+                    <td>{{ word.mastery_level }}</td>
+                    <td>{{ word.word.transliteration }}</td>
+                    <td>{{ word.word.translation }}</td>
+                    <td>{% if word.word.example %}{{ word.word.example }}{% else %}-{% endif %}</td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        {% endif %}
+
+    </div>
+</div>
+
+{% endblock %}

@@ -27,12 +27,15 @@ body {
 }
 
 .logo {
-    width: 180px;
+    width: 120px;
 }
 
 .nav-item>a {
   min-width: 80px;
   text-align: center;
+}
+.nav-item>a:hover {
+  color: var(--bs-cyan);
 }
 
 .image-flag {
@@ -68,8 +71,6 @@ body {
 .alert-success {
   position: absolute;
   z-index: 100;
-  top: 1%;
-  margin-left: auto;
   width: fit-content;
 }
 
@@ -114,6 +115,10 @@ body {
 
 #premium-badge-icon {
   max-width: 20px;
+}
+
+.icon-success {
+  display: none;
 }
 
 footer {

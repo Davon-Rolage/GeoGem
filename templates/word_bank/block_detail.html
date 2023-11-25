@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% load static %}
+
 {% block content %}
 
 <div class="container-wrapper">
@@ -45,8 +46,8 @@
                             {% endif %}
                         </form>
 
-                        <!-- Button to quiz_multi_choice -->
-                        <form method="POST" action="{% url 'quiz_multi_choice' %}" class="my-2">
+                        <!-- Button to quiz_multiple_choice -->
+                        <form method="POST" action="{% url 'quiz_multiple_choice' %}" class="my-2">
                             {% csrf_token %}
                             <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
                             {% if num_learned_words == block_words|length %}

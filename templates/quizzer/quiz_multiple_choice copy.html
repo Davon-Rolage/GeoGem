@@ -7,12 +7,12 @@
     <input type="hidden" id="num_questions" value="{{ words|length }}">
     {% for word in words %}
         <div class="question" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-            <form id="question-form" action="{% url 'check_answer_quiz' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
+            <form action="{% url 'check_answer_quiz' %}" method="POST" style='text-align: center; width: 400px; height: 345px; margin: 0 auto; background-color: white; border-radius: 10px; padding: 5px;'>
                 {% csrf_token %}
                 <input type="hidden" value="{{ word.pk }}" name="question_id">
                 <span style="text-align: right;">{{ forloop.counter }} / {{ words|length }}</span>
                 <h2 style="margin-bottom: 10px;">{{ word.name }}</h2>
-                Definition:
+                <h5>Definition:</h5>
                 <div class="question_options" style="margin: 10px auto 10px auto;">
                     <ol style="padding: 0;">
                         <div class="col">
@@ -29,34 +29,13 @@
                 {% if not forloop.last %}
                     <input disabled style='float: right' id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="Next">
                 {% else %}
-                    <input type="button" onclick="quizResults()" style='float: right' value="End Quiz" class="btn btn-secondary">
+                    <input type="button" onclick="quizResults('multiple_choice')" style='float: right' value="End Quiz" class="btn btn-secondary">
                 {% endif %}
             </form>
         </div>
     {% endfor %}
 </div>
 
-<!-- Quiz Results -->
-<div id="quiz-results" style="display: none; margin: 0 auto;">
-    <h2 style="margin-bottom: 20px">Results</h2>
-    <div class="card" style="width: 18rem; margin: 0 auto;">
-        <div class="card-body">
-            <h5 class="card-title">{{ learning_block.name }}</h5>
-            <p class="card-text"><h3><span id="score">{{ score }}</span> / {{ words|length }}</h3></p>
-            <p style="font-size: 18px;">Go back to <a href="{% url 'block_detail' slug=learning_block.slug %}" style="text-decoration: none; font-weight: 400;">{{ learning_block.name }}</a></p>
-            <a href="{% url 'learn' %}">Go to index</a>
-        <br>
-            <form method="POST" action="{% url 'quiz_multi_choice' %}">
-                {% csrf_token %}
-                <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                <input type='submit' class="btn btn-outline-primary" value="Quiz Again" style="margin-top: 10px;">
-            </form>
-          
-        </div>
-      </div>
-</div>
-
 <script src="{% static 'js/quiz.js' %}"></script>
-<script src="{% static 'js/quiz_interact.js' %}"></script>
 
 {% endblock %}
