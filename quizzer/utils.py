@@ -101,7 +101,7 @@ def populate_example_span(word):
     word_example_image = word.example_image.url if word.example_image else None
     
     if word_example_image:
-        example_span += f'<img src="{ word.example_image.url }" class="example_image" alt="example_image"> '
+        example_span += f'<img src="{ word.example_image.url }" class="image-example" alt="example_image"> '
     
     if word_example:
         example_span += word.example
