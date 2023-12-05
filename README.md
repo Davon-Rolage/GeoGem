@@ -2,7 +2,7 @@
 
 <img src="./static/images/logo.png"></img>
 
-<p>Unearth the Hidden Gems of Georgian Language and Culture</p>
+<p>Unearth Hidden Gems of Georgian Language and Culture</p>
 
 [![GPLv3 license](https://img.shields.io/badge/License-GPLv3-blue.svg)](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
@@ -54,11 +54,21 @@ DEBUG=1
 ```
 3. Make migrations and migrate:
 ```
-python manage.py makemigrations
-python manage.py migrate
+python manage.py makemigrations && python manage.py migrate
 ```
 
 4. Run local server:
 ```
 python manage.py runserver
+```
+
+
+## Dump database (Georgian characters)
+`python -Xutf8 manage.py dumpdata > data.json` doesn't correctly encode Georgian characters in `utf-8`, so use this to dump your database:
+```
+python manage.py dumpdatautf8 --output data.json
+```
+Load the database with Georgian characters:
+```
+python manage.py loaddatautf8 data.json
 ```

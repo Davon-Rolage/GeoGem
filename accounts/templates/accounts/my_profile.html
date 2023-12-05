@@ -56,7 +56,15 @@
                     <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
                         <form action="{% url 'delete_user' user.id %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="btn btn-outline-danger shadow-none" onclick="return confirm('{{ gui_messages.delete_account_confirm }}')">{{ gui_messages.delete_account }}</button>
+                            <!-- Disable test user account deletion -->
+                            {% if user.username == 'TestUserGeogem' %}
+                                <span class="tt" data-bs-toggle="tooltip" title="{{ gui_messages.cannot_delete_test_user }}">
+                                    <button disabled type="text" class="btn btn-outline-danger shadow-none" onclick="return false">{{ gui_messages.delete_account }}</button>
+                                </span>
+                            {% else %}
+                                <button type="submit" class="btn btn-outline-danger shadow-none" onclick="return confirm('{{ gui_messages.delete_account_confirm }}')">{{ gui_messages.delete_account }}</button>
+                            {% endif %}
+                            
                         </form>
                     </div>
 

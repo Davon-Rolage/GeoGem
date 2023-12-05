@@ -12,15 +12,19 @@
 
     <link rel="shortcut icon" type="image/x-icon" href="{% static 'images/favicon.png' %}">
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
 
-    <!-- jQuery -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
+    <!-- jQuery 3.7.1 -->
+    <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4=" crossorigin="anonymous"></script>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.1/dist/chart.umd.min.js"></script>
     <!-- GSAP animation plugin (doughnut) -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.9.1/gsap.min.js"></script>
     <!-- Font Awesome icons -->
     <script src="https://kit.fontawesome.com/58cc394653.js" crossorigin="anonymous"></script>
+    <!-- DataTables js -->
+    <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
 
   </head>
   <body>
@@ -74,7 +78,7 @@
               <a class="nav-link" href="{% url 'about' %}">{{ gui_messages.about }}</a>
             </li>
 
-            <li class="nav-item">
+            <li class="nav-item {% if not user.is_staff %}d-none{% endif %}">
               <a class="nav-link" href="{% url 'premium' %}">{{ gui_messages.premium }}</a>
             </li>
             <li>
@@ -102,14 +106,14 @@
                   <a class="text-decoration-none" href="/admin/">&#9881;{{ gui_messages.admin_panel }}</a>
                 </div>
                 <div class="col-auto">
-                  <a class="btn btn-outline-warning" href="{% url 'blocks_table' %}">Edit blocks</a>
+                  <a class="btn btn-sm btn-outline-warning" href="{% url 'blocks_table' %}">Edit blocks</a>
                 </div>
                 
                 <!-- Reset test block -->
                 <div class="col-auto">
                   <form id="form_reset_test_block" action="{% url 'reset_test_block' %}" method="POST">
                     {% csrf_token %}
-                    <button type="submit" class="btn btn-outline-warning">
+                    <button type="submit" class="btn btn-sm btn-outline-warning">
                       &#128465; Reset test block
                       <span class="icon-success">
                         <i id="check-icon" class="fa-solid fa-check"></i>

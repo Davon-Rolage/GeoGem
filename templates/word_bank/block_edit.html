@@ -1,56 +1,91 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
 <div class="container-fluid p-3">
-    <h class="display-6">Editing <span class="edit-block-name">{{ learning_block.name }}</span></h>
-    <a type="button" class="btn btn-success" href="/admin/word_bank/wordinfo/?blocks__id__exact={{ learning_block.id }}">Change Block</a>
+    <div class="row justify-content-start align-items-center">
+      <div class="col-auto">
+        <h class="display-6">Editing <span class="edit-block-name">{{ learning_block.name }}</span></h>
+      </div>
+      
+      <div class="col">
+        <textarea name="word_info_log" id="word-info-log" class="form-control shadow-none" rows="2"></textarea>
+      </div>
+    </div>
+    
+    <div class="row justify-content-start align-items-center">
 
-    <table class="table table-striped">
+      <div class="col-auto">
+        <form id="form-add" action="{% url 'add_word_info' %}" method="POST">
+          {% csrf_token %}
+          <input type="hidden" name="learning_block_id" value="{{ learning_block.id }}">
+          <input type="hidden" name="learning_block_slug" value="{{ learning_block.slug }}">
+          <button type="submit" class="btn btn-success my-2">Add a new word</button>
+        </form>
+      </div>
+
+      <div class="col-auto">
+        <a type="button" class="btn btn-outline-info" href="/admin/word_bank/wordinfo/?blocks__id__exact={{ learning_block.id }}">Edit Words Info</a>
+      </div>
+
+      <div class="col-auto">
+        <a type="button" class="btn btn-outline-info" href="http://127.0.0.1:8000/admin/word_bank/block/{{ learning_block.id }}/change/">Edit Block Info</a>
+      </div>
+      
+    </div>
+      
+    <form id="form-edit" action="{% url 'edit_word_info' %}" method="POST">
+      {% csrf_token %}
+    </form>
+    
+    <table id="info-words-table" class="table table-striped">
         <thead>
-          <tr>
-            <th scope="col">#</th>
-            <th scope="col">{{ gui_messages.title_word_name }}</th>
-            <th scope="col">{{ gui_messages.title_image }}</th>
-            <th scope="col">{{ gui_messages.title_audio }}</th>
-            <th scope="col">{{ gui_messages.title_transliteration }}</th>
-            <th scope="col">{{ gui_messages.title_translation }}</th>
-            <th scope="col">{{ gui_messages.title_example }}</th>
-            <th scope="col">{{ gui_messages.title_example_image }}</th>
-            <th scope="col">{{ gui_messages.title_added_at }}</th>
-          </tr>
+            <tr>
+                <th scope="col">#</th>
+                <th scope="col">id</th>
+                <th scope="col">{{ gui_messages.title_word_name }}</th>
+                <th scope="col">{{ gui_messages.title_image }}</th>
+                <th scope="col">{{ gui_messages.title_audio }}</th>
+                <th scope="col">{{ gui_messages.title_transliteration }}</th>
+                <th scope="col">{{ gui_messages.title_translation }}</th>
+                <th scope="col">{{ gui_messages.title_example }}</th>
+                <th scope="col">{{ gui_messages.title_example_image }}</th>
+                <th scope="col">{{ gui_messages.title_updated_at }}</th>
+            </tr>
         </thead>
         <tbody>
-        {% for word in block_words %}
-            <tr>
-                <th scope="row">{{ forloop.counter }}</th>
-                <td><input type="text" value="{{ word.name }}" class="form-control editable-field"></td>
-                <td class="text-end">        
-                  {% if word.image %}<img src="{{ word.image.url }}" class="img-in-table" alt="image">{% endif %}
-                  <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label>
-                </td>
-                
-                <!-- Audio column -->
-                <td class="text-end">
-                  {% if word.audio %}
-                    <audio id="audio{{ forloop.counter }}" preload="none" src="{{ word.audio.url }}"></audio>
-                    <a href="{{ word.audio.url }}" onclick="document.getElementById('audio{{ forloop.counter }}').play(); return false;">
-                        <i class="fa-regular fa-circle-play"></i>
-                    </a>
-                  {% endif %}
-                  <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label>
-                </td>
+          {% for word in block_words %}
+            <tr id="{{ word.pk }}">
+              <th scope="row">{{ forloop.counter }}</th>
+              <th scope="row"><a href="/admin/word_bank/wordinfo/{{ word.id }}/change/">{{ word.id }}</a></th>
+              <td><input type="text" value="{{ word.name }}" name="name" class="form-control editable-field"></td>
+              <td class="text-end">        
+                {% if word.image %}<img src="{{ word.image.url }}" class="img-in-table" alt="image">{% endif %}
+              </td>
+              
+              <!-- Audio column -->
+              <td class="text-end">
+                {% if word.audio %}
+                  <audio id="audio{{ forloop.counter }}" preload="none" src="{{ word.audio.url }}"></audio>
+                  <a href="{{ word.audio.url }}" class="text-decoration-none" onclick="document.getElementById('audio{{ forloop.counter }}').play(); return false;">
+                      <i class="fa-regular fa-circle-play"></i>
+                  </a>
+                {% endif %}
+              </td>
 
-                <td><input type="text" value="{{ word.transliteration }}" class="form-control editable-field"></td>
-                <td><input type="text" value="{{ word.translation }}" class="form-control editable-field"></td>
-                <td><input type="text" value="{{ word.example }}" class="form-control editable-field"></td>
-                <td class="text-end">{{ word.example_image }} <label for="file-upload">+<input id="file-upload" type="file" class="editable-field"></label></td>
-                <td>{{ word.added_at }}</td>
-
-            </tr>
-        {% endfor %}
+              <td><input type="text" name="transliteration" value="{{ word.transliteration }}" class="form-control editable-field"></td>
+              <td><input type="text" name="translation" value="{{ word.translation }}" class="form-control editable-field"></td>
+              <td><input type="text" name="example" value="{{ word.example }}" class="form-control editable-field"></td>
+              <td class="text-end">{{ word.example_image }}</td>
+              <td>{{ word.updated_at }}</td>
+          </tr>
+          {% endfor %}
         </tbody>
       </table>
 </div>
+
+<script src="{% static 'js/block_edit.js' %}"></script>
 
 {% endblock %}

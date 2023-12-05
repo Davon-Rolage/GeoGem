@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
 
+from accounts.models import MyProfile
+from accounts.utils import LEVEL_XP, LEVEL_XP_INCREMENT
 from geogem.gui_messages import GUI_MESSAGES
 
 from .models import Block, UserWord, WordInfo
@@ -14,11 +16,25 @@ class BlockListView(ListView):
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['learn_index'] | GUI_MESSAGES['block_detail']
         user = self.request.user
+        if user.is_authenticated:
+            user.experience = MyProfile.objects.get(user=user).experience
+            for level, xp in LEVEL_XP.items():
+                if user.experience < xp:
+                    user.level = level - 1
+                    user.level_progress = (user.experience - LEVEL_XP[user.level]) / LEVEL_XP_INCREMENT[user.level]
+                    break
+        else:
+            user.level = 0
+            user.experience = 0
+            user.level_progress = 0
+        
         blocks = context['object_list']
-        block_fully_learned_list = [block.is_fully_learned(user) for block in blocks]
-        context['block_list'] = zip(blocks, block_fully_learned_list)
-        context['gui_messages'] = GUI_MESSAGES['base']
+        for block in blocks:
+            block.is_completed = block.is_fully_learned(user)
+        
+        context['learning_blocks'] = blocks
         return context
 
 
@@ -28,30 +44,30 @@ class BlockDetailView(DetailView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        user = self.request.user
         learning_block = self.get_object()
+        learning_block.is_completed = learning_block.is_fully_learned(user)
         block_words = WordInfo.objects.filter(blocks=learning_block)
         
-        context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['tooltips']
+        context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['tooltips'] | GUI_MESSAGES['block_detail']
         context['learning_block'] = learning_block
         context['block_words'] = block_words
     
-        if self.request.user.is_authenticated:
-            block_user_words = UserWord.objects.filter(user=self.request.user, word__blocks=learning_block)
-            context['num_learned_words'] = block_user_words.count()
-            
-            block_mastery_level = learning_block.get_mastery_level(user=self.request.user)
+        if user.is_authenticated:
+            context['num_learned_words'] = UserWord.objects.filter(user=user, word__blocks=learning_block).count()
+            block_user_words = UserWord.objects.filter(user=user, word__blocks=learning_block)
+            block_mastery_level = learning_block.get_mastery_level(user=user)
 
             bml_whole_part, bml_fractional_part = divmod(block_mastery_level, 1)
             context['bml_whole_part'] = bml_whole_part
             context['bml_fractional_part'] = round(bml_fractional_part, 3)
-
             context['block_mastery_level'] = block_mastery_level
 
             word_mastery_levels = block_user_words.values_list('mastery_level', flat=True)
             context['ml_chart'] = get_ml_chart_data(word_mastery_levels)
             
         else:
-            block_mastery_level = learning_block.get_mastery_level(user=self.request.user)
+            block_mastery_level = learning_block.get_mastery_level(user=user)
             context['block_mastery_level'] = block_mastery_level
             context['ml_chart'] = get_ml_chart_data()
         
@@ -74,7 +90,7 @@ class EditBlocksView(View):
         context = {
             'gui_messages': GUI_MESSAGES['base'],
             'blocks': blocks
-        }            
+        }
         return render(request, self.template_name, context=context)
 
 
@@ -89,13 +105,60 @@ class EditBlockDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         learning_block = self.get_object()
-        block_words = WordInfo.objects.filter(blocks=learning_block)
+        block_words = WordInfo.objects.filter(blocks=learning_block).order_by('-updated_at')
         
         context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['column_titles']
         context['learning_block'] = learning_block
         context['block_words'] = block_words
         
         return context
+
+
+class AddWordInfoView(View):
+    model = WordInfo
+    
+    @method_decorator(staff_member_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request):
+        learning_block_id = request.POST.get('learning_block_id')
+        word = self.model.objects.create(
+            name='new_name',
+            transliteration='new_transliteration',
+            translation='new_translation'
+        )
+        word.blocks.add(learning_block_id)
+        word.save()
+        return JsonResponse({
+            'success': True
+        })
+
+
+class EditWordInfoView(View):
+    model = WordInfo
+    
+    @method_decorator(staff_member_required)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+    
+    def post(self, request, *args, **kwargs):
+        word_id = request.POST.get('word_id')
+        word = self.model.objects.get(pk=word_id)
+        changed_field = request.POST.get('changed_field')
+        new_value = request.POST.get('new_value')
+        old_value = getattr(word, changed_field)
+        updated_at = word.updated_at.strftime('%H:%M:%S %d-%m-%Y')
+        setattr(word, changed_field, new_value)
+        word.save()
+        return JsonResponse({
+            'success': True,
+            'word_id': word_id,
+            'changed_field': changed_field,
+            'old_value': old_value,
+            'new_value': new_value,
+            'updated_at': updated_at
+        })
     
     
 class MyWordsListView(ListView):

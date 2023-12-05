@@ -6,7 +6,7 @@
 <div class="container-wrapper">
     <div class="container-fluid px-5 py-4">
         <h class="display-6">{{ gui_messages.my_words_title }}</h>
-        <table class="table table-hover my-2">
+        <table id="user-words-table" class="table table-hover my-2">
             <thead>
                 <tr>
                 <th scope="col">#</th>
@@ -43,6 +43,17 @@
         </table>
     </div>
 </div>
+
+<script>
+$(document).ready(function() {
+    const userWordsTable = $("#user-words-table");
+    userWordsTable.DataTable({
+        pageLength: 50,
+        lengthMenu: [[10, 50, 100, -1], [10, 50, 100, "All"]],
+    });
+})
+</script>
+
 {% else %}
 <div class="container-wrapper">
     <div class="alert alert-info m-3" role="alert">

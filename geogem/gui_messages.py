@@ -128,6 +128,7 @@ GUI_MESSAGES = {
         'log_in_to_review': _('Sign in to save your progress'),
         'no_review_words': _('No words to review'),
         'never_give_up': _('Never give up!'),
+        'cannot_delete_test_user': _('You cannot delete the test user'),
     },
     'column_titles': {
         # Translators: this is a column title
@@ -151,7 +152,59 @@ GUI_MESSAGES = {
         # Translators: this is a column title
         'title_example_image': _('Example Image'),
         # Translators: this is a column title
+        'title_updated_at': _('Updated at'),
+        # Translators: this is a column title
         'title_added_at': _('Added at'),
     },
     'my_words_title': _('My Words'),
+    'block_detail': {
+        # Translators: this is a label for the number of block words, e.g. "5 words"
+        'n_words': _('words'),
+        # Translators: this is a label for the number of learned block words, e.g. "5 learned"
+        'n_words_learned': _('learned'),
+        # Translators: this is a 'Learn Words' button value
+        'btn_learn_words': _('Learn Words'),
+        # Translators: this is a 'Review Words' button value
+        'btn_review': _('Review'),
+        # Translators: this is a 'Start Quiz' button value
+        'btn_start_quiz': _('Start Quiz'),
+        # Translators: this is a label for the block mastery level
+        'label_block_mastery_level': _('Block Mastery Level:'),
+        # Translators: this is a label for the list of words in the block
+        'label_list_of_words': _('List of words'),
+        # Translators: this is a label for the block theory
+        'label_theory': _('Theory'),
+    },
+    'learn_index': {
+        # Translators: this is a help text for the "tap to view contents" button on learn index page
+        'tap_to_view_contents': _('Tap on each title to view the contents'),
+        # Translators: this is a title for the "Learn" index page
+        'learn_index_title': _('Learning Georgian Words'),
+        # Translators: this is a label for the level on learn index page
+        'level': _('Level'),
+        # Translators: this is a "Sign in to earn XP" label on learn index page
+        'login_to_view_level_progress': _('Sign in to view level progress'),
+    },
+    'quiz': {
+        # Translators: this is a "Next" question button value
+        'btn_next': _('Next'),
+        # Translators: this is a "Previous" question button value
+        'btn_previous': _('Previous'),
+        # Translators: this is an "End Quiz" button value
+        'btn_end_quiz': _('End Quiz'),
+    },
+    'quiz_results': {
+        # Translators: this is a title of the "Quiz Results" page
+        'quiz_results_title': _('Results'),
+        # Translators: this is a "Go back to" button value, e.g. "Go back to Basics"
+        'go_back_to_block': _('Go back to'),
+        # Translators: this is a "Learn More Words" quiz button value
+        'btn_learn_more_words': _('Learn More Words'),
+        # Translators: this is a "Review Again" quiz button value
+        'btn_review_again': _('Review Again'),
+        # Translators: this is a "Start Again" quiz button value
+        'btn_start_again': _('Start Again'),
+        # Translators: this is a "Go to Index" button value
+        'btn_go_to_index': _('Go to Index'),
+    }
 }

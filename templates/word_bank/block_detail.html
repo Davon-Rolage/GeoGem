@@ -11,21 +11,21 @@
                     <!-- Learning Block info column -->
                     <div class="col-sm-12 col-md-auto me-2">
                         <h class="display-6">{{ learning_block.name }}</h>
-                        <h3 class="num-block-words">{{ block_words|length }} words</h>
+                        <h3 class="num-block-words">{{ block_words|length }} {{ gui_messages.n_words }}</h>
                         {% if user.is_authenticated %}
-                            <h6 class="num-learned-words">{{ num_learned_words }} learned</h6>
+                            <h6 class="num-learned-words">{{ num_learned_words }} {{ gui_messages.n_words_learned }}</h6>
                         {% endif %}
 
                         <!-- Button to quiz_learn -->
                         <form method="POST" action="{% url 'quiz_learn' %}" class="my-2">
                             {% csrf_token %}
                             <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
-                            {% if num_learned_words == block_words|length %}
+                            {% if learning_block.is_completed %}
                                 <span class="tt" data-bs-toggle="tooltip" title="{{ gui_messages.block_fully_learned }}">
-                                    <input type='submit' class="btn btn-outline-secondary" value="Learn Words" disabled> 
+                                    <input type='submit' class="btn btn-outline-secondary" value="{{ gui_messages.btn_learn_words }}" disabled> 
                                 </span>
                             {% else %}
-                                <input type='submit' class="btn btn-primary" value="Learn Words"> 
+                                <input type='submit' class="btn btn-primary" value="{{ gui_messages.btn_learn_words }}"> 
                             {% endif %}
                         </form>
                         
@@ -35,14 +35,14 @@
                             <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
                             {% if not user.is_authenticated %}
                                 <span class="tt" data-bs-toggle="tooltip" title="{{ gui_messages.log_in_to_review }}">
-                                    <input type='submit' class="btn btn-outline-secondary" value="Review" disabled> 
+                                    <input type='submit' class="btn btn-outline-secondary" value="{{ gui_messages.btn_review }}" disabled> 
                                 </span>
                             {% elif num_learned_words == 0 %}
                                 <span class="tt" data-bs-toggle="tooltip" title="{{ gui_messages.no_review_words }}">
-                                    <input type='submit' class="btn btn-outline-secondary" value="Review" disabled> 
+                                    <input type='submit' class="btn btn-outline-secondary" value="{{ gui_messages.btn_review }}" disabled> 
                                 </span>
                             {% else %}
-                                <input type='submit' class="btn btn-primary" value="Review"> 
+                                <input type='submit' class="btn btn-primary" value="{{ gui_messages.btn_review }}"> 
                             {% endif %}
                         </form>
 
@@ -51,9 +51,9 @@
                             {% csrf_token %}
                             <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
                             {% if num_learned_words == block_words|length %}
-                                <input type='submit' class="btn btn-outline-success" value="Start Quiz">
+                                <input type='submit' class="btn btn-success" value="{{ gui_messages.btn_start_quiz }}">
                             {% else %}
-                                <input type='submit' class="btn btn-outline-secondary" value="Start Quiz">
+                                <input type='submit' class="btn btn-outline-secondary" value="{{ gui_messages.btn_start_quiz }}">
                             {% endif %}
                         </form>
                         
@@ -64,7 +64,7 @@
                         <!-- Block mastery level text -->
                         <div class="row">
                             <nobr>
-                                <a href="{% url 'user_block_detail' learning_block.slug %}">Block Mastery Level</a> {{ block_mastery_level|floatformat:3 }} / 6
+                                <a href="{% url 'user_block_detail' learning_block.slug %}">{{ gui_messages.label_block_mastery_level }}</a> {{ block_mastery_level|floatformat:2 }} / 6
                                 <span class="tt" data-bs-toggle="tooltip" title="{{ gui_messages.block_mastery_level_help }}">
                                     <i class="fa-solid fa-circle-info"></i>
                                 </span>
@@ -81,8 +81,8 @@
                         </div>    
                     </div>
 
-
-                    <div class="col-sm-12 col-md-8">
+                    <!-- Words mastery levels bar chart -->
+                    <div class="col">
                         <div id="ml-chart" class="mastery-level-chart">
                             {{ ml_chart|json_script:"ml-chart-data" }}
                             <canvas id="mastery-level-chart"></canvas>
@@ -95,15 +95,15 @@
 
         <div class="row">
             <!-- List of words block -->
-            <div class="col-sm-12 col-md-2 pt-2">
+            <div class="col-auto pt-2">
                 <div class="card word-list-card">
-                    <div class="card-header">List of words</div>
+                    <div class="card-header">{{ gui_messages.label_list_of_words }}</div>
                     <ol class="list-group py-2 px-3">
                         {% for word in block_words %}
                             <li class="mx-3">
-                                <div class="row">
+                                <div class="row justify-content-between">
                                     <div class="col">{{ word.name }}</div>
-                                    <div class="col">{{ word.translation }}</div>
+                                    <div class="col text-end">{{ word.translation }}</div>
                                 </div>
                             </li>
                         {% endfor %}
@@ -112,9 +112,9 @@
             </div>
 
             <!-- Theory block -->
-            <div class="col-sm-12 col-md-8 pt-2">
+            <div class="col pt-2">
                 <div class="card">
-                    <div class="card-header">Theory</div>
+                    <div class="card-header">{{ gui_messages.label_theory }}</div>
                     <div class="card-body">
                         <p class="card-text">{{ learning_block.theory|safe }}</p>
                     </div>

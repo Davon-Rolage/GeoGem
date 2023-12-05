@@ -1,13 +1,13 @@
+import secrets
 from collections import Counter
 from datetime import datetime
-import secrets
 
 from django.db import models
 from django.template.defaultfilters import slugify
 
 from accounts.models import CustomUser
 
-from .config import MASTERY_LEVELS, LEVEL_INCREMENT
+from .config import MASTERY_LEVELS
 
 
 class Block(models.Model):
@@ -17,6 +17,7 @@ class Block(models.Model):
     theory = models.TextField(blank=True, null=True)
     added_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    is_visible = models.BooleanField(default=False)
     
     def __str__(self):
         return self.name
@@ -71,6 +72,7 @@ class WordInfo(models.Model):
     audio = models.FileField(upload_to='audio/word_info/', blank=True, null=True)
     image = models.ImageField(upload_to='images/word_info/', blank=True, null=True)
     blocks = models.ManyToManyField(Block)
+    updated_at = models.DateTimeField(auto_now=True)
     added_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):
@@ -113,4 +115,3 @@ class UserWord(models.Model):
         self.updated_at = datetime.now()
         self.mastery_level = max([level for level, threshold in MASTERY_LEVELS.items() if self.points >= threshold] or [0])
         super(UserWord, self).save(*args, **kwargs)
-

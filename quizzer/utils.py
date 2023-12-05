@@ -2,6 +2,7 @@ import random
 
 from django.http import JsonResponse
 
+from accounts.models import MyProfile
 from word_bank.models import UserWord, WordInfo
 
 
@@ -29,6 +30,13 @@ def update_user_word_points(user_answer, correct_answer, user_word) -> bool:
     return is_correct
 
 
+def update_profile_experience(user, xp=1):
+    if user.is_authenticated:
+        user_profile = MyProfile.objects.get(user=user)
+        user_profile.experience += xp
+        user_profile.save()
+
+
 def add_to_learned(request):
     if request.method == "POST":
         question_id = request.POST.get('question_id')
@@ -43,6 +51,10 @@ def add_to_learned(request):
                 word=word
             )
             user_word.points += int(created)
+            if created:
+                user_profile = MyProfile.objects.get(user=user)
+                user_profile.num_learned_words += 1
+                update_profile_experience(user, xp=1)
             user_word.save()
             json_data = {
                 'created': created,
@@ -59,13 +71,14 @@ def check_answer_multiple_choice(request):
         
         user_answer = request.POST.get('answer')
         correct_answer = word.translation
-
-        if request.user.is_authenticated:
+        user = request.user
+        if user.is_authenticated:
             user_word, created = UserWord.objects.get_or_create(
-                user=request.user,
+                user=user,
                 word=word
             )
             is_correct = update_user_word_points(user_answer, correct_answer, user_word)
+            update_profile_experience(user, xp=2)
         else:
             is_correct = user_answer == correct_answer
         
@@ -87,7 +100,11 @@ def check_answer_review(request):
         correct_answer = word.translation
 
         is_correct = update_user_word_points(user_answer, correct_answer, user_word)
-        example_span = populate_example_span(word) if is_correct else ''
+        if is_correct:
+            example_span = populate_example_span(word)
+            update_profile_experience(request.user, xp=1)
+        else:
+            example_span = ''
                 
         return JsonResponse({
             'is_correct': is_correct,

@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import CustomUser
+from .models import CustomUser, MyProfile
 
 
 class CustomUserAdmin(UserAdmin, admin.ModelAdmin):
@@ -16,4 +16,11 @@ class CustomUserAdmin(UserAdmin, admin.ModelAdmin):
         (None, {'fields': ('is_premium',)}),
     )
 
+
+class MyProfileAdmin(admin.ModelAdmin):
+    model = MyProfile
+    list_display = ['user', 'num_learned_words', 'experience']
+
+
 admin.site.register(CustomUser, CustomUserAdmin)
+admin.site.register(MyProfile, MyProfileAdmin)

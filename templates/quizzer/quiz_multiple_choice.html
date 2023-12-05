@@ -55,15 +55,15 @@
                             <div class="row justify-content-between">
                                 <!-- Button back -->
                                 <div class="col text-start p-0">
-                                    <input type="button" onclick="move(0)" class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="Previous">
+                                    <input type="button" onclick="move(0)" class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="{{ gui_messages.btn_previous }}">
                                 </div>
                                 <div class="col text-end p-0">
                                     {% if not forloop.last %}
                                         <!-- Button next -->
-                                        <input disabled id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="Next">
+                                        <input disabled id="btn-next" type="button" onclick="move()" class="btn btn-primary" value="{{ gui_messages.btn_next }}">
                                     {% else %}
                                         <!-- Button end quiz -->
-                                        <input type="button" onclick="quizResults('multiple_choice')" value="End Quiz" class="btn btn-secondary">
+                                        <input type="button" onclick="quizResults('multiple_choice')" value="btn_end_quiz" class="btn btn-secondary">
                                     {% endif %}
                                 </div>
                             </div>

@@ -2,13 +2,14 @@
 
 {% block content %}
 
-<a type="button" class="btn btn-success" href="/admin/word_bank/block/add/">Add New Block</a>
+<a type="button" class="btn btn-success m-3" href="/admin/word_bank/block/add/">Add New Block</a>
 <div class="container-fluid">
     <table class="table table-striped">
         <thead>
           <tr>
             <th scope="col">#</th>
             <th scope="col">Block</th>
+            <th scope="col">Is visible</th>
             <th scope="col">Slug</th>
             <th scope="col">Word Count</th>
             <th scope="col">Description</th>
@@ -21,6 +22,7 @@
             <tr>
                 <th scope="row">{{ forloop.counter }}</th>
                 <td><a href="{% url 'block_edit' slug=block.slug %}">{{ block.name }}</a></td>
+                <td>{% if block.is_visible %}{% else %}<span class="badge bg-secondary">hidden</span></h6>{% endif %}</td>
                 <td>{{ block.slug }}</td>
                 <td>{{ block.word_count }}</td>
                 <td>{{ block.description }}</td>

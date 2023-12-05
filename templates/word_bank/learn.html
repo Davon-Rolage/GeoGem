@@ -1,61 +1,96 @@
 {% extends "base.html" %}
 
+{% load static %}
+
 {% block content %}
 
 <div class="container-wrapper">
   <div class="container-md container-learn p-3">
-    <h1 class="display-6 text-center">Learning Blocks</h1>
-    <h6 class="text-center">Tap on each title to view the contents</h6>
+    <h1 class="display-6 text-center">{{ gui_messages.learn_index_title }}</h1>
+
     <div class="row justify-content-center">
-      {% for block, block_fully_learned in block_list %}
-      <div class="col-sm-12 col-md-5">
-        <div class="card-deck mb-1 text-center">
+      <div class="col-10">
+        <h4 class="text-center">{{ user.username }} {{ user.experience }} xp</h4>
+      </div>
+    </div>
 
-          <div class="card mb-4 box-shadow block-card">
-            <div class="card-body">
-              <div class="row">
-                <div class="col text-start">
-                  <h6 class="card-title"><a href="{% url 'block_detail' slug=block.slug %}">{{ block.name }}</a>
-                    {% if block_fully_learned %}
-                      &#x2705;
-                    {% endif %}
-                  </h6>
-                </div>
-                <div class="col-4 d-flex justify-content-end">
+    <div class="row justify-content-center align-items-center">
+      <div class="col-auto">
+        {{ gui_messages.level }} {{ user.level }}
+      </div>
 
-                  {% if not user.is_authenticated %}
-                    <form id="form" action="{% url 'quiz_multiple_choice' %}" method="POST">
-                      {% csrf_token %}
-                      <input type="hidden" value="{{ block.slug }}" name="learning_block">
-                      <input type='submit' class="btn btn-sm btn-primary btn-block-interact" value="Quiz">
-                    </form>
-                  {% elif block_fully_learned %}
-                    <form id="form" action="{% url 'quiz_review' %}" method="POST">
-                      {% csrf_token %}
-                      <input type="hidden" value="{{ block.slug }}" name="learning_block">
-                      <input type='submit' class="btn btn-sm btn-success btn-block-interact" value="Review">
-                    </form>
-                  {% else %}
-                    <form id="form" action="{% url 'quiz_learn' %}" method="POST">
-                      {% csrf_token %}
-                      <input type="hidden" value="{{ block.slug }}" name="learning_block">
-                      <input type='submit' class="btn btn-sm btn-primary btn-block-interact" value="Learn">
-                    </form>
-                  {% endif %}
-                </div>
-              </div>
-
-              <div class="row">
-                <p class="card-text text-start">{{ block.description }}</p>
-              </div>
-            </div>
+      <!-- Level progress -->
+      <div class="col-sm-12 col-md-6 my-2">
+        <div class="progress" style="height: 25px;">
+          {% if not user.is_authenticated %}
+            <span class="fw-bold m-auto">{{ gui_messages.login_to_view_level_progress }}</span>
+          {% endif %}
+          {% with level_progress=user.level_progress %}
+              {{ level_progress|json_script:"level-progress" }}
+          {% endwith %}
+          <div id="level-progress-bar" class="progress-bar progress-bar-striped bg-success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
+            <span id="level-progress-label" class="fw-bold text-start px-2"></span>              
           </div>
-
         </div>
       </div>
+    </div>
+    
+    <h6 class="text-center">{{ gui_messages.tap_to_view_contents }}</h6>
+    <div class="row justify-content-center">
+      
+      {% for block in learning_blocks %}
+        {% if block.is_visible or user.is_staff %}
+          <div class="col-sm-12 col-md-5">
+            <div class="card-deck mb-1 text-center">
+
+              <div class="card mb-4 box-shadow block-card">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col text-start">
+                      <h6 class="card-title"><a href="{% url 'block_detail' slug=block.slug %}">{{ block.name }}</a>
+                        {% if block.is_completed %}
+                          &#x2705;
+                        {% endif %}
+                      </h6>
+                    </div>
+                    <div class="col-4 d-flex justify-content-end">
+
+                      {% if not user.is_authenticated %}
+                        <form id="form" action="{% url 'quiz_multiple_choice' %}" method="POST">
+                          {% csrf_token %}
+                          <input type="hidden" value="{{ block.slug }}" name="learning_block">
+                          <input type='submit' class="btn btn-sm btn-primary btn-block-interact" value="{{ gui_messages.btn_start_quiz }}">
+                        </form>
+                      {% elif block.is_completed %}
+                        <form id="form" action="{% url 'quiz_review' %}" method="POST">
+                          {% csrf_token %}
+                          <input type="hidden" value="{{ block.slug }}" name="learning_block">
+                          <input type='submit' class="btn btn-sm btn-success btn-block-interact" value="{{ gui_messages.btn_review }}">
+                        </form>
+                      {% else %}
+                        <form id="form" action="{% url 'quiz_learn' %}" method="POST">
+                          {% csrf_token %}
+                          <input type="hidden" value="{{ block.slug }}" name="learning_block">
+                          <input type='submit' class="btn btn-sm btn-primary btn-block-interact" value="{{ gui_messages.btn_learn_words }}">
+                        </form>
+                      {% endif %}
+                    </div>
+                  </div>
+
+                  <div class="row">
+                    <p class="card-text text-start">{{ block.description }}</p>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        {% endif %}
       {% endfor %}
     </div>
   </div>
 </div>
+
+<script src="{% static 'js/learn.js' %}"></script>
 
 {% endblock %}

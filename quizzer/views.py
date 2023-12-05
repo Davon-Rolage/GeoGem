@@ -22,7 +22,7 @@ class QuizMultipleChoiceView(View):
             return render(request, "quizzer/quiz_empty.html")
 
         context = {
-            'gui_messages': GUI_MESSAGES['base'],
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['quiz'],
             'learning_block': block,
             'words': words
         }
@@ -38,9 +38,10 @@ class QuizLearnView(View):
         learning_block = request.POST.get('learning_block')
         block = Block.objects.get(slug=learning_block)
         words = WordInfo.objects.filter(blocks=block)
+        user = request.user
 
-        if request.user.is_authenticated:
-            learned_words = UserWord.objects.filter(word__blocks=block, user=request.user)
+        if user.is_authenticated:
+            learned_words = UserWord.objects.filter(word__blocks=block, user=user)
             words_to_learn = []
             
             # Limit the number of quiz questions to num_questions
@@ -58,7 +59,7 @@ class QuizLearnView(View):
                 'learning_block': block,
                 'words': words,
             }
-        context['gui_messages'] = GUI_MESSAGES['base']
+        context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['quiz']
         return render(request, self.template_name, context=context)
     
     
@@ -82,9 +83,9 @@ class QuizReviewView(View):
         if not words:
             return render(request, "quizzer/quiz_empty.html")
         
-        distinct_words = set(words)            
+        distinct_words = set(words)
         context = {
-            'gui_messages': GUI_MESSAGES['base'],
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['quiz'],
             'learning_block': block,
             'words': words,
             'distinct_words': distinct_words,
@@ -97,8 +98,10 @@ class QuizResultsView(View):
     template_name = 'quizzer/quiz_results.html'
     
     def post(self, request):
+        user = request.user
         learning_block_slug = request.POST.get('learning_block')
         block = Block.objects.get(slug=learning_block_slug)
+        block.is_completed = block.is_fully_learned(user)
         quiz_mode = request.POST.get('quiz_mode')
 
         quiz_words_ids = request.POST.get('quiz_words')
@@ -110,23 +113,15 @@ class QuizResultsView(View):
 
         quiz_user_words = []
         for word_id in quiz_words_ids:
-            if not request.user.is_authenticated:
-                word = WordInfo.objects.get(pk=word_id)
-            
+            if user.is_authenticated:
+                word = UserWord.objects.get(pk=word_id, user=request.user)
             else:
-                if quiz_mode in ['learn', 'multiple_choice']:
-                    # Learn and multiple choice quiz modes assume that the user may not be logged in
-                    word = WordInfo.objects.get(pk=word_id)
-                    word = UserWord.objects.get(word=word.id, user=request.user)
-
-                else:
-                    # Review mode assumes that the user is logged in
-                    word = UserWord.objects.get(pk=word_id, user=request.user)            
+                word = WordInfo.objects.get(pk=word_id)
 
             quiz_user_words.append(word)
             
         context = {
-            'gui_messages': GUI_MESSAGES['base'],
+            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['quiz_results'] | GUI_MESSAGES['block_detail'] | GUI_MESSAGES['column_titles'] | GUI_MESSAGES['tooltips'],
             'learning_block': block,
             'quiz_mode': quiz_mode,
             'quiz_words': quiz_user_words,
