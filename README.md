@@ -22,8 +22,7 @@ Here are test user login credentials:
 # Installation
 1. Create a virtual environment and activate it:
 ```
-python -m venv venv
-venv\scripts\activate
+python -m venv venv && venv\scripts\activate
 ```
 1. Install required dependencies:
 ```
@@ -71,4 +70,11 @@ python manage.py dumpdatautf8 --output data.json
 Load the database with Georgian characters:
 ```
 python manage.py loaddatautf8 data.json
+```
+
+
+# Tests
+All tests are located in apps' `tests` folder. Run them with:
+```
+python manage.py test
 ```

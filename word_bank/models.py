@@ -23,29 +23,18 @@ class Block(models.Model):
         return self.name
     
     def save(self, *args, **kwargs):
-        if self.slug is None:
-            self.slug = slugify(self.name)
-        super(Block, self).save(*args, **kwargs)
+        self.name = self.name.strip() or 'New Block'
+        self.slug = self.slug or slugify(self.name)
+        super().save(*args, **kwargs)
         
     def get_mastery_level(self, user):
         if user.is_authenticated:
             block_user_words = UserWord.objects.filter(word__blocks=self, user=user)
-            if block_user_words.count() > 0:
+            if block_user_words.exists():
                 num_block_words = WordInfo.objects.filter(blocks=self).count()
+                user_word_levels = Counter(user_word.mastery_level for user_word in block_user_words)
+                user_word_levels.update({level: 0 for level in MASTERY_LEVELS.keys() if level not in user_word_levels})
                 
-                block_mastery_levels = {}
-                for level, threshold in MASTERY_LEVELS.items():
-                    block_mastery_levels[level] = threshold * num_block_words
-                
-                user_points = 0
-                for user_word in block_user_words:
-                    user_points += user_word.points
-                
-                user_word_levels = Counter([user_word.mastery_level for user_word in block_user_words])
-                for level in MASTERY_LEVELS.keys():
-                    if level not in user_word_levels:
-                        user_word_levels[level] = 0
-                        
                 numerator = sum(lvl * lvl_count for lvl, lvl_count in user_word_levels.items())
                 denominator = num_block_words
                 
@@ -54,11 +43,11 @@ class Block(models.Model):
 
         return 0
     
-    def is_fully_learned(self, user):
+    def is_fully_learned(self, user) -> bool:
         if user.is_authenticated:
-            block_words = WordInfo.objects.filter(blocks=self)
-            block_user_words = UserWord.objects.filter(word__blocks=self, user=user)
-            return len(block_words) == len(block_user_words)
+            block_words_length = WordInfo.objects.filter(blocks=self).count()
+            block_user_words_length = UserWord.objects.filter(word__blocks=self, user=user).count()
+            return block_words_length == block_user_words_length
 
         return False
 
@@ -78,9 +67,6 @@ class WordInfo(models.Model):
     def __str__(self):
         return f'{self.name} - {self.translation}'
     
-    def block_list(self):
-        return ", ".join([block.slug for block in self.blocks.all()])
-    
     def has_audio(self):
         return bool(self.audio)
     
@@ -93,11 +79,15 @@ class WordInfo(models.Model):
         words = WordInfo.objects.filter(blocks=block).exclude(id=self.id)
         words = list(words.values_list('translation', flat=True))
         for _ in range(n_wrong):
-            wrong_option = secrets.choice(words)
-            self.options.append(wrong_option)
-            words.remove(wrong_option)
+            try:
+                wrong_option = secrets.choice(words)
+                self.options.append(wrong_option)
+                words.remove(wrong_option)
+            except IndexError:
+                break
             
         self.options = sorted(self.options, key=lambda x: secrets.randbits(32))
+        return self.options
 
 
 class UserWord(models.Model):
@@ -109,7 +99,7 @@ class UserWord(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     
     def __str__(self):
-        return f'{self.user} - {self.word}'
+        return f'{self.user} - {self.word.name}'
     
     def save(self, *args, **kwargs):
         self.updated_at = datetime.now()

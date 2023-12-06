@@ -1,3 +1,6 @@
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
@@ -49,27 +52,33 @@ class BlockDetailView(DetailView):
         learning_block.is_completed = learning_block.is_fully_learned(user)
         block_words = WordInfo.objects.filter(blocks=learning_block)
         
-        context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['tooltips'] | GUI_MESSAGES['block_detail']
-        context['learning_block'] = learning_block
-        context['block_words'] = block_words
+        gui_messages = GUI_MESSAGES['base'] | GUI_MESSAGES['tooltips'] | GUI_MESSAGES['block_detail']
+        block_mastery_level = learning_block.get_mastery_level(user=user)
+        bml_whole_part, bml_fractional_part = divmod(block_mastery_level, 1)
     
         if user.is_authenticated:
-            context['num_learned_words'] = UserWord.objects.filter(user=user, word__blocks=learning_block).count()
+            num_learned_words = UserWord.objects.filter(user=user, word__blocks=learning_block).count()
             block_user_words = UserWord.objects.filter(user=user, word__blocks=learning_block)
-            block_mastery_level = learning_block.get_mastery_level(user=user)
-
-            bml_whole_part, bml_fractional_part = divmod(block_mastery_level, 1)
-            context['bml_whole_part'] = bml_whole_part
-            context['bml_fractional_part'] = round(bml_fractional_part, 3)
-            context['block_mastery_level'] = block_mastery_level
-
             word_mastery_levels = block_user_words.values_list('mastery_level', flat=True)
-            context['ml_chart'] = get_ml_chart_data(word_mastery_levels)
-            
+            context.update({
+                'gui_messages': gui_messages,
+                'learning_block': learning_block,
+                'block_words': block_words,
+                'num_learned_words': num_learned_words,
+                'block_mastery_level': block_mastery_level,
+                'bml_whole_part': bml_whole_part,
+                'bml_fractional_part': round(bml_fractional_part, 3),
+                'ml_chart': get_ml_chart_data(word_mastery_levels),
+            })
         else:
-            block_mastery_level = learning_block.get_mastery_level(user=user)
-            context['block_mastery_level'] = block_mastery_level
-            context['ml_chart'] = get_ml_chart_data()
+            context.update({
+                'gui_messages': gui_messages,
+                'learning_block': learning_block,
+                'block_words': block_words,
+                'block_mastery_level': block_mastery_level,
+                'bml_whole_part': 0,
+                'ml_chart': get_ml_chart_data(),
+            })
         
         return context
 
@@ -118,9 +127,6 @@ class AddWordInfoView(View):
     model = WordInfo
     
     @method_decorator(staff_member_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-    
     def post(self, request):
         learning_block_id = request.POST.get('learning_block_id')
         word = self.model.objects.create(
@@ -139,9 +145,6 @@ class EditWordInfoView(View):
     model = WordInfo
     
     @method_decorator(staff_member_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
-    
     def post(self, request, *args, **kwargs):
         word_id = request.POST.get('word_id')
         word = self.model.objects.get(pk=word_id)
@@ -161,15 +164,14 @@ class EditWordInfoView(View):
         })
     
     
-class MyWordsListView(ListView):
+class MyWordsListView(LoginRequiredMixin, ListView):
     template_name = 'word_bank/user_words.html'
     model = UserWord
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        user_words = self.model.objects.filter(user=user).order_by('-added_at') if user.is_authenticated else []
-        context['words'] = user_words
+        context['words'] = self.model.objects.filter(user=user).order_by('-added_at')
         context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['column_titles'] | {
             'my_words_title': GUI_MESSAGES['my_words_title']}
         return context
@@ -199,3 +201,13 @@ class AboutView(View):
             'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['about'],
         }
         return render(request, self.template_name, context)
+    
+
+class ResetTestBlockView(View):
+    @method_decorator(staff_member_required)
+    def post(self, request):
+        user = request.user
+        test_words = UserWord.objects.filter(user=user, word__blocks__id=0)
+        test_words.delete()
+        return JsonResponse({'success': True})
+    

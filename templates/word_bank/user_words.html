@@ -2,7 +2,6 @@
 
 {% block content %}
 
-{% if user.is_authenticated %}
 <div class="container-wrapper">
     <div class="container-fluid px-5 py-4">
         <h class="display-6">{{ gui_messages.my_words_title }}</h>
@@ -53,13 +52,5 @@ $(document).ready(function() {
     });
 })
 </script>
-
-{% else %}
-<div class="container-wrapper">
-    <div class="alert alert-info m-3" role="alert">
-        Nobody here but us chickens. Please <a href="{% url 'login' %}">log in</a>
-    </div>
-</div>
-{% endif %}
 
 {% endblock %}

@@ -10,7 +10,7 @@ class BlockAdmin(admin.ModelAdmin):
     
 
 class WordInfoAdmin(admin.ModelAdmin):
-    list_display = ['name', 'transliteration', 'translation', 'block_list', 'has_audio', 'example_short', 'added_at']
+    list_display = ['name', 'transliteration', 'translation', 'has_audio', 'example_short', 'added_at']
     list_filter = ['blocks']
     sortable_by = ['name', 'translation', 'blocks', 'added_at']
     
