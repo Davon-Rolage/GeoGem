@@ -22,7 +22,7 @@
 
                 {% for word in words %}
                     <div class="question position-relative" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-                        <form class="question_form_review px-4 py-3 bg-white rounded-3" action="{% url 'check_answer_review' %}" method="POST">
+                        <form id="{{ forloop.counter }}" class="question_form_review px-4 py-3 bg-white rounded-3" action="{% url 'check_answer' %}" method="POST">
                             {% csrf_token %}
 
                             {% if request.user.is_staff %}
@@ -60,8 +60,8 @@
                             </div>
 
                             <!-- Word example -->
-                            <div class="row my-3">
-                                <span id="span_word_example" class="word_example">
+                            <div class="row my-3 text-center">
+                                <span id="span_word_example_{{ forloop.counter }}" class="word_example display-none mb-3">
                                     <!-- AJAX populates it -->
                                 </span>
                             </div>

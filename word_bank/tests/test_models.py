@@ -62,15 +62,15 @@ class TestModels(TestCase):
     
     def test_block_get_mastery_level_user_has_words(self):
         test_user_block_mastery_level = self.test_block.get_mastery_level(self.test_user_has_words)
-        self.assertEqual(test_user_block_mastery_level, 0.2)
+        self.assertEquals(test_user_block_mastery_level, 0.2)
     
     def test_block_get_mastery_level_user_no_words(self):
         test_user_block_mastery_level = self.test_block.get_mastery_level(self.test_user_no_words)
-        self.assertEqual(test_user_block_mastery_level, 0)
+        self.assertEquals(test_user_block_mastery_level, 0)
     
     def test_block_get_mastery_level_user_anonymous(self):
         test_user_block_mastery_level = self.test_block.get_mastery_level(self.test_user_anonymous)
-        self.assertEqual(test_user_block_mastery_level, 0)
+        self.assertEquals(test_user_block_mastery_level, 0)
 
     def test_block_is_fully_learned_user_all_words_learned(self):
         test_user_block_fully_learned = self.test_block.is_fully_learned(self.test_user_all_words_learned)

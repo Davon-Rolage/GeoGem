@@ -1,4 +1,4 @@
-import random
+from random import sample
 
 from django.http import JsonResponse
 
@@ -6,35 +6,22 @@ from accounts.models import MyProfile
 from word_bank.models import UserWord, WordInfo
 
 
-def update_user_word_points(user_answer, correct_answer, user_word) -> bool:
-    """
-    Updates the word points for a user based on their answer.
-
-    Args:
-        user_answer (any): The user's answer.
-        correct_answer (any): The correct answer.
-        user_word (UserWord): The user's word object.
-
-    Returns:
-        bool: True if the user's answer is correct, False otherwise.
-    """
+def update_user_word_points(user_answer: str, correct_answer: str, user_word: UserWord, increase_by=1, decrease_by=1) -> bool:
     if user_answer == correct_answer:
         is_correct = True
-        user_word.points = min(100, user_word.points + 1)
+        user_word.points = min(100, user_word.points + increase_by)
 
     else:
         is_correct = False
-        user_word.points = max(0, user_word.points - 1)
+        user_word.points = max(0, user_word.points - decrease_by)
         
     user_word.save()
     return is_correct
 
 
-def update_profile_experience(user, xp=1):
-    if user.is_authenticated:
-        user_profile = MyProfile.objects.get(user=user)
-        user_profile.experience += xp
-        user_profile.save()
+def update_profile_experience(user_profile, increase_by=1):
+    user_profile.experience += increase_by
+    user_profile.save()
 
 
 def add_to_learned(request):
@@ -44,7 +31,7 @@ def add_to_learned(request):
         word = WordInfo.objects.get(pk=question_id)
         user = request.user
         json_data = dict()
-
+        
         if user.is_authenticated:
             user_word, created = UserWord.objects.get_or_create(
                 user=user,
@@ -54,7 +41,8 @@ def add_to_learned(request):
             if created:
                 user_profile = MyProfile.objects.get(user=user)
                 user_profile.num_learned_words += 1
-                update_profile_experience(user, xp=1)
+                user_profile.save()
+                update_profile_experience(user_profile, increase_by=1)
             user_word.save()
             json_data = {
                 'created': created,
@@ -65,51 +53,54 @@ def add_to_learned(request):
 
 
 def check_answer_multiple_choice(request):
-    if request.method == "POST":
-        question_id = request.POST.get('question_id')
-        word = WordInfo.objects.get(pk=question_id)
-        
-        user_answer = request.POST.get('answer')
-        correct_answer = word.translation
-        user = request.user
-        if user.is_authenticated:
-            user_word, created = UserWord.objects.get_or_create(
-                user=user,
-                word=word
-            )
-            is_correct = update_user_word_points(user_answer, correct_answer, user_word)
-            update_profile_experience(user, xp=2)
-        else:
-            is_correct = user_answer == correct_answer
-        
-        example_span = populate_example_span(word) if is_correct else ''
+    question_id = request.POST.get('question_id')
+    word = WordInfo.objects.get(pk=question_id)
+    
+    user_answer = request.POST.get('answer')
+    correct_answer = word.translation
+    user = request.user
+    if user.is_authenticated:
+        user_profile = MyProfile.objects.get(user=user)
+        user_word, created = UserWord.objects.get_or_create(
+            user=user,
+            word=word
+        )
+        is_correct = update_user_word_points(user_answer, correct_answer, user_word, increase_by=2, decrease_by=1)
+        if is_correct:
+            update_profile_experience(user_profile, increase_by=2)
+    else:
+        is_correct = user_answer == correct_answer
+    
+    example_span = populate_example_span(word) if is_correct else ''
 
-        return JsonResponse({
-            'is_correct': is_correct,
-            'example_span': example_span
-        })
+    return JsonResponse({
+        'is_correct': is_correct,
+        'example_span': example_span
+    })
 
 
 def check_answer_review(request):
-    if request.method == "POST":
-        question_id = request.POST.get('question_id')
-        user_word = UserWord.objects.get(pk=question_id, user=request.user)
-        word = WordInfo.objects.get(pk=user_word.word_id)
+    question_id = request.POST.get('question_id')
+    user = request.user
+    user_profile = MyProfile.objects.get(user=user)
+    user_word = UserWord.objects.get(pk=question_id, user=user)
+    word = WordInfo.objects.get(pk=user_word.word_id)
 
-        user_answer = request.POST.get('answer')
-        correct_answer = word.translation
+    user_answer = request.POST.get('answer')
+    correct_answer = word.translation
 
-        is_correct = update_user_word_points(user_answer, correct_answer, user_word)
-        if is_correct:
-            example_span = populate_example_span(word)
-            update_profile_experience(request.user, xp=1)
-        else:
-            example_span = ''
-                
-        return JsonResponse({
-            'is_correct': is_correct,
-            'example_span': example_span
-        })
+    is_correct = update_user_word_points(user_answer, correct_answer, user_word, increase_by=1, decrease_by=1)
+    if is_correct:
+        example_span = populate_example_span(word)
+        update_profile_experience(user_profile, increase_by=1)
+
+    else:
+        example_span = ''
+            
+    return JsonResponse({
+        'is_correct': is_correct,
+        'example_span': example_span
+    })
 
 
 def populate_example_span(word):
@@ -118,7 +109,7 @@ def populate_example_span(word):
     word_example_image = word.example_image.url if word.example_image else None
     
     if word_example_image:
-        example_span += f'<img src="{ word.example_image.url }" class="image-example" alt="example_image"> '
+        example_span += f'<img src="{ word_example_image }" class="image-example" alt="example_image"> '
     
     if word_example:
         example_span += word.example
@@ -126,18 +117,17 @@ def populate_example_span(word):
     return example_span
 
 
-def shuffle_options(words: list, n_questions=None):
-    if len(words) == 0:
-        return 0
-    
-    if len(words) <= 5:
-        n_questions = 5
+def shuffle_questions_order(words: list, n_questions=None):
+    if not words or not isinstance(words, list):
+        return []
     
     if n_questions is None:
-        n_questions = 10
-            
-    if n_questions > len(words):
-        words *= (n_questions // len(words) + 1)
+        n_questions = min(10, len(words))
+    else:
+        n_questions = min(100, max(1, n_questions))
+        if n_questions > len(words):
+            repetition_factor = (n_questions // len(words) + 1)
+            words *= repetition_factor
         
-    shuffled_words = random.sample(words, n_questions)
+    shuffled_words = sample(words, n_questions)
     return shuffled_words

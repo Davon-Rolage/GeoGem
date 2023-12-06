@@ -1,3 +1,5 @@
+from django.contrib.auth.mixins import LoginRequiredMixin
+from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import View
 
@@ -17,7 +19,7 @@ class QuizMultipleChoiceView(View):
         for word in block_words:
             word.generate_options(block, n_wrong=3)
 
-        words = shuffle_options(list(block_words))
+        words = shuffle_questions_order(list(block_words))
         if not words:
             return render(request, "quizzer/quiz_empty.html")
 
@@ -42,13 +44,8 @@ class QuizLearnView(View):
 
         if user.is_authenticated:
             learned_words = UserWord.objects.filter(word__blocks=block, user=user)
-            words_to_learn = []
+            words_to_learn = words.exclude(id__in=learned_words.values_list('word', flat=True))
             
-            # Limit the number of quiz questions to num_questions
-            for word in words:
-                if (len(words_to_learn) < num_questions) and (not learned_words.filter(word=word).exists()):
-                    words_to_learn.append(word)
-                    
             context = {
                 'learning_block': block,
                 'words': words_to_learn,
@@ -63,7 +60,7 @@ class QuizLearnView(View):
         return render(request, self.template_name, context=context)
     
     
-class QuizReviewView(View):
+class QuizReviewView(LoginRequiredMixin, View):
     template_name = 'quizzer/quiz_review.html'
     
     def post(self, request):
@@ -79,7 +76,7 @@ class QuizReviewView(View):
             word.options = info_word.options
             review_words.append(word)
         
-        words = shuffle_options(list(review_words))
+        words = shuffle_questions_order(list(review_words))
         if not words:
             return render(request, "quizzer/quiz_empty.html")
         
@@ -102,7 +99,7 @@ class QuizResultsView(View):
         learning_block_slug = request.POST.get('learning_block')
         block = Block.objects.get(slug=learning_block_slug)
         block.is_completed = block.is_fully_learned(user)
-        quiz_mode = request.POST.get('quiz_mode')
+        quiz_type = request.POST.get('quiz_type')
 
         quiz_words_ids = request.POST.get('quiz_words')
         if quiz_words_ids:
@@ -114,7 +111,7 @@ class QuizResultsView(View):
         quiz_user_words = []
         for word_id in quiz_words_ids:
             if user.is_authenticated:
-                word = UserWord.objects.get(pk=word_id, user=request.user)
+                word = UserWord.objects.get(pk=word_id, user=user)
             else:
                 word = WordInfo.objects.get(pk=word_id)
 
@@ -123,9 +120,26 @@ class QuizResultsView(View):
         context = {
             'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['quiz_results'] | GUI_MESSAGES['block_detail'] | GUI_MESSAGES['column_titles'] | GUI_MESSAGES['tooltips'],
             'learning_block': block,
-            'quiz_mode': quiz_mode,
+            'quiz_type': quiz_type,
             'quiz_words': quiz_user_words,
             'quiz_score': quiz_score,
             'num_questions': num_questions,
         }
         return render(request, self.template_name, context=context)
+
+
+class CheckAnswerView(View):
+    quiz_type_functions = {
+        'multiple_choice': check_answer_multiple_choice,
+        'review': check_answer_review,
+    }
+    
+    def post(self, request, *args, **kwargs):
+        quiz_type = request.POST.get('quiz_type')
+        
+        try:
+            return self.quiz_type_functions[quiz_type](request)
+        
+        except KeyError:
+            return HttpResponse(status=400)
+    

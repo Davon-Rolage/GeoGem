@@ -18,7 +18,7 @@
                 <div class="card px-4">
                     <div class="card-body">
                         <h5 class="card-title">{{ learning_block.name }}</h5>
-                        {% if quiz_mode != 'learn' %}
+                        {% if quiz_type != 'learn' %}
                             <!-- Show score if the quiz type is not "learn" -->
                             <p class="card-text"><h3><span id="quiz-score">{{ quiz_score }}</span> / {{ num_questions }}</h3></p>
                         {% endif %}
@@ -26,7 +26,7 @@
                         <p class="my-1"><a href="{% url 'learn' %}">{{ gui_messages.btn_go_to_index }}</a></p>
                         
                         <!-- Go again -->
-                        {% if quiz_mode == 'learn' %}
+                        {% if quiz_type == 'learn' %}
                             <form method="POST" action="{% url 'quiz_learn' %}" class="text-center">
                                 {% csrf_token %}
                                 <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">
@@ -40,7 +40,7 @@
                                 {% endif %}
                                 
                             </form>
-                        {% elif quiz_mode == 'review' %}
+                        {% elif quiz_type == 'review' %}
                         <form method="POST" action="{% url 'quiz_review' %}" class="text-center">
                             {% csrf_token %}
                             <input type="hidden" value="{{ learning_block.slug }}" name="learning_block">

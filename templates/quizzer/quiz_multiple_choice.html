@@ -22,7 +22,7 @@
 
                 {% for word in words %}
                     <div class="question position-relative" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
-                        <form class="question_form_multiple_choice px-4 py-3 bg-white rounded-3" action="{% url 'check_answer_multiple_choice' %}" method="POST">
+                        <form class="question_form_multiple_choice px-4 py-3 bg-white rounded-3" action="{% url 'check_answer' %}" method="POST">
                             {% csrf_token %}
 
                             {% if request.user.is_staff %}

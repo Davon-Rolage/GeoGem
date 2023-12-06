@@ -10,8 +10,10 @@ $(document).on("mouseup", '.question_options input', function(e) {
     y = e.clientY;
 });
 
-function handleOptionsQuiz(questionForm) {
+function handleOptionsQuiz(questionForm, quizType) {
     const questionId = questionForm.find('input[name="question_id"]').val();
+    const forLoopCounter = questionForm.attr('id');
+    const exampleSpan = $(`#span_word_example_${forLoopCounter}`);
 
     const nextButton = questionForm.find('input[id="btn-next"]');
     nextButton.removeAttr('disabled');
@@ -23,6 +25,7 @@ function handleOptionsQuiz(questionForm) {
         type: "POST",
         url: questionForm.attr('action'),
         data: {
+            'quiz_type': quizType,
             'question_id': questionId,
             'answer': answerValue,
             'csrfmiddlewaretoken': questionForm.find('input[name="csrfmiddlewaretoken"]').val()
@@ -32,12 +35,13 @@ function handleOptionsQuiz(questionForm) {
                 colorAnswer(clickedInput, is_correct=true);
                 playSuccessSound();
                 drawSuccessCircle(x-30, y-30);
-                // Disable other inputs
+                // Disable other question options
                 questionForm.find('input[type="submit"]').css('pointer-events', 'none');
 
                 if (questionForm.hasClass('question_form_review')) {
                     // Populate example span
-                    $('#span_word_example').html(choice.example_span);
+                    exampleSpan.html(choice.example_span);
+                    exampleSpan.show();
                 }
 
             } else {
@@ -59,14 +63,14 @@ function handleOptionsQuiz(questionForm) {
 $(".question_form_review").on('submit', function(e) {
     e.preventDefault();
     const questionForm = $(this);
-    handleOptionsQuiz(questionForm);
+    handleOptionsQuiz(questionForm, 'review');
 });
 
 // (multiple choice quiz) AJAX request to check whether answer is correct
 $(".question_form_multiple_choice").on('submit', function(e) {
     e.preventDefault();
     const questionForm = $(this);
-    handleOptionsQuiz(questionForm);
+    handleOptionsQuiz(questionForm, 'multiple_choice');
 });
 
 // (learn quiz) AJAX request to add a word to the list of learned words
@@ -130,23 +134,23 @@ function drawSuccessCircle(x, y) {
 }
 
 // Populate quiz results form and submit
-function quizResults(quizMode) {
+function quizResults(quizType) {
     const resultsForm = $("#form-results");
     const learningBlock = document.getElementById("learning_block").textContent.replace(/"/g, '');
     let userWordIds;
     let numQuestions;
     let questionsForms;
     
-    if (quizMode == 'learn') {
+    if (quizType == 'learn') {
         questionsForms = $(".question_form_learn");
         numQuestions = questionsForms.length;
         userWordIds = Array.from(learnedWordsIds);
         quizScore = -1;
-    } else if (quizMode == 'review') {
+    } else if (quizType == 'review') {
         questionsForms = $(".question_form_review");
         numQuestions = questionsForms.length;
         userWordIds = questionsForms.find("input[name=question_id]").map((i, el) => el.value).get();
-    } else if (quizMode == 'multiple_choice') {
+    } else if (quizType == 'multiple_choice') {
         questionsForms = $(".question_form_multiple_choice");
         numQuestions = questionsForms.length;
         userWordIds = questionsForms.find("input[name=question_id]").map((i, el) => el.value).get();
@@ -156,6 +160,6 @@ function quizResults(quizMode) {
     $("<input>", { name: "quiz_words", value: userWordIds }).appendTo(resultsForm);
     $("<input>", { name: "quiz_score", value: quizScore }).appendTo(resultsForm);
     $("<input>", { name: "num_questions", value: numQuestions }).appendTo(resultsForm);
-    $("<input>", { name: "quiz_mode", value: quizMode }).appendTo(resultsForm);
+    $("<input>", { name: "quiz_type", value: quizType }).appendTo(resultsForm);
     resultsForm.submit();
 }

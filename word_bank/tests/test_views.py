@@ -205,13 +205,13 @@ class TestViews(TestCase):
         self.client.logout()
         response = self.client.get(self.url_user_words)
 
-        self.assertEqual(response.status_code, 302)
+        self.assertEquals(response.status_code, 302)
     
     def test_user_words_list_view_as_authenticated_user_GET(self):
         self.client.login(username='test_user', password='test_password')
         response = self.client.get(self.url_user_words)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_user_words)
         self.assertIsInstance(response.context['words'], QuerySet)
         self.assertIn(self.test_user_word, response.context['words'])
@@ -219,7 +219,7 @@ class TestViews(TestCase):
     def test_user_block_detail_view_GET(self):
         response = self.client.get(self.url_user_block_detail)
 
-        self.assertEqual(response.status_code, 200)
+        self.assertEquals(response.status_code, 200)
         self.assertTemplateUsed(self.template_name_user_block_detail)
     
     def test_about_view_GET(self):
