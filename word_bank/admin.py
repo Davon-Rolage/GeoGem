@@ -17,8 +17,8 @@ class WordInfoAdmin(admin.ModelAdmin):
 
 class UserWordAdmin(admin.ModelAdmin):
     list_display = ['word', 'user', 'points', 'mastery_level', 'updated_at']
-    list_filter = ['mastery_level', 'user', 'points', 'updated_at']
     sortable_by = ['word', 'user', 'points', 'mastery_level', 'updated_at']
+    list_filter = ['user', 'points', 'updated_at']
     ordering = ['-updated_at', 'user', 'points']
 
 

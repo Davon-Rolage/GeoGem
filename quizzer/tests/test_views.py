@@ -42,75 +42,75 @@ class TestViews(TestCase):
     def test_quiz_multiple_choice_view_GET(self):
         response = self.client.get(self.url_quiz_multiple_choice)
 
-        self.assertEquals(response.status_code, 405)
+        self.assertEqual(response.status_code, 405)
     
     def test_quiz_multiple_choice_view_POST(self):
         response = self.client.post(self.url_quiz_multiple_choice, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_quiz_multiple_choice)
 
     
     def test_quiz_learn_view_GET(self):
         response = self.client.get(self.url_quiz_learn, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 405)
+        self.assertEqual(response.status_code, 405)
     
     def test_quiz_learn_view_all_words_learned_as_authenticated_user_POST(self):
         response = self.client.post(self.url_quiz_learn, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_quiz_learn)
-        self.assertEquals(response.context['learning_block'].slug, 'test-block')
+        self.assertEqual(response.context['learning_block'].slug, 'test-block')
         self.assertEqual(len(response.context['words']), 0)
         
     def test_quiz_learn_view_has_words_to_learn_as_authenticated_user_POST(self):
         self.client.login(username='test_user_newbie', password='test_password')
         response = self.client.post(self.url_quiz_learn, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_quiz_learn)
-        self.assertEquals(response.context['learning_block'].slug, 'test-block')
+        self.assertEqual(response.context['learning_block'].slug, 'test-block')
         self.assertGreater(len(response.context['words']), 0)
         
     def test_quiz_learn_view_as_anonymous_user_POST(self):
         self.client.logout()
         response = self.client.post(self.url_quiz_learn, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_quiz_learn)
-        self.assertEquals(response.context['learning_block'].slug, 'test-block')
-        self.assertEquals(len(response.context['words']), self.test_block_num_words)
+        self.assertEqual(response.context['learning_block'].slug, 'test-block')
+        self.assertEqual(len(response.context['words']), self.test_block_num_words)
         
     
     def test_quiz_review_view_as_authenticated_user_GET(self):
         response = self.client.get(self.url_quiz_review, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 405)
+        self.assertEqual(response.status_code, 405)
         
     def test_quiz_review_view_as_anonymous_user_GET(self):
         self.client.logout()
         response = self.client.get(self.url_quiz_review, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
     
     def test_quiz_review_view_as_anonymous_user_POST(self):
         self.client.logout()
         response = self.client.post(self.url_quiz_review, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 302)
+        self.assertEqual(response.status_code, 302)
 
     def test_quiz_review_view_as_authenticated_user_POST(self):
         response = self.client.post(self.url_quiz_review, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_quiz_review)
     
 
     def test_quiz_results_view_GET(self):
         response = self.client.get(self.url_quiz_results, data={'learning_block': 'test-block'})
         
-        self.assertEquals(response.status_code, 405)
+        self.assertEqual(response.status_code, 405)
         
     def test_quiz_results_view_as_anonymous_user_POST(self):
         self.client.logout()
@@ -121,7 +121,7 @@ class TestViews(TestCase):
             'quiz_score': 0
         })
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_quiz_results)
     
     def test_quiz_results_view_as_authenticated_user_POST(self):
@@ -133,6 +133,6 @@ class TestViews(TestCase):
             'quiz_score': 0
         })
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name_quiz_results)
     

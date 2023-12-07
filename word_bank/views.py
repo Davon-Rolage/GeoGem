@@ -59,7 +59,7 @@ class BlockDetailView(DetailView):
         if user.is_authenticated:
             num_learned_words = UserWord.objects.filter(user=user, word__blocks=learning_block).count()
             block_user_words = UserWord.objects.filter(user=user, word__blocks=learning_block)
-            word_mastery_levels = block_user_words.values_list('mastery_level', flat=True)
+            word_mastery_levels = [word.mastery_level for word in block_user_words]
             context.update({
                 'gui_messages': gui_messages,
                 'learning_block': learning_block,
@@ -171,7 +171,8 @@ class MyWordsListView(LoginRequiredMixin, ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        context['words'] = self.model.objects.filter(user=user).order_by('-added_at')
+        words = self.model.objects.filter(user=user).order_by('-added_at')
+        context['words'] = words
         context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['column_titles'] | {
             'my_words_title': GUI_MESSAGES['my_words_title']}
         return context

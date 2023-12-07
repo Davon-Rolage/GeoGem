@@ -1,4 +1,5 @@
 import secrets
+from bisect import bisect_right
 from collections import Counter
 from datetime import datetime
 
@@ -7,7 +8,7 @@ from django.template.defaultfilters import slugify
 
 from accounts.models import CustomUser
 
-from .config import MASTERY_LEVELS
+from .utils import EXP_NEEDED_BY_WORD_MASTERY_LEVEL
 
 
 class Block(models.Model):
@@ -31,13 +32,13 @@ class Block(models.Model):
         if user.is_authenticated:
             block_user_words = UserWord.objects.filter(word__blocks=self, user=user)
             if block_user_words.exists():
-                num_block_words = WordInfo.objects.filter(blocks=self).count()
                 user_word_levels = Counter(user_word.mastery_level for user_word in block_user_words)
-                user_word_levels.update({level: 0 for level in MASTERY_LEVELS.keys() if level not in user_word_levels})
+                user_word_levels.update({level: 0 for level in range(len(EXP_NEEDED_BY_WORD_MASTERY_LEVEL)) if level not in user_word_levels})
                 
                 numerator = sum(lvl * lvl_count for lvl, lvl_count in user_word_levels.items())
+
+                num_block_words = WordInfo.objects.filter(blocks=self).count()
                 denominator = num_block_words
-                
                 weighted_avg = numerator / denominator
                 return weighted_avg
 
@@ -94,7 +95,6 @@ class UserWord(models.Model):
     word = models.ForeignKey(WordInfo, on_delete=models.CASCADE)
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     points = models.PositiveIntegerField(default=0)
-    mastery_level = models.PositiveBigIntegerField(default=0)
     added_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     
@@ -103,5 +103,9 @@ class UserWord(models.Model):
     
     def save(self, *args, **kwargs):
         self.updated_at = datetime.now()
-        self.mastery_level = max([level for level, threshold in MASTERY_LEVELS.items() if self.points >= threshold] or [0])
         super(UserWord, self).save(*args, **kwargs)
+    
+    @property
+    def mastery_level(self):
+        level = bisect_right(EXP_NEEDED_BY_WORD_MASTERY_LEVEL, self.points)
+        return level - 1

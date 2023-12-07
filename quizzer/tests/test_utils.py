@@ -16,62 +16,70 @@ class UpdateUserWordPointsTestCase(TestCase):
 
     def test_update_user_word_points_correct_answer(self):
         is_correct = update_user_word_points('test', 'test', self.test_user_word)
+
         self.assertTrue(is_correct)
-        self.assertEquals(self.test_user_word.points, 51)
+        self.assertEqual(self.test_user_word.points, 51)
 
     def test_update_user_word_points_incorrect_answer(self):
         is_correct = update_user_word_points('wrong', 'test', self.test_user_word)
+
         self.assertFalse(is_correct)
-        self.assertEquals(self.test_user_word.points, 49)
+        self.assertEqual(self.test_user_word.points, 49)
 
     def test_update_user_word_points_increase_by_10(self):
         is_correct = update_user_word_points('test', 'test', self.test_user_word, increase_by=10)
+
         self.assertTrue(is_correct)
-        self.assertEquals(self.test_user_word.points, 60)
+        self.assertEqual(self.test_user_word.points, 60)
 
     def test_update_user_word_points_decrease_by_10(self):
         is_correct = update_user_word_points('wrong', 'test', self.test_user_word, decrease_by=10)
+
         self.assertFalse(is_correct)
-        self.assertEquals(self.test_user_word.points, 40)
+        self.assertEqual(self.test_user_word.points, 40)
 
     def test_update_user_word_points_no_change(self):
         is_correct = update_user_word_points('test', 'test', self.test_user_word, increase_by=0, decrease_by=0)
+
         self.assertTrue(is_correct)
-        self.assertEquals(self.test_user_word.points, 50)
+        self.assertEqual(self.test_user_word.points, 50)
         
     def test_update_user_word_points_no_change_incorrect_answer(self):
         is_correct = update_user_word_points('wrong', 'test', self.test_user_word, increase_by=0, decrease_by=0)
+
         self.assertFalse(is_correct)
-        self.assertEquals(self.test_user_word.points, 50)
+        self.assertEqual(self.test_user_word.points, 50)
     
     def test_update_user_word_points_overflow_100(self):
         is_correct = update_user_word_points('test', 'test', self.test_user_word, increase_by=101)
+
         self.assertTrue(is_correct)
-        self.assertEquals(self.test_user_word.points, 100)
+        self.assertEqual(self.test_user_word.points, 100)
 
     def test_update_user_word_points_overflow_0(self):
         is_correct = update_user_word_points('wrong', 'test', self.test_user_word, decrease_by=101)
+        
         self.assertFalse(is_correct)
-        self.assertEquals(self.test_user_word.points, 0)
+        self.assertEqual(self.test_user_word.points, 0)
 
 
 class UpdateProfileExperienceTestCase(TestCase):
     
     def setUp(self):
-        self.client = Client()
-        self.client.login(username='test_user', password='test_password')
         self.user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
         self.user_profile = MyProfile.objects.create(user=self.user, experience=50)
 
     def test_update_profile_experience_as_authenticated_user(self):
         update_profile_experience(self.user_profile)
-        self.user_profile.refresh_from_db()
-        self.assertEquals(self.user_profile.experience, 51)
+        self.user_profile.refresh_from_db(fields=['experience'])
+        
+        self.assertEqual(self.user_profile.experience, 51)
 
     def test_update_profile_experience_increase_by_10(self):
         update_profile_experience(self.user_profile, increase_by=10)
-        self.user_profile.refresh_from_db()
-        self.assertEquals(self.user_profile.experience, 60)
+        self.user_profile.refresh_from_db(fields=['experience'])
+
+        self.assertEqual(self.user_profile.experience, 60)
 
 
 class AddToLearnedTestCase(TestCase):
@@ -82,20 +90,19 @@ class AddToLearnedTestCase(TestCase):
         self.test_user_profile = MyProfile.objects.create(user=self.test_user)
         self.test_user_with_words = get_user_model().objects.create_user(username='test_user_with_words', password='test_password', is_active=True)
         self.test_user_with_words_profile = MyProfile.objects.create(user=self.test_user_with_words)
+
         self.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
         self.question_id = self.test_word_info.id
-
         UserWord.objects.create(user=self.test_user_with_words, word=self.test_word_info, points=1)
 
     def test_add_to_learned_as_anonymous_user_POST(self):
-        self.client.logout()
         response = self.client.post(reverse('add_to_learned'), {
             'question_id': self.question_id,
             'is_last': 'true'
         })
         response_content = response.content.decode('utf-8')
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {'is_last': True})
         
     def test_add_to_learned_as_authenticated_user_created_word_POST(self):
@@ -104,14 +111,14 @@ class AddToLearnedTestCase(TestCase):
             'question_id': self.question_id,
             'is_last': 'true'
         })
-        response_content = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, 200)
         
-        self.assertEquals(response.status_code, 200)
+        response_content = response.content.decode('utf-8')
         user_word = UserWord.objects.get(user=self.test_user, word=self.test_word_info)
         user_profile = MyProfile.objects.get(user=self.test_user)
-        self.assertEquals(user_profile.num_learned_words, 1)
         
-        self.assertEquals(user_word.points, 1)
+        self.assertEqual(user_profile.num_learned_words, 1)
+        self.assertEqual(user_word.points, 1)
         self.assertJSONEqual(response_content, {
             'is_last': True,
             'created': True,
@@ -124,11 +131,11 @@ class AddToLearnedTestCase(TestCase):
             'question_id': self.question_id,
             'is_last': 'true'
         })
-        response_content = response.content.decode('utf-8')
+        self.assertEqual(response.status_code, 200)
         
-        self.assertEquals(response.status_code, 200)
+        response_content = response.content.decode('utf-8')
         user_word = UserWord.objects.get(user=self.test_user_with_words, word=self.test_word_info)
-        self.assertEquals(user_word.points, 1)
+        self.assertEqual(user_word.points, 1)
         self.assertJSONEqual(response_content, {
             'is_last': True,
             'created': False,
@@ -143,10 +150,11 @@ class CheckAnswerTestCase(TestCase):
         self.test_block = Block.objects.create(name='Test Block')
         self.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
         self.test_word_info.blocks.add(self.test_block)
+
         self.test_user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
+        self.client.login(username='test_user', password='test_password')
         self.test_user_profile = MyProfile.objects.create(user=self.test_user, experience=100)
         self.test_user_word = UserWord.objects.create(user=self.test_user, word=self.test_word_info, points=1)
-        self.client.login(username='test_user', password='test_password')
     
     def test_check_answer_view_GET(self):
         response = self.client.get(self.url_check_answer, {
@@ -155,7 +163,7 @@ class CheckAnswerTestCase(TestCase):
             'answer': 'test',
         })
 
-        self.assertEquals(response.status_code, 405)
+        self.assertEqual(response.status_code, 405)
     
     def test_check_answer_view_incorrect_quiz_type_POST(self):
         response = self.client.post(self.url_check_answer, {
@@ -164,11 +172,10 @@ class CheckAnswerTestCase(TestCase):
             'answer': 'test',
         })
 
-        self.assertEquals(response.status_code, 400)
+        self.assertEqual(response.status_code, 400)
     
-    def test_check_answer_multiple_choice_correct_answer_with_anonymous_user_POST(self):
+    def test_check_answer_multiple_choice_correct_answer_as_anonymous_user_POST(self):
         self.client.logout()
-        
         response = self.client.post(self.url_check_answer, {
             'quiz_type': 'multiple_choice',
             'question_id': self.test_word_info.id,
@@ -176,15 +183,14 @@ class CheckAnswerTestCase(TestCase):
         })
         response_content = response.content.decode('utf-8')
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'is_correct': True,
             'example_span': ''
         })
     
-    def test_check_answer_multiple_choice_incorrect_answer_with_anonymous_user_POST(self):
+    def test_check_answer_multiple_choice_incorrect_answer_as_anonymous_user_POST(self):
         self.client.logout()
-        
         response = self.client.post(self.url_check_answer, {
             'quiz_type': 'multiple_choice',
             'question_id': self.test_word_info.id,
@@ -192,13 +198,13 @@ class CheckAnswerTestCase(TestCase):
         })
         response_content = response.content.decode('utf-8')
 
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'is_correct': False,
             'example_span': ''
         })
     
-    def test_check_answer_multiple_choice_correct_answer_with_authenticated_user_POST(self):
+    def test_check_answer_multiple_choice_correct_answer_as_authenticated_user_POST(self):
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -212,15 +218,15 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertEquals(self.test_user_profile.experience - profile_exp_before, 2)
-        self.assertEquals(self.test_user_word.points - user_word_points_before, 2)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(self.test_user_profile.experience - profile_exp_before, 2)
+        self.assertEqual(self.test_user_word.points - user_word_points_before, 2)
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'is_correct': True,
             'example_span': ''
         })
 
-    def test_check_answer_multiple_choice_incorrect_answer_with_authenticated_user_POST(self):
+    def test_check_answer_multiple_choice_incorrect_answer_as_authenticated_user_POST(self):
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -234,16 +240,16 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertEquals(self.test_user_profile.experience, profile_exp_before)
-        self.assertEquals(self.test_user_word.points - user_word_points_before, -1)
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(self.test_user_profile.experience, profile_exp_before)
+        self.assertEqual(self.test_user_word.points - user_word_points_before, -1)
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'is_correct': False,
             'example_span': ''
         })
     
     
-    def test_check_answer_review_correct_answer_with_authenticated_user_POST(self):
+    def test_check_answer_review_correct_answer_as_authenticated_user_POST(self):
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -257,16 +263,16 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertEquals(self.test_user_profile.experience - profile_exp_before, 1)
-        self.assertEquals(self.test_user_word.points - user_word_points_before, 1)
+        self.assertEqual(self.test_user_profile.experience - profile_exp_before, 1)
+        self.assertEqual(self.test_user_word.points - user_word_points_before, 1)
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'is_correct': True,
             'example_span': ''
         })
     
-    def test_check_answer_review_incorrect_answer_with_authenticated_user_POST(self):
+    def test_check_answer_review_incorrect_answer_as_authenticated_user_POST(self):
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -280,10 +286,10 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertEquals(self.test_user_profile.experience, profile_exp_before)
-        self.assertEquals(self.test_user_word.points - user_word_points_before, -1)
+        self.assertEqual(self.test_user_profile.experience, profile_exp_before)
+        self.assertEqual(self.test_user_word.points - user_word_points_before, -1)
         
-        self.assertEquals(response.status_code, 200)
+        self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'is_correct': False,
             'example_span': ''
