@@ -1,6 +1,16 @@
 from django.utils.translation import gettext_lazy as _
 
 
+def get_gui_messages(keys_to_get: list) -> dict:
+    gui_messages = dict()
+    for key in keys_to_get:
+        try:
+            gui_messages.update(GUI_MESSAGES[key])
+        except KeyError:
+            pass
+    return gui_messages
+
+
 GUI_MESSAGES = {
     'accounts': {
         # Translators: this is a login title
@@ -44,7 +54,7 @@ GUI_MESSAGES = {
     },
     'base': {
         # Translators: this is a navbar item
-        'home': _('Home'),
+        'index': _('Home'),
         # Translators: this is a navbar item
         'learn': _('Learn'),
         # Translators: this is a navbar item
@@ -65,6 +75,17 @@ GUI_MESSAGES = {
         'login': _('Login'),
         # Translators: this is a navbar item
         'register': _('Register'),
+    },
+    'index': {
+        'index_learn_card_header': _('Learn New Words'),
+        'index_learn_card_title': _('Everyday words and phrases to help you get used to the language'),
+        'index_learn_card_text': _('Get started with GeoGem today!'),
+        'index_learn_card_button': _('Learn Words'),
+
+        'index_theory_card_header': _('More in-depth theory and language structure'),
+        'index_theory_card_title': _('Grammar structure, pronunciation, cultural context, and more'),
+        'index_theory_card_text': _('Study the theory of Georgian language and get a deeper understanding of the language'),
+        'index_theory_card_button': _('Dive Into Theory'),
     },
     'messages': {
         'badge_earned': _('You have earned a badge! Check out your profile!'),
@@ -156,7 +177,9 @@ GUI_MESSAGES = {
         # Translators: this is a column title
         'title_added_at': _('Added at'),
     },
-    'my_words_title': _('My Words'),
+    'my_words_title': {
+        'my_words_title': _('My Words'),
+    },
     'block_detail': {
         # Translators: this is a label for the number of block words, e.g. "5 words"
         'n_words': _('words'),
@@ -182,6 +205,8 @@ GUI_MESSAGES = {
         'learn_index_title': _('Learning Georgian Words'),
         # Translators: this is a label for the level on learn index page
         'level': _('Level'),
+        # Translators: this is a label for the "3 xp to level 10" on learn index page
+        'to_level': _('to level'),
         # Translators: this is a "Sign in to earn XP" label on learn index page
         'login_to_view_level_progress': _('Sign in to view level progress'),
     },

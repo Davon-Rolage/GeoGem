@@ -3,7 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.generic import View
 
-from geogem.gui_messages import GUI_MESSAGES
+from geogem.gui_messages import get_gui_messages
 from word_bank.models import Block, UserWord, WordInfo
 
 from .utils import *
@@ -11,6 +11,7 @@ from .utils import *
 
 class QuizMultipleChoiceView(View):
     template_name = 'quizzer/quiz_multiple_choice.html'
+    gui_messages = get_gui_messages(['base', 'quiz'])
     
     def post(self, request):
         learning_block = request.POST.get('learning_block')
@@ -24,7 +25,7 @@ class QuizMultipleChoiceView(View):
             return render(request, "quizzer/quiz_empty.html")
 
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['quiz'],
+            'gui_messages': self.gui_messages,
             'learning_block': block,
             'words': words
         }
@@ -34,6 +35,7 @@ class QuizMultipleChoiceView(View):
 
 class QuizLearnView(View):
     template_name = 'quizzer/quiz_learn.html'
+    gui_messages = get_gui_messages(['base', 'quiz'])
     
     def post(self, request):
         num_questions = 5
@@ -45,6 +47,7 @@ class QuizLearnView(View):
         if user.is_authenticated:
             learned_words = UserWord.objects.filter(word__blocks=block, user=user)
             words_to_learn = words.exclude(id__in=learned_words.values_list('word', flat=True))
+            words_to_learn = shuffle_questions_order(list(words_to_learn), num_questions)
             
             context = {
                 'learning_block': block,
@@ -56,12 +59,13 @@ class QuizLearnView(View):
                 'learning_block': block,
                 'words': words,
             }
-        context['gui_messages'] = GUI_MESSAGES['base'] | GUI_MESSAGES['quiz']
+        context['gui_messages'] = self.gui_messages
         return render(request, self.template_name, context=context)
     
     
 class QuizReviewView(LoginRequiredMixin, View):
     template_name = 'quizzer/quiz_review.html'
+    gui_messages = get_gui_messages(['base', 'quiz'])
     
     def post(self, request):
         learning_block = request.POST.get('learning_block')
@@ -82,7 +86,7 @@ class QuizReviewView(LoginRequiredMixin, View):
         
         distinct_words = set(words)
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['quiz'],
+            'gui_messages': self.gui_messages,
             'learning_block': block,
             'words': words,
             'distinct_words': distinct_words,
@@ -93,6 +97,9 @@ class QuizReviewView(LoginRequiredMixin, View):
 
 class QuizResultsView(View):
     template_name = 'quizzer/quiz_results.html'
+    gui_messages = get_gui_messages(
+        ['base', 'quiz_results', 'block_detail', 'column_titles', 'tooltips']
+    )
     
     def post(self, request):
         user = request.user
@@ -118,7 +125,7 @@ class QuizResultsView(View):
             quiz_user_words.append(word)
             
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['quiz_results'] | GUI_MESSAGES['block_detail'] | GUI_MESSAGES['column_titles'] | GUI_MESSAGES['tooltips'],
+            'gui_messages': self.gui_messages,
             'learning_block': block,
             'quiz_type': quiz_type,
             'quiz_words': quiz_user_words,
@@ -134,7 +141,7 @@ class CheckAnswerView(View):
         'review': check_answer_review,
     }
     
-    def post(self, request, *args, **kwargs):
+    def post(self, request):
         quiz_type = request.POST.get('quiz_type')
         
         try:

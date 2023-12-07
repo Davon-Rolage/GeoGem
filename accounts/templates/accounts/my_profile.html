@@ -35,8 +35,9 @@
                     <div class="tab-pane fade show active" id="v-pills-home" role="tabpanel" aria-labelledby="v-pills-home-tab">
                         <ul>
                             <h5 class="text-start">
+                            {{ user_profile.experience }} xp, {{ user_profile.level }} level
                             <li>
-                                {{ gui_messages.total_words }} {{ total_words }}
+                                {{ gui_messages.total_words }} {{ user_profile.num_learned_words }}
                             </li>
                             <li>
                                 {{ gui_messages.date_joined }} {{ user.date_joined }}
@@ -75,7 +76,6 @@
 
                     <!-- Achievements -->
                     <div class="tab-pane fade" id="v-pills-achievements" role="tabpanel" aria-labelledby="v-pills-achievements-tab">
-                        <h3 class="py-1">{{ gui_messages.total_words }} {{ total_words }}</h3>
                         <div class="row">
                             <div class="col">
                                 <span class="tt" data-bs-toggle="tooltip" data-bs-placement="bottom" title="{{ gui_messages.never_give_up }}">

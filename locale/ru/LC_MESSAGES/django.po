@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-05 20:05+0400\n"
+"POT-Creation-Date: 2023-12-07 22:04+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,76 +27,76 @@ msgstr "Нажмите на ссылку ниже, чтобы активиров
 #. Translators: this is a login title
 #. Translators: this is a login button
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:7 .\geogem\gui_messages.py:9
-#: .\geogem\gui_messages.py:65
+#: .\geogem\gui_messages.py:17 .\geogem\gui_messages.py:19
+#: .\geogem\gui_messages.py:75
 msgid "Login"
 msgstr "Вход"
 
 #. Translators: this is a register title
 #. Translators: this is a register button
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:11 .\geogem\gui_messages.py:13
-#: .\geogem\gui_messages.py:67
+#: .\geogem\gui_messages.py:21 .\geogem\gui_messages.py:23
+#: .\geogem\gui_messages.py:77
 msgid "Register"
 msgstr "Регистрация"
 
 #. Translators: this is an input form element
-#: .\geogem\gui_messages.py:15
+#: .\geogem\gui_messages.py:25
 msgid "Username"
 msgstr "Имя пользователя"
 
 #. Translators: this is an error message
-#: .\geogem\gui_messages.py:17
+#: .\geogem\gui_messages.py:27
 msgid "This username is already taken."
 msgstr "Это имя пользователя уже занято."
 
 #. Translators: this is an input form element
-#: .\geogem\gui_messages.py:19
+#: .\geogem\gui_messages.py:29
 msgid "Password"
 msgstr "Пароль"
 
 #. Translators: this is an input form element
-#: .\geogem\gui_messages.py:21
+#: .\geogem\gui_messages.py:31
 msgid "Repeat Password"
 msgstr "Повторите пароль"
 
 #. Translators: this is an input form element
-#: .\geogem\gui_messages.py:23
+#: .\geogem\gui_messages.py:33
 msgid "Forgot Password?"
 msgstr "Забыли пароль?"
 
 #. Translators: this is an input form element
-#: .\geogem\gui_messages.py:25
+#: .\geogem\gui_messages.py:35
 msgid "Email"
 msgstr "Электронная почта"
 
 #. Translators: this appears on the login page
-#: .\geogem\gui_messages.py:27
+#: .\geogem\gui_messages.py:37
 msgid "Don't have an account?"
 msgstr "Нет аккаунта?"
 
 #. Translators: this appears on the login page
-#: .\geogem\gui_messages.py:29
+#: .\geogem\gui_messages.py:39
 msgid "Register Now!"
 msgstr "Зарегистрируйся сейчас!"
 
 #. Translators: this appears on the register page
-#: .\geogem\gui_messages.py:31
+#: .\geogem\gui_messages.py:41
 msgid "Already have an account?"
 msgstr "Уже есть аккаунт?"
 
 #. Translators: this appears on the register page
-#: .\geogem\gui_messages.py:33
+#: .\geogem\gui_messages.py:43
 msgid "Sign In Now!"
 msgstr "Войдите сейчас"
 
 #. Translators: this appears on the register page
-#: .\geogem\gui_messages.py:35
+#: .\geogem\gui_messages.py:45
 msgid "Registration requirements"
 msgstr "Требования к регистрации"
 
 #. Translators: this appears on the register page
-#: .\geogem\gui_messages.py:37
+#: .\geogem\gui_messages.py:47
 msgid ""
 "<li>Only latin letters are allowed.</li>\n"
 "<li>Username must contain only letters, digits and . + - _</li>\n"
@@ -118,64 +118,99 @@ msgstr ""
 "<li>Ваш пароль не может быть полностью числовым.</li>"
 
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:47 .\geogem\gui_messages.py:94
+#: .\geogem\gui_messages.py:57 .\geogem\gui_messages.py:115
 msgid "Home"
 msgstr "Главная"
 
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:49
+#: .\geogem\gui_messages.py:59
 msgid "Learn"
 msgstr "Учить"
 
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:51 .\geogem\gui_messages.py:159
+#: .\geogem\gui_messages.py:61 .\geogem\gui_messages.py:181
 msgid "My Words"
 msgstr "Мои слова"
 
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:53
+#: .\geogem\gui_messages.py:63
 msgid "About"
 msgstr "О проекте"
 
 #. Translators: this is a navbar item
 #. Translators: this is the title of the "Premium" page
-#: .\geogem\gui_messages.py:55 .\geogem\gui_messages.py:114
+#: .\geogem\gui_messages.py:65 .\geogem\gui_messages.py:135
 msgid "Premium"
 msgstr "Премиум"
 
 #. Translators: this appears in the navbar
-#: .\geogem\gui_messages.py:57
+#: .\geogem\gui_messages.py:67
 msgid "Hi"
 msgstr "Здравствуй"
 
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:59
+#: .\geogem\gui_messages.py:69
 msgid "My Profile"
 msgstr "Мой профиль"
 
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:61
+#: .\geogem\gui_messages.py:71
 msgid "Log out"
 msgstr "Выйти"
 
 #. Translators: this is a navbar item
-#: .\geogem\gui_messages.py:63
+#: .\geogem\gui_messages.py:73
 msgid "Admin"
 msgstr "Админ"
 
-#: .\geogem\gui_messages.py:70
+#: .\geogem\gui_messages.py:80
+msgid "Learn New Words"
+msgstr "Учить слова"
+
+#: .\geogem\gui_messages.py:81
+msgid "Everyday words and phrases to help you get used to the language"
+msgstr "Повседневные слова и фразы, чтобы помочь вам освоить язык"
+
+#: .\geogem\gui_messages.py:82
+msgid "Get started with GeoGem today!"
+msgstr "Начните изучать язык сегодня!"
+
+#. Translators: this is a 'Learn Words' button value
+#: .\geogem\gui_messages.py:83 .\geogem\gui_messages.py:189
+msgid "Learn Words"
+msgstr "Учить слова"
+
+#: .\geogem\gui_messages.py:85
+msgid "More in-depth theory and language structure"
+msgstr "Углубленное изучение теории и языковой структуры"
+
+#: .\geogem\gui_messages.py:86
+msgid "Grammar structure, pronunciation, cultural context, and more"
+msgstr "Грамматика, произношение, культурный контекст..."
+
+#: .\geogem\gui_messages.py:87
+msgid ""
+"Study the theory of Georgian language and get a deeper understanding of the "
+"language"
+msgstr "Изучите теорию грузинского языка и улучшите свои навыки понимания языка"
+
+#: .\geogem\gui_messages.py:88
+msgid "Dive Into Theory"
+msgstr "Углубиться в теорию"
+
+#: .\geogem\gui_messages.py:91
 msgid "You have earned a badge! Check out your profile!"
 msgstr "Вы заработали достижение! Проверьте свой профиль!"
 
-#: .\geogem\gui_messages.py:71
+#: .\geogem\gui_messages.py:92
 msgid "The user has been successfully deleted"
 msgstr "Пользователь был успешно удален"
 
-#: .\geogem\gui_messages.py:72
+#: .\geogem\gui_messages.py:93
 msgid "Confirm your account on GeoGem"
 msgstr "Подтвердите свой аккаунт на GeoGem"
 
-#: .\geogem\gui_messages.py:73
+#: .\geogem\gui_messages.py:94
 #, python-brace-format
 msgid ""
 "<b>{user}</b>, please check your email <b>{to_email}</b> to activate your "
@@ -184,134 +219,134 @@ msgstr ""
 "<b>{user}</b>, проверьте свою почту <b>{to_email}</b> для активации своего "
 "аккаунта."
 
-#: .\geogem\gui_messages.py:74
+#: .\geogem\gui_messages.py:95
 msgid ""
 "Thank you for confirming your email. You can now sign in to your account."
 msgstr ""
 "Спасибо за подтверждение вашей электронной почты. Теперь вы можете войти в "
 "свою учетную запись."
 
-#: .\geogem\gui_messages.py:77
+#: .\geogem\gui_messages.py:98
 #, python-brace-format
 msgid "Problem sending email to <b>{to_email}</b>, please try again."
 msgstr ""
 "Возникла ошибка при отправке письма на почту <b>{to_email}</b>, попробуйте "
 "снова."
 
-#: .\geogem\gui_messages.py:78
+#: .\geogem\gui_messages.py:99
 msgid "Activation link is invalid! Please try again."
 msgstr "Ссылка активации недействительна! Попробуйте снова."
 
-#: .\geogem\gui_messages.py:79
+#: .\geogem\gui_messages.py:100
 msgid "Please fill out all the required fields."
 msgstr "Пожалуйста, заполните все обязательные поля."
 
-#: .\geogem\gui_messages.py:82
+#: .\geogem\gui_messages.py:103
 msgid "You must pass the reCAPTCHA test"
 msgstr "Вы должны пройти капчу"
 
-#: .\geogem\gui_messages.py:83
+#: .\geogem\gui_messages.py:104
 msgid "Username cannot contain spaces"
 msgstr "Имя пользователя не может содержать пробелы"
 
-#: .\geogem\gui_messages.py:84
+#: .\geogem\gui_messages.py:105
 msgid "Username contains invalid characters"
 msgstr "Имя пользователя содержит недопустимые символы"
 
-#: .\geogem\gui_messages.py:85
+#: .\geogem\gui_messages.py:106
 msgid "Username is too short"
 msgstr "Имя пользователя слишком короткое"
 
-#: .\geogem\gui_messages.py:86
+#: .\geogem\gui_messages.py:107
 msgid "Username is too long"
 msgstr "Имя пользователя слишком длинное"
 
-#: .\geogem\gui_messages.py:87
+#: .\geogem\gui_messages.py:108
 msgid "Email contains invalid characters"
 msgstr "Адрес электронной почты содержит недопустимые символы"
 
-#: .\geogem\gui_messages.py:88
+#: .\geogem\gui_messages.py:109
 msgid "Password is too short"
 msgstr "Пароль слишком короткий"
 
-#: .\geogem\gui_messages.py:89
+#: .\geogem\gui_messages.py:110
 msgid "Passwords do not match"
 msgstr "Пароли не совпадают"
 
-#: .\geogem\gui_messages.py:90
+#: .\geogem\gui_messages.py:111
 msgid "Invalid username or password"
 msgstr "Неправильное имя пользователя или пароль"
 
-#: .\geogem\gui_messages.py:93
+#: .\geogem\gui_messages.py:114
 msgid "Welcome"
 msgstr "Добро пожаловать"
 
-#: .\geogem\gui_messages.py:95
+#: .\geogem\gui_messages.py:116
 msgid "Profile"
 msgstr "Профиль"
 
-#: .\geogem\gui_messages.py:96
+#: .\geogem\gui_messages.py:117
 msgid "Settings"
 msgstr "Настройки"
 
-#: .\geogem\gui_messages.py:97
+#: .\geogem\gui_messages.py:118
 msgid "Achievements"
 msgstr "Достижения"
 
-#: .\geogem\gui_messages.py:98
+#: .\geogem\gui_messages.py:119
 msgid "Date joined"
 msgstr "Дата создания аккаунта"
 
-#: .\geogem\gui_messages.py:99
+#: .\geogem\gui_messages.py:120
 msgid "You have premium status"
 msgstr "У вас есть премиум-статус"
 
-#: .\geogem\gui_messages.py:100
+#: .\geogem\gui_messages.py:121
 msgid "You have free status."
 msgstr "У вас нет премиума."
 
-#: .\geogem\gui_messages.py:101
+#: .\geogem\gui_messages.py:122
 msgid "Upgrade to premium"
 msgstr "Активировать премиум"
 
-#: .\geogem\gui_messages.py:102
+#: .\geogem\gui_messages.py:123
 msgid "Delete account"
 msgstr "Удалить аккаунт"
 
-#: .\geogem\gui_messages.py:103
+#: .\geogem\gui_messages.py:124
 msgid "Are you sure you want to delete your account?"
 msgstr "Вы уверены, что хотите удалить свой аккаунт?"
 
-#: .\geogem\gui_messages.py:104
+#: .\geogem\gui_messages.py:125
 msgid "Number of learned words:"
 msgstr "Количество выученных слов:"
 
-#: .\geogem\gui_messages.py:107
+#: .\geogem\gui_messages.py:128
 msgid "About GeoGem"
 msgstr "О проекте GeoGem"
 
-#: .\geogem\gui_messages.py:108
+#: .\geogem\gui_messages.py:129
 msgid ""
 "GeoGem is a project for learning Georgian words and exploring Georgian "
 "culture!"
 msgstr ""
 "GeoGem - это проект для изучения грузинских слов и грузинской культуры!"
 
-#: .\geogem\gui_messages.py:109
+#: .\geogem\gui_messages.py:130
 msgid "Source code is available on GitHub"
 msgstr "Исходный код доступен на GitHub"
 
-#: .\geogem\gui_messages.py:112
+#: .\geogem\gui_messages.py:133
 msgid "Premium is only available for registered users. Sign in and try again."
 msgstr ""
 "Премиум доступен только для зарегистрированных пользователей. Зайдите и "
 "попробуйте снова"
 
-#: .\geogem\gui_messages.py:115
+#: .\geogem\gui_messages.py:136
 msgid "Get access to the following premium features:"
 msgstr "Получите доступ к следующим функциям премиум-аккаунта:"
 
-#: .\geogem\gui_messages.py:116
+#: .\geogem\gui_messages.py:137
 msgid ""
 "<li>Premium users can do some more</li>\n"
 "<li>and later they'll do much more than that</li>\n"
@@ -322,11 +357,11 @@ msgstr ""
 "<li>и многое другое...</li>"
 
 #. Translators: this is a "Get Premium" button
-#: .\geogem\gui_messages.py:120
+#: .\geogem\gui_messages.py:141
 msgid "Try out for free!"
 msgstr "Попробуй бесплатно!"
 
-#: .\geogem\gui_messages.py:121
+#: .\geogem\gui_messages.py:142
 msgid ""
 "Thank you for upgrading to premium!<br>Enjoy all the features we have to "
 "offer!"
@@ -335,11 +370,11 @@ msgstr ""
 "аккаунта!"
 
 #. Translators: this is a "Cancel Premium" button
-#: .\geogem\gui_messages.py:123
+#: .\geogem\gui_messages.py:144
 msgid "Cancel Premium"
 msgstr "Отменить премиум"
 
-#: .\geogem\gui_messages.py:126
+#: .\geogem\gui_messages.py:147
 msgid ""
 "Every time you answer a question correctly, you get a point. Incorrect "
 "answers decrease points. The more points you have, the higher your mastery "
@@ -349,184 +384,184 @@ msgstr ""
 "Неправильные ответы уменьшают количество очков. Чем больше очков у вас есть, "
 "тем выше ваш уровень мастерства."
 
-#: .\geogem\gui_messages.py:127
+#: .\geogem\gui_messages.py:148
 msgid "You have learned all words in this block!"
 msgstr "Вы выучили все слова в этом блоке!"
 
-#: .\geogem\gui_messages.py:128
+#: .\geogem\gui_messages.py:149
 msgid "Sign in to save your progress"
 msgstr "Войдите, чтобы сохранить свой прогресс"
 
-#: .\geogem\gui_messages.py:129
+#: .\geogem\gui_messages.py:150
 msgid "No words to review"
 msgstr "Нет слов для повторения"
 
-#: .\geogem\gui_messages.py:130
+#: .\geogem\gui_messages.py:151
 msgid "Never give up!"
 msgstr "Никогда не сдавайся"
 
-#: .\geogem\gui_messages.py:131
+#: .\geogem\gui_messages.py:152
 msgid "You cannot delete the test user"
 msgstr "Вы не можете удалить тестового пользователя"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:135
+#: .\geogem\gui_messages.py:156
 msgid "Name"
 msgstr "Имя"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:137
+#: .\geogem\gui_messages.py:158
 #: .\venv\Lib\site-packages\django\db\models\fields\files.py:393
 msgid "Image"
 msgstr "Изображение"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:139
+#: .\geogem\gui_messages.py:160
 msgid "Audio"
 msgstr "Аудио"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:141
+#: .\geogem\gui_messages.py:162
 msgid "Points"
 msgstr "Очки"
 
 #. Translators: this is a column title
 #. Translators: this is a label for the level on learn index page
-#: .\geogem\gui_messages.py:143 .\geogem\gui_messages.py:184
+#: .\geogem\gui_messages.py:164 .\geogem\gui_messages.py:207
 msgid "Level"
 msgstr "Уровень"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:145
+#: .\geogem\gui_messages.py:166
 msgid "Mastery level"
 msgstr "Уровень мастерства"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:147
+#: .\geogem\gui_messages.py:168
 msgid "Transliteration"
 msgstr "Транслитерация"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:149
+#: .\geogem\gui_messages.py:170
 msgid "Translation"
 msgstr "Перевод"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:151
+#: .\geogem\gui_messages.py:172
 msgid "Example"
 msgstr "Пример"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:153
+#: .\geogem\gui_messages.py:174
 msgid "Example Image"
 msgstr "Картинка примера"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:155
+#: .\geogem\gui_messages.py:176
 msgid "Updated at"
 msgstr "Дата изменения"
 
 #. Translators: this is a column title
-#: .\geogem\gui_messages.py:157
+#: .\geogem\gui_messages.py:178
 msgid "Added at"
 msgstr "Дата добавления"
 
 #. Translators: this is a label for the number of block words, e.g. "5 words"
-#: .\geogem\gui_messages.py:162
+#: .\geogem\gui_messages.py:185
 msgid "words"
 msgstr "слов"
 
 #. Translators: this is a label for the number of learned block words, e.g. "5 learned"
-#: .\geogem\gui_messages.py:164
+#: .\geogem\gui_messages.py:187
 msgid "learned"
 msgstr "выучено"
 
-#. Translators: this is a 'Learn Words' button value
-#: .\geogem\gui_messages.py:166
-msgid "Learn Words"
-msgstr "Учить слова"
-
 #. Translators: this is a 'Review Words' button value
-#: .\geogem\gui_messages.py:168
+#: .\geogem\gui_messages.py:191
 msgid "Review"
 msgstr "Повторить слова"
 
 #. Translators: this is a 'Start Quiz' button value
-#: .\geogem\gui_messages.py:170
+#: .\geogem\gui_messages.py:193
 msgid "Start Quiz"
 msgstr "Начать викторину"
 
 #. Translators: this is a label for the block mastery level
-#: .\geogem\gui_messages.py:172
+#: .\geogem\gui_messages.py:195
 msgid "Block Mastery Level:"
 msgstr "Уровень мастерства блока:"
 
 #. Translators: this is a label for the list of words in the block
-#: .\geogem\gui_messages.py:174
+#: .\geogem\gui_messages.py:197
 msgid "List of words"
 msgstr "Список слов"
 
 #. Translators: this is a label for the block theory
-#: .\geogem\gui_messages.py:176
+#: .\geogem\gui_messages.py:199
 msgid "Theory"
 msgstr "Теория"
 
 #. Translators: this is a help text for the "tap to view contents" button on learn index page
-#: .\geogem\gui_messages.py:180
+#: .\geogem\gui_messages.py:203
 msgid "Tap on each title to view the contents"
 msgstr "Нажмите на заголовок блока, чтобы увидеть его содержимое"
 
 #. Translators: this is a title for the "Learn" index page
-#: .\geogem\gui_messages.py:182
+#: .\geogem\gui_messages.py:205
 msgid "Learning Georgian Words"
 msgstr "Изучение грузинских слов"
 
+#. Translators: this is a label for the "3 xp to level 10" on learn index page
+#: .\geogem\gui_messages.py:209
+msgid "to level"
+msgstr "до уровня"
+
 #. Translators: this is a "Sign in to earn XP" label on learn index page
-#: .\geogem\gui_messages.py:186
+#: .\geogem\gui_messages.py:211
 msgid "Sign in to view level progress"
 msgstr "Войдите, чтобы сохранить свой прогресс"
 
 #. Translators: this is a "Next" question button value
-#: .\geogem\gui_messages.py:190
+#: .\geogem\gui_messages.py:215
 msgid "Next"
 msgstr "Дальше"
 
 #. Translators: this is a "Previous" question button value
-#: .\geogem\gui_messages.py:192
+#: .\geogem\gui_messages.py:217
 msgid "Previous"
 msgstr "Назад"
 
 #. Translators: this is an "End Quiz" button value
-#: .\geogem\gui_messages.py:194
+#: .\geogem\gui_messages.py:219
 msgid "End Quiz"
 msgstr "Закончить викторину"
 
 #. Translators: this is a title of the "Quiz Results" page
-#: .\geogem\gui_messages.py:198
+#: .\geogem\gui_messages.py:223
 msgid "Results"
 msgstr "Результаты"
 
 #. Translators: this is a "Go back to" button value, e.g. "Go back to Basics"
-#: .\geogem\gui_messages.py:200
+#: .\geogem\gui_messages.py:225
 msgid "Go back to"
 msgstr "Перейти обратно в "
 
 #. Translators: this is a "Learn More Words" quiz button value
-#: .\geogem\gui_messages.py:202
+#: .\geogem\gui_messages.py:227
 msgid "Learn More Words"
 msgstr "Учить еще слова"
 
 #. Translators: this is a "Review Again" quiz button value
-#: .\geogem\gui_messages.py:204
+#: .\geogem\gui_messages.py:229
 msgid "Review Again"
 msgstr "Повторить заново"
 
 #. Translators: this is a "Start Again" quiz button value
-#: .\geogem\gui_messages.py:206
+#: .\geogem\gui_messages.py:231
 msgid "Start Again"
 msgstr "Начать заново"
 
 #. Translators: this is a "Go to Index" button value
-#: .\geogem\gui_messages.py:208
+#: .\geogem\gui_messages.py:233
 msgid "Go to Index"
 msgstr "На главную"

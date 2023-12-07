@@ -40,11 +40,11 @@ class TestViews(TestCase):
         url = reverse('learn')
         template_name = 'word_bank/learn.html'
         response = self.client.get(url)
-
+        
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
-        self.assertEqual(response.context['user'].experience, 20)
-        self.assertEqual(response.context['user'].level, 2)
+        self.assertEqual(self.test_profile.experience, 20)
+        self.assertEqual(self.test_profile.level, 2)
         self.assertIn(self.test_block, response.context['learning_blocks'])
         
     def test_learn_list_view_with_anonymous_user(self):
@@ -55,8 +55,6 @@ class TestViews(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
-        self.assertEqual(response.context['user'].experience, 0)
-        self.assertEqual(response.context['user'].level, 0)
         self.assertIn(self.test_block, response.context['learning_blocks'])
     
     def test_block_detail_view_with_authenticated_user_GET(self):

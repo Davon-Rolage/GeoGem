@@ -1,5 +1,3 @@
-import math
-
 from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.sites.shortcuts import get_current_site
@@ -61,13 +59,4 @@ def activate_email(request, user, to_email):
         messages.error(request, GUI_MESSAGES['error_messages']['email_sent'].format(to_email=to_email))
 
 
-def calculate_level_increment(level):
-    k = 24.3
-    b = -9.8
-    result = k * math.log(level) + b
-    return max(0, math.ceil(result))
 
-
-MAX_LEVEL = 100
-LEVEL_XP_INCREMENT = [calculate_level_increment(level) for level in range(1, MAX_LEVEL+1)]
-LEVEL_XP = {level: sum(LEVEL_XP_INCREMENT[:level]) for level in range(1, len(LEVEL_XP_INCREMENT)+1)}

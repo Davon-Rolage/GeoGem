@@ -8,7 +8,7 @@ from django.utils.translation import gettext as _
 from django.views.generic import DeleteView, View
 
 from accounts.models import MyProfile
-from geogem.gui_messages import GUI_MESSAGES
+from geogem.gui_messages import get_gui_messages
 from word_bank.models import UserWord
 
 from .forms import CustomUserCreationForm, CustomUserLoginForm
@@ -18,10 +18,11 @@ from .utils import *
 
 class IndexView(View):
     template_name = 'index.html'
+    gui_messages = get_gui_messages(['base', 'index'])
     
     def get(self, request):
         context = {
-            'gui_messages': GUI_MESSAGES['base'],
+            'gui_messages': self.gui_messages,
         }
         return render(request, self.template_name, context)
 
@@ -29,11 +30,12 @@ class IndexView(View):
 class SignUpView(View):
     template_name = 'accounts/signup.html'
     form_class = CustomUserCreationForm
+    gui_messages = get_gui_messages(['base', 'accounts'])
         
     def get(self, request):
         form = self.form_class()
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'gui_messages': self.gui_messages,
             'form': form
         }
         return render(request, self.template_name, context)
@@ -47,7 +49,7 @@ class SignUpView(View):
             return HttpResponseRedirect(reverse('home'))
 
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'gui_messages': self.gui_messages,
             'form': form
         }
         return render(request, self.template_name, context)
@@ -55,11 +57,12 @@ class SignUpView(View):
 
 class LoginView(View):
     template_name = 'accounts/login.html'
+    gui_messages = get_gui_messages(['base', 'accounts'])
     
     def get(self, request):
         form = CustomUserLoginForm()
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'gui_messages': self.gui_messages,
             'form': form
         }
         return render(request, self.template_name, context)
@@ -75,7 +78,7 @@ class LoginView(View):
                 return HttpResponseRedirect(reverse('home'))
             
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['accounts'],
+            'gui_messages': self.gui_messages,
             'form': form
         }
         return render(request, self.template_name, context)
@@ -89,15 +92,15 @@ def logout_view(request):
 class MyProfileView(View):
     template_name = 'accounts/my_profile.html'
     model = MyProfile
+    gui_messages = get_gui_messages(['base', 'my_profile', 'tooltips'])
     
     def get(self, request):
-        total_words = UserWord.objects.filter(user=request.user).count()
+        user_profile = self.model.objects.get(user=request.user)
+        user_profile.num_learned_words = UserWord.objects.filter(user=request.user).count()
         
         context = {
-            'total_words': total_words,
-            'gui_messages': GUI_MESSAGES['base']
-                          | GUI_MESSAGES['my_profile']
-                          | GUI_MESSAGES['tooltips'],
+            'user_profile': user_profile,
+            'gui_messages': self.gui_messages,
         }
         return render(request, self.template_name, context=context)
 
@@ -114,10 +117,11 @@ class DeleteUserView(SuccessMessageMixin, DeleteView):
 
 class PremiumView(View):
     template_name = 'word_bank/premium.html'
+    gui_messages = get_gui_messages(['base', 'premium'])
 
     def get(self, request):
         context = {
-            'gui_messages': GUI_MESSAGES['base'] | GUI_MESSAGES['premium'],
+            'gui_messages': self.gui_messages,
         }
         return render(request, self.template_name, context)
 

@@ -8,35 +8,48 @@
   <div class="container-md container-learn p-3">
     <h1 class="display-6 text-center">{{ gui_messages.learn_index_title }}</h1>
 
-    <div class="row justify-content-center">
-      <div class="col-10">
-        <h4 class="text-center">{{ user.username }} {{ user.experience }} xp</h4>
-      </div>
+    <div class="row justify-content-center align-items-center">
+        <div class="col-auto">
+          <h5><span class="badge badge- bg-dark">{{ gui_messages.level }} {{ user_profile.level|default:0 }}</span></h5>
+        </div>
+        <div class="col-auto">
+          <h5>{{ user_profile.experience|default:0 }} xp</h5>
+        </div>
     </div>
 
-    <div class="row justify-content-center align-items-center">
-      <div class="col-auto">
-        {{ gui_messages.level }} {{ user.level }}
+    <div class="row gy-1 justify-content-center align-items-center">
+
+      <!-- Level progress label (e.g. 5%) -->
+      <div class="col-sm-12 col-md-2 text-center text-md-end">
+        <span id="level-progress-label" class="fw-bold px-2"></span>
       </div>
 
       <!-- Level progress -->
-      <div class="col-sm-12 col-md-6 my-2">
-        <div class="progress" style="height: 25px;">
+      <div class="col-sm-12 col-md-6 my-1">
+        <div class="progress" style="height: 25px">
           {% if not user.is_authenticated %}
             <span class="fw-bold m-auto">{{ gui_messages.login_to_view_level_progress }}</span>
           {% endif %}
-          {% with level_progress=user.level_progress %}
+          {% with level_progress=user_profile.level_progress|default:0 %}
               {{ level_progress|json_script:"level-progress" }}
           {% endwith %}
           <div id="level-progress-bar" class="progress-bar progress-bar-striped bg-success" role="progressbar" aria-valuenow="100" aria-valuemin="0" aria-valuemax="100">
-            <span id="level-progress-label" class="fw-bold text-start px-2"></span>              
+                          
           </div>
         </div>
       </div>
+      <div class="col-sm-12 col-md-2 text-center text-md-start my-0">
+        {% if user.is_authenticated %}
+          {{ user_profile.xp_to_next_level }} xp {{ gui_messages.to_level }} {{ user_profile.level|add:1 }}
+        {% endif %}
+      </div>
     </div>
     
-    <h6 class="text-center">{{ gui_messages.tap_to_view_contents }}</h6>
-    <div class="row justify-content-center">
+    <div class="row mt-3 justify-content-center">
+
+      <div class="col-10">
+        <h6 class="text-center text-md-end">{{ gui_messages.tap_to_view_contents }}</h6>
+      </div>
       
       {% for block in learning_blocks %}
         {% if block.is_visible or user.is_staff %}

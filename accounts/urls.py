@@ -4,7 +4,6 @@ from .views import *
 
 
 urlpatterns = [
-    path('', IndexView.as_view(), name='home'),
     path('signup/', SignUpView.as_view(), name='signup'),
     path('activate/<uidb64>/<token>/', activate, name='activate'),
     path('login/', LoginView.as_view(), name='login'),

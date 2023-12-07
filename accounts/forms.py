@@ -13,6 +13,9 @@ from geogem.gui_messages import GUI_MESSAGES
 from .models import CustomUser
 
 
+GUI_MESSAGES_FORMS = GUI_MESSAGES['forms']
+
+
 class CustomUserCreationForm(UserCreationForm):
     class Meta:
         model = CustomUser
@@ -46,7 +49,7 @@ class CustomUserCreationForm(UserCreationForm):
         cleaned_data = super().clean()
         captcha = cleaned_data.get('captcha')
         if not captcha:
-            self.add_error('captcha', ValidationError(GUI_MESSAGES['forms']['error_captcha']))
+            self.add_error('captcha', ValidationError(GUI_MESSAGES_FORMS['error_captcha']))
             return cleaned_data
         
         username = cleaned_data.get('username')
@@ -58,26 +61,26 @@ class CustomUserCreationForm(UserCreationForm):
         # Check if username contains invalid characters
         if username and not all(char in username_allowed_chars for char in username):
             if username and ' ' in username:
-                self.add_error('username', ValidationError(GUI_MESSAGES['forms']['error_username_contains_spaces']))
+                self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_username_contains_spaces']))
                 self.fields['username'].widget.attrs.update({'class': 'form-control border-danger'})
             else:
-                self.add_error('username', ValidationError(GUI_MESSAGES['forms']['error_username_contains_invalid_chars']))
+                self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_username_contains_invalid_chars']))
                 self.fields['username'].widget.attrs.update({'class': 'form-control border-danger'})
             
         if username and len(username) < 3:
-            self.add_error('username', ValidationError(GUI_MESSAGES['forms']['error_username_too_short']))
+            self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_username_too_short']))
             self.fields['username'].widget.attrs.update({'class': 'form-control border-danger'})
             
         if username and len(username) > 15:
-            self.add_error('username', ValidationError(GUI_MESSAGES['forms']['error_username_too_long']))
+            self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_username_too_long']))
             self.fields['username'].widget.attrs.update({'class': 'form-control border-danger'})
             
         if password1 and len(password1) < 8:
-            self.add_error('password1', ValidationError(GUI_MESSAGES['forms']['error_password_too_short']))
+            self.add_error('password1', ValidationError(GUI_MESSAGES_FORMS['error_password_too_short']))
             self.fields['password1'].widget.attrs.update({'class': 'form-control border-danger'})
             
         if password1 and password1 != password2:
-            self.add_error('password2', ValidationError(GUI_MESSAGES['forms']['error_passwords_do_not_match']))
+            self.add_error('password2', ValidationError(GUI_MESSAGES_FORMS['error_passwords_do_not_match']))
             self.fields['password2'].widget.attrs.update({'class': 'form-control border-danger'})
         
         return cleaned_data
@@ -112,13 +115,13 @@ class CustomUserLoginForm(forms.Form):
         cleaned_data = super().clean()
         captcha = cleaned_data.get('captcha')
         if not captcha:
-            self.add_error('captcha', ValidationError(GUI_MESSAGES['forms']['error_captcha']))
+            self.add_error('captcha', ValidationError(GUI_MESSAGES_FORMS['error_captcha']))
             return cleaned_data
         
         username = cleaned_data.get('username')
         password = cleaned_data.get('password')
         user = authenticate(username=username, password=password)
         if not user:
-            self.add_error('username', ValidationError(GUI_MESSAGES['forms']['error_invalid_credentials']))
+            self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_invalid_credentials']))
         return cleaned_data
   

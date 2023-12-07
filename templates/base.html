@@ -35,7 +35,7 @@
     </audio>
     
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
-        <a href="{% url 'learn' %}">
+        <a href="{% url 'index' %}">
           <img class="logo mx-3" src="{% static 'images/logo.png' %}" alt="logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
@@ -64,7 +64,7 @@
             </div>
             
             <li class="nav-item">
-              <a class="nav-link" href="{% url 'home' %}">{{ gui_messages.home }}</a>
+              <a class="nav-link" href="{% url 'index' %}">{{ gui_messages.index }}</a>
             </li>
             <li class="nav-item">
               <a class="nav-link" href="{% url 'learn' %}">{{ gui_messages.learn }}</a>
@@ -143,7 +143,7 @@
     {% endblock %}
 
     <footer class="ps-3 pt-3 ms-3">
-      <p>&copy; 2023 GeoGem, <a href="https://newa.fun" target="_blank">Newa Fun</a></p>
+      <p><span class="copyleft">&copy;</span> 2023 GeoGem, <a href="https://newa.fun" target="_blank">Newa Fun</a></p>
     </footer>
 
 </body>

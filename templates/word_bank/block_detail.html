@@ -76,7 +76,7 @@
                             <div id="ml-doughnut" class="chart doughnut-chart-container">
                                 {{ bml_fractional_part|json_script:"bml-doughnut-fractional" }}
                                 <canvas id="doughnut" class="doughnut"></canvas>
-                                <p class="doughnut-chart-text">{{ bml_whole_part|floatformat:0 }}</p>
+                                <p class="doughnut-chart-text">{{ bml_whole_part|floatformat:0|default:0 }}</p>
                             </div>
                         </div>    
                     </div>

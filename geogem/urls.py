@@ -4,6 +4,7 @@ from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
 
+from accounts.views import IndexView
 from word_bank.views import *
 
 
@@ -12,7 +13,7 @@ urlpatterns = [
 ]
 
 urlpatterns += i18n_patterns(
-    path('', include('accounts.urls')),
+    path('', IndexView.as_view(), name='index'),
     path('learn/', include('word_bank.urls')),
     path('quizzer/', include('quizzer.urls')),
     path('accounts/', include('accounts.urls')),
