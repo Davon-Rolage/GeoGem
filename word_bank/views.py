@@ -20,16 +20,13 @@ class BlockListView(ListView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.request.user
-        if user.is_authenticated:
-            user_profile = MyProfile.objects.get(user=user)
-        
         blocks = context['object_list']
         for block in blocks:
             block.is_completed = block.is_fully_learned(user)
         
         context['gui_messages'] = self.gui_messages
         context['learning_blocks'] = blocks
-        context['user_profile'] = user_profile if user.is_authenticated else None
+        context['user_profile'] = user.profile if user.is_authenticated else None
         return context
 
 

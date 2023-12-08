@@ -4,7 +4,7 @@ from django.urls import resolve, reverse
 from word_bank.views import *
 
 
-class TestUrls(SimpleTestCase):
+class WordbankUrlsTestCase(SimpleTestCase):
     
     def test_learn_url_resolves(self):
         url = reverse('learn')

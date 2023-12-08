@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.auth.hashers import make_password
 from django.db.models.query import QuerySet
 from django.test import Client, TestCase
 from django.urls import reverse
@@ -10,45 +11,45 @@ from word_bank.models import Block, UserWord, WordInfo
 class TestViews(TestCase):
     
     def setUp(self):
+        User = get_user_model()
         self.client = Client()
         self.test_block = Block.objects.create(name='Test Block')
         self.test_word_info = WordInfo.objects.create(name='Test Word', translation='Test Word Translation')
         self.test_word_info2 = WordInfo.objects.create(name='Test Word 2', translation='Test Word 2 Translation')
         
         self.test_block.wordinfo_set.add(*WordInfo.objects.all())
-        
-        self.test_user = get_user_model().objects.create_user(
-            username='test_user', password='test_password', is_active=True
-        )
-        self.client.login(username='test_user', password='test_password')
-        self.test_superuser = get_user_model().objects.create_superuser(
-            username='test_superuser', password='test_password', is_active=True
-        )
 
+        test_password = make_password('test_password')
+        test_users = [
+            User(username=f'test_user{suffix}', password=test_password, is_active=True) for suffix in ('', '_complete_block', '_staff')
+        ]
+        User.objects.bulk_create(test_users)
+        self.test_user, self.test_user_complete_block, self.test_user_staff = test_users
+
+        self.test_user_staff.is_staff = True
+        self.test_user_staff.save()
+        
         self.test_profile = MyProfile.objects.create(user=self.test_user, experience=20)
         self.test_user_word = UserWord.objects.create(user=self.test_user, word=self.test_word_info, points=1)
 
-        self.test_user_complete_block = get_user_model().objects.create_user(
-            username='test_user_complete_block', password='test_password', is_active=True
-        )
-        
         UserWord.objects.bulk_create([
             UserWord(user=self.test_user_complete_block, word=word_info, points=1) for word_info in WordInfo.objects.all()
         ])
 
-    def test_learn_list_view_with_authenticated_user_GET(self):
+    def test_learn_list_view_as_authenticated_user_GET(self):
+        login = self.client.login(username='test_user', password='test_password')
         url = reverse('learn')
         template_name = 'word_bank/learn.html'
         response = self.client.get(url)
         
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
         self.assertEqual(self.test_profile.experience, 20)
         self.assertEqual(self.test_profile.level, 2)
         self.assertIn(self.test_block, response.context['learning_blocks'])
         
-    def test_learn_list_view_with_anonymous_user(self):
-        self.client.logout()
+    def test_learn_list_view_as_anonymous_user(self):
         url = reverse('learn')
         template_name = 'word_bank/learn.html'
         response = self.client.get(url)
@@ -57,11 +58,13 @@ class TestViews(TestCase):
         self.assertTemplateUsed(response, template_name)
         self.assertIn(self.test_block, response.context['learning_blocks'])
     
-    def test_block_detail_view_with_authenticated_user_GET(self):
+    def test_block_detail_view_as_authenticated_user_GET(self):
+        login = self.client.login(username='test_user', password='test_password')
         url = reverse('block_detail', args=['test-block'])
         template_name = 'word_bank/block_detail.html'
         response = self.client.get(url)
 
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
         self.assertIsNotNone(response.context['block_words'])
@@ -71,8 +74,7 @@ class TestViews(TestCase):
         self.assertIsInstance(response.context['ml_chart'], dict)
         self.assertFalse(response.context['learning_block'].is_completed)
     
-    def test_block_detail_view_with_anonymous_user_GET(self):
-        self.client.logout()
+    def test_block_detail_view_as_anonymous_user_GET(self):
         url = reverse('block_detail', args=['test-block'])
         template_name = 'word_bank/block_detail.html'
         response = self.client.get(url)
@@ -84,12 +86,13 @@ class TestViews(TestCase):
         self.assertEqual(response.context['block_mastery_level'], 0)
         self.assertFalse(response.context['learning_block'].is_completed)
     
-    def test_block_detail_view_with_user_with_completed_block_GET(self):
-        self.client.login(username='test_user_complete_block', password='test_password')
+    def test_block_detail_view_as_user_with_completed_block_GET(self):
+        login = self.client.login(username='test_user_complete_block', password='test_password')
         url = reverse('block_detail', args=['test-block'])
         template_name = 'word_bank/block_detail.html'
         response = self.client.get(url)
 
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
         self.assertIsNotNone(response.context['block_words'])
@@ -100,17 +103,25 @@ class TestViews(TestCase):
         self.assertTrue(response.context['learning_block'].is_completed)
     
     def test_edit_blocks_view_as_unauthorized_user_GET(self):
+        self.client.login(username='test_user', password='test_password')
+        url = reverse('blocks_table')
+        response = self.client.get(url)
+        
+        self.assertEqual(response.status_code, 302)
+    
+    def test_edit_blocks_view_as_anonymous_user_GET(self):
         url = reverse('blocks_table')
         response = self.client.get(url)
         
         self.assertEqual(response.status_code, 302)
     
     def test_edit_blocks_view_as_staff_GET(self):
-        self.client.login(username='test_superuser', password='test_password')
+        login = self.client.login(username='test_user_staff', password='test_password')
         url = reverse('blocks_table')
         template_name = 'word_bank/blocks_table.html'
         response = self.client.get(url)
         
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
         self.assertIsNotNone(response.context['blocks'])
@@ -124,11 +135,12 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_edit_block_detail_view_as_staff_GET(self):
-        self.client.login(username='test_superuser', password='test_password')
+        login = self.client.login(username='test_user_staff', password='test_password')
         url = reverse('block_edit', args=['test-block'])
         template_name = 'word_bank/block_edit.html'
         response = self.client.get(url)
 
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
         self.assertIsInstance(response.context['block_words'], QuerySet)
@@ -139,19 +151,28 @@ class TestViews(TestCase):
         response = self.client.get(url)
 
         self.assertEqual(response.status_code, 405)
-        
-    def test_add_word_info_view_as_unauthorized_user_POST(self):
+    
+    def test_add_word_info_view_as_anonymous_user_POST(self):
         url = reverse('add_word_info')
         response = self.client.post(url, data={'learning_block_id': self.test_block.id})
 
         self.assertEqual(response.status_code, 302)
+        
+    def test_add_word_info_view_as_unauthorized_user_POST(self):
+        login = self.client.login(username='test_user', password='test_password')
+        url = reverse('add_word_info')
+        response = self.client.post(url, data={'learning_block_id': self.test_block.id})
+
+        self.assertTrue(login)
+        self.assertEqual(response.status_code, 302)
     
     def test_add_word_info_view_as_staff_POST(self):
-        self.client.login(username='test_superuser', password='test_password')
+        login = self.client.login(username='test_user_staff', password='test_password')
         url = reverse('add_word_info')
         response = self.client.post(url, data={'learning_block_id': self.test_block.id})
         response_content = response.content.decode('utf-8')
 
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {'success': True})
     
@@ -161,7 +182,7 @@ class TestViews(TestCase):
 
         self.assertEqual(response.status_code, 405)
         
-    def test_edit_word_info_view_as_unauthorized_user_POST(self):
+    def test_edit_word_info_view_as_anonymous_user_POST(self):
         url = reverse('edit_word_info')
         response = self.client.post(url, data={
             'word_id': self.test_word_info.id,
@@ -170,9 +191,21 @@ class TestViews(TestCase):
         })
 
         self.assertEqual(response.status_code, 302)
+        
+    def test_edit_word_info_view_as_unauthorized_user_POST(self):
+        login = self.client.login(username='test_user', password='test_password')
+        url = reverse('edit_word_info')
+        response = self.client.post(url, data={
+            'word_id': self.test_word_info.id,
+            'changed_field': 'translation',
+            'new_value': 'New Translation'
+        })
+
+        self.assertTrue(login)
+        self.assertEqual(response.status_code, 302)
     
     def test_edit_word_info_view_as_staff_POST(self):
-        self.client.login(username='test_superuser', password='test_password')
+        login = self.client.login(username='test_user_staff', password='test_password')
 
         word_id = self.test_word_info.id
         changed_field = 'translation'
@@ -187,6 +220,7 @@ class TestViews(TestCase):
         })
         response_content = response.content.decode('utf-8')
 
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'success': True,
@@ -205,10 +239,12 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 302)
     
     def test_user_words_list_view_as_authenticated_user_GET(self):
+        login = self.client.login(username='test_user', password='test_password')
         url = reverse('user_words')
         template_name = 'word_bank/user_words.html'
         response = self.client.get(url)
 
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, template_name)
         self.assertIsInstance(response.context['words'], QuerySet)
@@ -238,18 +274,27 @@ class TestViews(TestCase):
         self.assertEqual(response.status_code, 405)
         self.assertTemplateUsed(template_name)
     
-    def test_reset_test_block_as_unauthorized_user_POST(self):
+    def test_reset_test_block_as_anonymous_user_POST(self):
         url = reverse('reset_test_block')
         response = self.client.post(url)
 
         self.assertEqual(response.status_code, 302)
     
-    def test_reset_test_block_as_superuser_POST(self):
-        self.client.login(username='test_superuser', password='test_password')
+    def test_reset_test_block_as_unauthorized_user_POST(self):
+        login = self.client.login(username='test_user', password='test_password')
+        url = reverse('reset_test_block')
+        response = self.client.post(url)
+
+        self.assertTrue(login)
+        self.assertEqual(response.status_code, 302)
+    
+    def test_reset_test_block_as_staff_POST(self):
+        login = self.client.login(username='test_user_staff', password='test_password')
         url = reverse('reset_test_block')
         response = self.client.post(url)
         response_content = response.content.decode('utf-8')
 
+        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {'success': True})
     

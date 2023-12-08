@@ -4,7 +4,7 @@ from django.urls import resolve, reverse
 from quizzer.views import *
 
 
-class TestUrls(SimpleTestCase):
+class QuizzerUrlsTestCase(SimpleTestCase):
     
     def test_quiz_learn_url_resolves(self):
         url = reverse('quiz_learn')

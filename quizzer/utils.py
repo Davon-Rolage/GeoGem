@@ -19,7 +19,8 @@ def update_user_word_points(user_answer: str, correct_answer: str, user_word: Us
     return is_correct
 
 
-def update_profile_experience(user_profile, increase_by=1):
+def update_profile_experience(user, increase_by=1):
+    user_profile = user.profile
     user_profile.experience += increase_by
     user_profile.save()
 
@@ -33,16 +34,17 @@ def add_to_learned(request):
         json_data = dict()
         
         if user.is_authenticated:
+            user_profile = user.profile
             user_word, created = UserWord.objects.get_or_create(
                 user=user,
                 word=word
             )
             user_word.points += int(created)
             if created:
-                user_profile = MyProfile.objects.get(user=user)
                 user_profile.num_learned_words += 1
                 user_profile.save()
-                update_profile_experience(user_profile, increase_by=1)
+                update_profile_experience(user, increase_by=1)
+
             user_word.save()
             json_data = {
                 'created': created,
@@ -60,14 +62,13 @@ def check_answer_multiple_choice(request):
     correct_answer = word.translation
     user = request.user
     if user.is_authenticated:
-        user_profile = MyProfile.objects.get(user=user)
         user_word, created = UserWord.objects.get_or_create(
             user=user,
             word=word
         )
         is_correct = update_user_word_points(user_answer, correct_answer, user_word, increase_by=2, decrease_by=1)
         if is_correct:
-            update_profile_experience(user_profile, increase_by=2)
+            update_profile_experience(user, increase_by=2)
     else:
         is_correct = user_answer == correct_answer
     
@@ -82,7 +83,6 @@ def check_answer_multiple_choice(request):
 def check_answer_review(request):
     question_id = request.POST.get('question_id')
     user = request.user
-    user_profile = MyProfile.objects.get(user=user)
     user_word = UserWord.objects.get(pk=question_id, user=user)
     word = WordInfo.objects.get(pk=user_word.word_id)
 
@@ -92,7 +92,7 @@ def check_answer_review(request):
     is_correct = update_user_word_points(user_answer, correct_answer, user_word, increase_by=1, decrease_by=1)
     if is_correct:
         example_span = populate_example_span(word)
-        update_profile_experience(user_profile, increase_by=1)
+        update_profile_experience(user, increase_by=1)
 
     else:
         example_span = ''

@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-07 22:04+0400\n"
+"POT-Creation-Date: 2023-12-08 21:26+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -20,9 +20,21 @@ msgstr ""
 "%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || (n"
 "%100>=11 && n%100<=14)? 2 : 3);\n"
 
-#: .\accounts\templates\accounts\activate_email.html:1
-msgid "Click on the link below to activate your GeoGem account:"
-msgstr "Нажмите на ссылку ниже, чтобы активировать свой GeoGem аккаунт:"
+#: .\accounts\templates\accounts\activate_email.html:30
+msgid "click on the button below to activate your GeoGem account:"
+msgstr "нажмите на кнопку ниже, чтобы активировать свой аккаунт на GeoGem:"
+
+#: .\accounts\templates\accounts\activate_email.html:33
+msgid "Activate Account"
+msgstr "Активировать аккаунт"
+
+#: .\accounts\templates\accounts\activate_email.html:34
+msgid ""
+"If you're having trouble clicking the Activate button, copy and paste the "
+"URL below into your web browser:"
+msgstr ""
+"Если у вас возникли проблемы с нажатием кнопки 'Активировать', скопируйте и "
+"вставьте следующий URL в адресную строку вашего веб-браузера:"
 
 #. Translators: this is a login title
 #. Translators: this is a login button
@@ -192,7 +204,8 @@ msgstr "Грамматика, произношение, культурный к�
 msgid ""
 "Study the theory of Georgian language and get a deeper understanding of the "
 "language"
-msgstr "Изучите теорию грузинского языка и улучшите свои навыки понимания языка"
+msgstr ""
+"Изучите теорию грузинского языка и улучшите свои навыки понимания языка"
 
 #: .\geogem\gui_messages.py:88
 msgid "Dive Into Theory"

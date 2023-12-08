@@ -3,11 +3,19 @@ const usernameInput = $("#floatingInputGroupUsername");
 const usernameTakenError = $("#username-taken-error");
 
 usernameInput.on("change", function() {
+    const usernameInputValue = usernameInput.val();
+
+    if (usernameInputValue.trim() === "") {
+        usernameInput.addClass("is-invalid");
+        usernameTakenError.hide();
+        return;
+    }
+    
     $.ajax({
         type: "GET",
         url: $("#url-check-username").val(),
         data: {
-        username: usernameInput.val(),
+        username: usernameInputValue,
         },
         success: function(username) {
         if (username.exists) {

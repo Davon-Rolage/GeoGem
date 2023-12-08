@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('DJANGO_SECRET_KEY')
@@ -19,7 +18,6 @@ EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if os.environ.get('DEBUG') else False
 
 ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
@@ -140,8 +138,8 @@ MEDIA_ROOT = BASE_DIR / 'media'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'home'
+LOGIN_REDIRECT_URL = 'index'
+LOGOUT_REDIRECT_URL = 'index'
 
 AUTH_USER_MODEL = 'accounts.CustomUser'
 

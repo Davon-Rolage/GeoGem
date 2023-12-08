@@ -5,29 +5,31 @@ from django.test import TestCase
 from word_bank.models import Block, UserWord, WordInfo
 
 
-class TestModels(TestCase):
+class WordBankModelsTestCase(TestCase):
     
     def setUp(self):
+        User = get_user_model()
         self.test_block = Block.objects.create(name='Test Block')
-
-        self.test_word_info = WordInfo.objects.create(name='Test Word')
-        self.test_word_info2 = WordInfo.objects.create(name='Test Word 2')
-        self.test_word_info_full = WordInfo.objects.create(
-            name='Test Word Full Name', 
-            translation='Test Word Full Translation', 
-            example='Test Word Long Example'
-        )
-        self.test_word_info_short_example = WordInfo.objects.create(example='Short Example')
-        self.test_word_info_no_example = WordInfo.objects.create()
+        
+        test_word_infos = [
+            WordInfo(name='Test Word'),
+            WordInfo(name='Test Word 2'),
+            WordInfo(name='Test Word Full Name', translation='Test Word Full Translation', example='Test Word Long Example'),
+            WordInfo(),
+        ]
+        WordInfo.objects.bulk_create(test_word_infos)
+        self.test_word_info, self.test_word_info2, self.test_word_info_full, self.test_word_info_no_example = test_word_infos
 
         self.test_block.wordinfo_set.add(*WordInfo.objects.all())
 
-        self.test_user_no_words = get_user_model().objects.create(username='test_user_no_words', is_active=True)
-        self.test_user_has_words = get_user_model().objects.create(username='test_user_has_words', is_active=True)
+        test_users = [
+            User(username=f'test_user_{suffix}', is_active=True) for suffix in ('no_words', 'has_words', 'all_words_learned')
+        ]
+        User.objects.bulk_create(test_users)
+        self.test_user_no_words, self.test_user_has_words, self.test_user_all_words_learned = test_users
+        
         self.test_user_word = UserWord.objects.create(user=self.test_user_has_words, word=self.test_word_info, points=1)
         self.test_user_word2 = UserWord.objects.create(user=self.test_user_has_words, word=self.test_word_info2)
-        
-        self.test_user_all_words_learned = get_user_model().objects.create(username='test_user_all_words_learned', is_active=True)
 
         UserWord.objects.bulk_create([
             UserWord(user=self.test_user_all_words_learned, word=word_info, points=1) for word_info in WordInfo.objects.all()
@@ -51,7 +53,7 @@ class TestModels(TestCase):
     
     def test_block_get_mastery_level_user_has_words(self):
         test_user_block_mastery_level = self.test_block.get_mastery_level(self.test_user_has_words)
-        self.assertEqual(test_user_block_mastery_level, 0.2)
+        self.assertEqual(test_user_block_mastery_level, 0.25)
     
     def test_block_get_mastery_level_user_no_words(self):
         test_user_block_mastery_level = self.test_block.get_mastery_level(self.test_user_no_words)
@@ -85,7 +87,8 @@ class TestModels(TestCase):
         self.assertEqual(self.test_word_info_full.example_short(), 'Test Word Long ...')
     
     def test_word_info_example_short_with_short_example(self):
-        self.assertEqual(self.test_word_info_short_example.example_short(), 'Short Example')
+        test_word_info_short_example = WordInfo.objects.create(example='Short Example')
+        self.assertEqual(test_word_info_short_example.example_short(), 'Short Example')
 
     def test_word_info_example_short_with_no_example(self):
         self.assertIsNone(self.test_word_info_no_example.example_short())
