@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model
+from django.contrib.messages import get_messages
 from django.test import Client, TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -56,8 +57,12 @@ class ActivateUserTestCase(TestCase):
         test_user.refresh_from_db()
         
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('login'))
+        self.assertRedirects(response, reverse('login'))
         self.assertEqual(test_user.is_active, True)
+        
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), 'Thank you for confirming your email. You can now sign in to your account.')
         
         login = self.client.login(username='test_user_activation_success', password='test_password')
         self.assertTrue(login)
@@ -72,8 +77,11 @@ class ActivateUserTestCase(TestCase):
         test_user_invalid.refresh_from_db()
         
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('signup'))
+        self.assertRedirects(response, reverse('signup'))
         self.assertFalse(test_user_invalid.is_active)
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), 'Activation link is invalid! Please try again.')
         
         login = self.client.login(username='test_user_invalid', password='test_password')
         self.assertFalse(login)
@@ -91,9 +99,12 @@ class ActivateUserTestCase(TestCase):
         test_user_expired.refresh_from_db()
         
         self.assertEqual(response.status_code, 302)
-        self.assertEqual(response.url, reverse('signup'))
+        self.assertRedirects(response, reverse('signup'))
         self.assertFalse(test_user_expired.is_active)
         self.assertFalse(CustomUserToken.objects.filter(token='test_token_expired').exists())
+        messages = list(get_messages(response.wsgi_request))
+        self.assertEqual(len(messages), 1)
+        self.assertEqual(str(messages[0]), 'Activation link is invalid! Please try again.')
         
         login = self.client.login(username='test_user_expired', password='test_password')
         self.assertFalse(login)

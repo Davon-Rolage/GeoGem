@@ -1,5 +1,5 @@
 import secrets
-from bisect import bisect_right
+from bisect import bisect_left
 from collections import Counter
 from datetime import datetime
 
@@ -107,5 +107,5 @@ class UserWord(models.Model):
     
     @property
     def mastery_level(self):
-        level = bisect_right(EXP_NEEDED_BY_WORD_MASTERY_LEVEL, self.points)
-        return level - 1
+        level = bisect_left(EXP_NEEDED_BY_WORD_MASTERY_LEVEL, self.points)
+        return level

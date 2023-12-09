@@ -47,17 +47,16 @@ class CustomUserCreationForm(UserCreationForm):
     
     def clean(self):
         cleaned_data = super().clean()
-        captcha = cleaned_data.get('captcha')
-        if not captcha:
-            self.add_error('captcha', ValidationError(GUI_MESSAGES_FORMS['error_captcha']))
-            return cleaned_data
         
+        captcha = cleaned_data.get('captcha')
         username = cleaned_data.get('username')
         username_allowed_chars = ascii_letters + digits + '.+-_'
         email = cleaned_data.get('email')
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
         
+        if not captcha:
+            self.add_error('captcha', ValidationError(GUI_MESSAGES_FORMS['error_captcha']))
         # Check if username contains invalid characters
         if username and not all(char in username_allowed_chars for char in username):
             if username and ' ' in username:
@@ -113,13 +112,13 @@ class CustomUserLoginForm(forms.Form):
     
     def clean(self):
         cleaned_data = super().clean()
-        captcha = cleaned_data.get('captcha')
-        if not captcha:
-            self.add_error('captcha', ValidationError(GUI_MESSAGES_FORMS['error_captcha']))
-            return cleaned_data
-        
         username = cleaned_data.get('username')
         password = cleaned_data.get('password')
+        captcha = cleaned_data.get('captcha')
+
+        if not captcha:
+            self.add_error('captcha', ValidationError(GUI_MESSAGES_FORMS['error_captcha']))
+        
         user = authenticate(username=username, password=password)
         if not user:
             self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_invalid_credentials']))

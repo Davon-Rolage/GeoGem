@@ -78,10 +78,8 @@ class LoginView(View):
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
-            if user is not None:
-                login(request, user)
-                return HttpResponseRedirect(reverse('index'))
+            login(request, authenticate(username=username, password=password))
+            return HttpResponseRedirect(reverse('index'))
             
         context = {
             'gui_messages': self.gui_messages,
@@ -101,14 +99,17 @@ class MyProfileView(View):
     
     def get(self, request):
         user = request.user
-        user_profile = user.profile
-        user_profile.num_learned_words = UserWord.objects.filter(user=request.user).count()
-        
-        context = {
-            'gui_messages': self.gui_messages,
-            'user_profile': user_profile
-        }
-        return render(request, self.template_name, context=context)
+        if user.is_authenticated:
+            user_profile = user.profile
+            user_profile.num_learned_words = UserWord.objects.filter(user=request.user).count()
+            
+            context = {
+                'gui_messages': self.gui_messages,
+                'user_profile': user_profile
+            }
+            return render(request, self.template_name, context=context)
+
+        return HttpResponseRedirect(reverse('login'))
 
 
 class DeleteUserView(SuccessMessageMixin, DeleteView):
@@ -116,9 +117,9 @@ class DeleteUserView(SuccessMessageMixin, DeleteView):
     success_url = reverse_lazy('index')    
     success_message = GUI_MESSAGES['messages']['user_deleted']
 
-    def delete(self, request, *args, **kwargs):
+    def form_valid(self, form):
         messages.success(self.request, self.success_message)
-        return super().delete(request, *args, **kwargs)
+        return super().form_valid(form)
 
 
 class PremiumView(View):
