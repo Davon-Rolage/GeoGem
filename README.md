@@ -86,10 +86,20 @@ python manage.py loaddatautf8 data.json
 
 
 # Tests
-All tests are located in every app's `tests` folder. Run them with:
+All tests are located in every app's `tests` folder. Current code coverage is `98%`<br>
+`coverage` tool is used for measuring code coverage. To make tests run faster, the `geogem/test_settings.py` is used which include a more simple password hasher algorithm:
 ```
-python manage.py test
+coverage run manage.py test --settings=geogem.test_settings
 ```
+To get a code coverage, run:
+```
+coverage report
+```
+To get annotated HTML listings with missed lines, run:
+```
+coverage html
+```
+Head to the created `htmlcov` folder and open `index.html` with `Live server`
 
 
 # Tech Stack
@@ -103,6 +113,7 @@ The aspects of Django framework that were used during development of this projec
 - JavaScript, jQuery, Ajax requests & Chart.js
 - CSS & DataTables, Bootstrap v5.3.2 (makes for a visually-appealing and mobile-friendly interface)
 - django-recaptcha, email confirmation upon registration
-- unittests (for views, urls and models)
+- unittests (models, views, templates and forms), coverage module
 - Docker and docker-compose.yml files
 - Environment variables
+- Customized admin page: SimpleListfilter, EmptyFieldListFilter

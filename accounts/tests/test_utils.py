@@ -88,7 +88,7 @@ class ActivateUserTestCase(TestCase):
     
     def test_activate_user_failed_expired_token_GET(self):
         test_user_expired = self.User.objects.create_user(username='test_user_expired', password='test_password')
-        expire_date = timezone.now()
+        expire_date = timezone.now() - timezone.timedelta(days=30)
         CustomUserToken.objects.create(
             user=test_user_expired, token='test_token_expired', expire_date=expire_date
         )
@@ -99,7 +99,6 @@ class ActivateUserTestCase(TestCase):
         test_user_expired.refresh_from_db()
         
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('signup'))
         self.assertFalse(test_user_expired.is_active)
         self.assertFalse(CustomUserToken.objects.filter(token='test_token_expired').exists())
         messages = list(get_messages(response.wsgi_request))

@@ -27,6 +27,7 @@ class CustomUserTokenAdmin(admin.ModelAdmin):
 class MyProfileAdmin(admin.ModelAdmin):
     model = MyProfile
     list_display = ['user', 'num_learned_words', 'experience']
+    list_filter = ['user__is_premium']
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
