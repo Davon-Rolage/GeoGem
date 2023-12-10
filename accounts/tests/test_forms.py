@@ -43,6 +43,7 @@ class CustomUserCreationFormTestCase(TestCase):
 
     def test_custom_user_creation_form_invalid_username_empty(self):
         form = self.create_invalid_form({'username': ''})
+        
         self.assertFalse(form.is_valid())
         self.assertEqual('This field is required.', form.errors['username'][0])
 
@@ -52,11 +53,13 @@ class CustomUserCreationFormTestCase(TestCase):
 
     def test_custom_user_creation_form_invalid_username_contains_invalid_chars(self):
         form = self.create_invalid_form({'username': 'user@name'})
+        
         self.assertFalse(form.is_valid())
         self.assertEqual('Username contains invalid characters', form.errors['username'][0])
 
     def test_custom_user_creation_form_invalid_username_too_short(self):
         form = self.create_invalid_form({'username': 'ab'})
+        
         self.assertFalse(form.is_valid())
         self.assertEqual('Username is too short', form.errors['username'][0])
 
@@ -66,23 +69,28 @@ class CustomUserCreationFormTestCase(TestCase):
 
     def test_custom_user_creation_form_invalid_password_too_short(self):
         form = self.create_invalid_form({'password1': 'pass'})
+        
         self.assertFalse(form.is_valid())
         self.assertEqual('Password is too short', form.errors['password1'][0])
 
     def test_custom_user_creation_form_invalid_passwords_do_not_match(self):
         form = self.create_invalid_form({'password2': 'mismatchedpassword'})
+        
         self.assertFalse(form.is_valid())
         self.assertEqual("The two password fields didn’t match.", form.errors['password2'][0])
 
 
 class CustomUserLoginFormTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.User = get_user_model()
+        cls.test_user = cls.User.objects.create_user(
+            username='test_user', password='test_password', is_active=True
+        )
     
     @mock.patch("captcha.fields.ReCaptchaField.clean")
     def test_custom_user_login_form_valid_data(self, mock_clean):
         mock_clean.return_value = "testcaptcha"
-        get_user_model().objects.create_user(
-            username='test_user', password='test_password', is_active=True
-        )
         form = CustomUserLoginForm(data={
             'username': 'test_user',
             'password': 'test_password',
@@ -98,9 +106,6 @@ class CustomUserLoginFormTestCase(TestCase):
         self.assertEqual('You must pass the reCAPTCHA test', form.errors['captcha'][1])
     
     def test_custom_user_login_form_invalid_username(self):
-        get_user_model().objects.create_user(
-            username='test_user2', password='test_password', is_active=True
-        )
         form = CustomUserLoginForm(data={
             'username': 'user_invalid',
             'password': 'test_password',
@@ -109,14 +114,10 @@ class CustomUserLoginFormTestCase(TestCase):
         self.assertEqual('Invalid username or password', form.errors['username'][0])
 
     def test_custom_user_login_form_invalid_password(self):
-        get_user_model().objects.create_user(
-            username='test_user3', password='test_password', is_active=True
-        )
         form = CustomUserLoginForm(data={
-            'username': 'test_user3',
+            'username': 'test_user',
             'password': 'password_invalid',
         })
         self.assertFalse(form.is_valid())
         self.assertEqual('Invalid username or password', form.errors['username'][0])
-    
     

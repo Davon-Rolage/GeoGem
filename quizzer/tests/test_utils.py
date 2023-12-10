@@ -1,5 +1,4 @@
 from django.contrib.auth import get_user_model
-from django.contrib.auth.hashers import make_password
 from django.test import Client, TestCase
 from django.urls import reverse
 
@@ -8,11 +7,11 @@ from word_bank.models import Block, UserWord, WordInfo
 
 
 class UpdateUserWordPointsTestCase(TestCase):
-    
-    def setUp(self):
-        self.test_user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
-        self.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
-        self.test_user_word = UserWord.objects.create(user=self.test_user, word=self.test_word_info, points=50)
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
+        cls.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
+        cls.test_user_word = UserWord.objects.create(user=cls.test_user, word=cls.test_word_info, points=50)
 
     def test_update_user_word_points_correct_answer(self):
         is_correct = update_user_word_points('test', 'test', self.test_user_word)
@@ -64,14 +63,16 @@ class UpdateUserWordPointsTestCase(TestCase):
 
 
 class UpdateProfileExperienceTestCase(TestCase):
-    
-    def setUp(self):
-        self.user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
-        self.user_profile = self.user.profile
-        self.user_profile.experience = 50
-        self.user_profile.save()
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = get_user_model().objects.create_user(
+            username='test_user', password='test_password', is_active=True
+        )
+        cls.user_profile = cls.user.profile
+        cls.user_profile.experience = 50
+        cls.user_profile.save()
 
-    def test_update_profile_experience_as_authenticated_user(self):
+    def test_update_profile_experience_default_increase(self):
         update_profile_experience(self.user)
         self.user_profile.refresh_from_db(fields=['experience'])
         
@@ -85,13 +86,21 @@ class UpdateProfileExperienceTestCase(TestCase):
 
 
 class AddToLearnedTestCase(TestCase):
-    
-    def setUp(self):
-        self.client = Client()
-        self.url = reverse('add_to_learned')
+    @classmethod
+    def setUpTestData(cls):
+        cls.User = get_user_model()
+        cls.client = Client()
+        cls.url = reverse('add_to_learned')
         
-        self.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
-        self.request_data = {'question_id': self.test_word_info.id, 'is_last': 'true'}
+        cls.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
+        cls.request_data = {'question_id': cls.test_word_info.id, 'is_last': 'true'}
+
+        cls.test_user = cls.User.objects.create_user(
+            username='test_user', password='test_password', is_active=True
+        )
+        cls.test_user_with_words = cls.User.objects.create_user(
+            username='test_user_with_words', password='test_password', is_active=True
+        )
 
     def test_add_to_learned_as_anonymous_user_POST(self):
         response = self.client.post(self.url, self.request_data)
@@ -101,17 +110,15 @@ class AddToLearnedTestCase(TestCase):
         self.assertJSONEqual(response_content, {'is_last': True})
         
     def test_add_to_learned_as_authenticated_user_created_word_POST(self):
-        test_user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
-        login = self.client.login(username='test_user', password='test_password')
+        self.client.force_login(self.test_user)
         response = self.client.post(self.url, self.request_data)
         response_content = response.content.decode('utf-8')
         
-        user_word = UserWord.objects.get(user=test_user, word=self.test_word_info)
+        user_word = UserWord.objects.get(user=self.test_user, word=self.test_word_info)
         
-        test_user_profile = test_user.profile
+        test_user_profile = self.test_user.profile
         test_user_profile.refresh_from_db(fields=['num_learned_words'])
         
-        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(test_user_profile.num_learned_words, 1)
         self.assertEqual(user_word.points, 1)
@@ -122,15 +129,14 @@ class AddToLearnedTestCase(TestCase):
         })
     
     def test_add_to_learned_as_authenticated_user_known_word_POST(self):
-        test_user_with_words = get_user_model().objects.create_user(username='test_user_with_words', password='test_password', is_active=True)
-        UserWord.objects.create(user=test_user_with_words, word=self.test_word_info, points=20)
+        UserWord.objects.create(user=self.test_user_with_words, word=self.test_word_info, points=20)
 
-        login = self.client.login(username='test_user_with_words', password='test_password')
+        self.client.force_login(self.test_user_with_words)
         response = self.client.post(self.url, self.request_data)
         response_content = response.content.decode('utf-8')
-        user_word = UserWord.objects.get(user=test_user_with_words, word=self.test_word_info)
 
-        self.assertTrue(login)
+        user_word = UserWord.objects.get(user=self.test_user_with_words, word=self.test_word_info)
+
         self.assertEqual(response.status_code, 200)
         self.assertEqual(user_word.points, 20)
         self.assertJSONEqual(response_content, {
@@ -141,26 +147,32 @@ class AddToLearnedTestCase(TestCase):
 
 
 class CheckAnswerTestCase(TestCase):
-    
-    def setUp(self):
-        self.url = reverse('check_answer')
-        self.test_block = Block.objects.create(name='Test Block')
-        self.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
-        self.test_word_info.blocks.add(self.test_block)
+    @classmethod
+    def setUpTestData(cls):
+        cls.User = get_user_model()
+        cls.client = Client()
 
-        self.test_user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
-        self.test_user_profile = self.test_user.profile
-        self.test_user_profile.experience = 50
-        self.test_user_profile.save()
-        self.test_user_word = UserWord.objects.create(user=self.test_user, word=self.test_word_info, points=1)
+        cls.url = reverse('check_answer')
+        cls.test_block = Block.objects.create(name='Test Block')
+        cls.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
+        cls.test_word_info.blocks.add(cls.test_block)
+
+        cls.test_user = cls.User.objects.create_user(
+            username='test_user', password='test_password', is_active=True
+        )
+        cls.test_user_profile = cls.test_user.profile
+        cls.test_user_profile.experience = 50
+        cls.test_user_profile.save()
+        cls.test_user_word = UserWord.objects.create(
+            user=cls.test_user, word=cls.test_word_info, points=1
+        )
     
-    def test_check_answer_view_GET(self):
+    def test_check_answer_view_method_not_allowed_GET(self):
         response = self.client.get(self.url, {
             'quiz_type': 'learn',
             'question_id': 1,
             'answer': 'test',
         })
-
         self.assertEqual(response.status_code, 405)
     
     def test_check_answer_view_incorrect_quiz_type_POST(self):
@@ -201,7 +213,7 @@ class CheckAnswerTestCase(TestCase):
         })
     
     def test_check_answer_multiple_choice_correct_answer_as_authenticated_user_POST(self):
-        login = self.client.login(username='test_user', password='test_password')
+        self.client.force_login(self.test_user)
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -215,7 +227,6 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.test_user_profile.experience - profile_exp_before, 2)
         self.assertEqual(self.test_user_word.points - user_word_points_before, 2)
@@ -225,7 +236,7 @@ class CheckAnswerTestCase(TestCase):
         })
 
     def test_check_answer_multiple_choice_incorrect_answer_as_authenticated_user_POST(self):
-        login = self.client.login(username='test_user', password='test_password')
+        self.client.force_login(self.test_user)
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -239,7 +250,6 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.test_user_profile.experience, profile_exp_before)
         self.assertEqual(self.test_user_word.points - user_word_points_before, -1)
@@ -247,10 +257,10 @@ class CheckAnswerTestCase(TestCase):
             'is_correct': False,
             'example_span': ''
         })
-    
+
     
     def test_check_answer_review_correct_answer_as_authenticated_user_POST(self):
-        login = self.client.login(username='test_user', password='test_password')
+        self.client.force_login(self.test_user)
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -264,7 +274,6 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.test_user_profile.experience - profile_exp_before, 1)
         self.assertEqual(self.test_user_word.points - user_word_points_before, 1)
@@ -275,7 +284,7 @@ class CheckAnswerTestCase(TestCase):
         })
     
     def test_check_answer_review_incorrect_answer_as_authenticated_user_POST(self):
-        login = self.client.login(username='test_user', password='test_password')
+        self.client.force_login(self.test_user)
         profile_exp_before = self.test_user_profile.experience
         user_word_points_before = self.test_user_word.points
         
@@ -289,7 +298,6 @@ class CheckAnswerTestCase(TestCase):
         self.test_user_profile.refresh_from_db(fields=['experience'])
         self.test_user_word.refresh_from_db(fields=['points'])
 
-        self.assertTrue(login)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(self.test_user_profile.experience, profile_exp_before)
         self.assertEqual(self.test_user_word.points - user_word_points_before, -1)
@@ -301,39 +309,44 @@ class CheckAnswerTestCase(TestCase):
 
 
 class PopulateExampleSpanTestCase(TestCase):
-    
-    def setUp(self):
-        self.test_example_text = "example_text"
-        self.test_example_image_url = "example_image_url"
+    @classmethod
+    def setUpTestData(cls):
+        cls.test_example_text = "example_text"
+        cls.test_example_image_url = "example_image_url"
+        
+        cls.word_empty = WordInfo()
+        cls.word_example_text = WordInfo(example=cls.test_example_text)
+        cls.word_example_image = WordInfo(example_image=cls.test_example_image_url)
+        cls.word_example_text_and_image = WordInfo(
+            example=cls.test_example_text, example_image=cls.test_example_image_url
+        )
 
     def test_populate_example_span_without_example(self):
-        word = WordInfo()
-        result = populate_example_span(word)
+        result = populate_example_span(self.word_empty)
         self.assertEqual(result, "")
         
     def test_populate_example_span_with_example_text(self):
-        word = WordInfo(example=self.test_example_text)
-        result = populate_example_span(word)
+        result = populate_example_span(self.word_example_text)
         self.assertEqual(result, self.test_example_text)
 
     def test_populate_example_span_with_example_image(self):
-        word = WordInfo(example_image=self.test_example_image_url)
-        result = populate_example_span(word)
+        result = populate_example_span(self.word_example_image)
+        
         self.assertIn("<img", result)
         self.assertIn(self.test_example_image_url, result)
 
     def test_populate_example_span_with_both_example_text_and_image(self):
-        word = WordInfo(example=self.test_example_text, example_image=self.test_example_image_url)
-        result = populate_example_span(word)
+        result = populate_example_span(self.word_example_text_and_image)
+        
         self.assertIn("<img", result)
         self.assertIn(self.test_example_image_url, result)
         self.assertIn(self.test_example_text, result)
 
 
 class ShuffleQuestionsOrderTestCase(TestCase):
-    
-    def setUp(self):
-        self.questions = [x for x in range(1, 5)]
+    @classmethod
+    def setUpTestData(cls):
+        cls.questions = [x for x in range(1, 5)]
 
     def test_shuffle_questions_order_wrong_type(self):
         result = shuffle_questions_order(1)

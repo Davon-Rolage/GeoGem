@@ -86,16 +86,16 @@ python manage.py loaddatautf8 data.json
 
 
 # Tests
-All tests are located in every app's `tests` folder. Current code coverage is `98%`<br>
-`coverage` tool is used for measuring code coverage. To make tests run faster, the `geogem/test_settings.py` is used which include a more simple password hasher algorithm:
+All tests are located in every app's `tests` folder. Current code coverage is `98%`.<br>
+`coverage` tool is used for measuring code coverage. To make tests run faster, the `geogem/test_settings.py` is used which includes a more simple password hasher algorithm:
 ```
 coverage run manage.py test --settings=geogem.test_settings
 ```
-To get a code coverage, run:
+Get a code coverage report:
 ```
 coverage report
 ```
-To get annotated HTML listings with missed lines, run:
+Get annotated HTML listings with missed lines:
 ```
 coverage html
 ```

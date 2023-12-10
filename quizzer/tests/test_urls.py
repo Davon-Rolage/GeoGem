@@ -30,4 +30,3 @@ class QuizzerUrlsTestCase(SimpleTestCase):
         url = reverse('add_to_learned')
         self.assertEqual(resolve(url).func, add_to_learned)
     
-        

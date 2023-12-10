@@ -1,57 +1,51 @@
-from django.test import TestCase
 from django.contrib.auth import get_user_model
+from django.test import TestCase
 
 
 class CustomUserModelTestCase(TestCase):
-    
-    def setUp(self):
-        self.User = get_user_model()
-    
-    def test_custom_user_str(self):
-        test_user = self.User.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.User = get_user_model()
+        cls.test_user = cls.User.objects.create_user(
             username='test_user', is_active=True
         )
-        self.assertEqual(str(test_user), 'test_user')
-    
-    def test_custom_user_save_method_does_not_make_regular_user_active(self):
-        test_user_inactive = self.User.objects.create_user(
+        cls.test_user_inactive = cls.User.objects.create_user(
             username='test_user_inactive'
         )
-        self.assertFalse(test_user_inactive.is_active)
-    
-    def test_custom_user_save_method_makes_staff_user_active(self):
-        test_user_staff = self.User.objects.create_user(
+        cls.test_user_staff = cls.User.objects.create_user(
             username='test_user_staff', is_staff=True
         )
-        self.assertTrue(test_user_staff.is_active)
-    
-    def test_custom_user_save_method_makes_superuser_active(self):
-        test_superuser = self.User.objects.create_user(
+        cls.test_superuser = cls.User.objects.create_user(
             username='test_superuser', is_superuser=True
         )
-        self.assertTrue(test_superuser.is_active)
+    
+    def test_custom_user_str(self):
+        self.assertEqual(str(self.test_user), 'test_user')
+    
+    def test_custom_user_save_method_does_not_make_regular_user_active(self):
+        self.assertFalse(self.test_user_inactive.is_active)
+    
+    def test_custom_user_save_method_makes_staff_user_active(self):
+        self.assertTrue(self.test_user_staff.is_active)
+    
+    def test_custom_user_save_method_makes_superuser_active(self):
+        self.assertTrue(self.test_superuser.is_active)
     
     def test_custom_user_user_profile_exists_when_user_is_active(self):
-        test_user = self.User.objects.create_user(
-            username='test_user', is_active=True
-        )
-        self.assertTrue(test_user.profile)
+        self.assertTrue(self.test_user.profile)
     
     def test_custom_user_user_profile_does_not_exist_when_user_is_inactive(self):
-        test_user_inactive = self.User.objects.create_user(
-            username='test_user_inactive'
-        )
-        self.assertFalse(test_user_inactive.profile)
+        self.assertFalse(self.test_user_inactive.profile)
 
 
 class MyProfileTestCase(TestCase):
-
-    def setUp(self):
-        User = get_user_model()
-        self.test_user = User.objects.create_user(
+    @classmethod
+    def setUpTestData(cls):
+        cls.User = get_user_model()
+        cls.test_user = cls.User.objects.create_user(
             username='test_user', is_active=True
         )
-        self.test_user_profile = self.test_user.profile
+        cls.test_user_profile = cls.test_user.profile
 
     def test_my_profile_default_values_equal_zero(self):
         self.assertEqual(str(self.test_user_profile), 'Profile test_user')

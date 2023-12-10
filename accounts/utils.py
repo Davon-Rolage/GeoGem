@@ -44,8 +44,8 @@ class ActivateUserView(View):
         except CustomUserToken.DoesNotExist:
             pass
             
-        messages.error(request, GUI_MESSAGES['error_messages']['activation_failed'])        
-        return HttpResponseRedirect(reverse('signup'))        
+        messages.error(request, GUI_MESSAGES['error_messages']['activation_failed'])
+        return HttpResponseRedirect(reverse('signup'))
     
 
 def send_activation_email(request=None, user=None, user_token=None, to_email=None):
