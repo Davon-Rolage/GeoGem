@@ -3,20 +3,18 @@ from django.test import TestCase
 
 
 class CustomUserModelTestCase(TestCase):
+    fixtures = ['test_users.json']
+    
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.test_user = cls.User.objects.create_user(
-            username='test_user', is_active=True
-        )
+        
+        test_users = cls.User.objects.all()
+        cls.test_user = test_users.first()
+        cls.test_user_staff = test_users.get(username='test_user_staff')
+        cls.test_superuser = test_users.get(username='test_superuser')
         cls.test_user_inactive = cls.User.objects.create_user(
             username='test_user_inactive'
-        )
-        cls.test_user_staff = cls.User.objects.create_user(
-            username='test_user_staff', is_staff=True
-        )
-        cls.test_superuser = cls.User.objects.create_user(
-            username='test_superuser', is_superuser=True
         )
     
     def test_custom_user_str(self):
@@ -39,12 +37,12 @@ class CustomUserModelTestCase(TestCase):
 
 
 class MyProfileTestCase(TestCase):
+    fixtures = ['test_users.json']
+    
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.test_user = cls.User.objects.create_user(
-            username='test_user', is_active=True
-        )
+        cls.test_user = cls.User.objects.first()
         cls.test_user_profile = cls.test_user.profile
 
     def test_my_profile_default_values_equal_zero(self):

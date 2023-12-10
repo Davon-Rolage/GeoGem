@@ -100,12 +100,14 @@ class CustomUserLoginForm(forms.Form):
         attrs={
             'class': 'form-control shadow-none',
             'id': 'floatingInputGroupUsername',
+            'name': 'username',
         }
     ))
     password = forms.CharField(required=True, widget=forms.PasswordInput(
         attrs={
             'class': 'form-control shadow-none',
             'id': 'floatingInputGroupPassword',
+            'name': 'password',
         }
     ))
     captcha = ReCaptchaField(widget=ReCaptchaV2Checkbox())

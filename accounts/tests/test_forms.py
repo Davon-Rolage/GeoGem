@@ -81,12 +81,12 @@ class CustomUserCreationFormTestCase(TestCase):
 
 
 class CustomUserLoginFormTestCase(TestCase):
+    fixtures = ['test_users.json']
+    
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.test_user = cls.User.objects.create_user(
-            username='test_user', password='test_password', is_active=True
-        )
+        cls.test_user = cls.User.objects.first()
     
     @mock.patch("captcha.fields.ReCaptchaField.clean")
     def test_custom_user_login_form_valid_data(self, mock_clean):

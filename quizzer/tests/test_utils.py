@@ -1,5 +1,5 @@
 from django.contrib.auth import get_user_model
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.urls import reverse
 
 from quizzer.utils import *
@@ -7,10 +7,13 @@ from word_bank.models import Block, UserWord, WordInfo
 
 
 class UpdateUserWordPointsTestCase(TestCase):
+    fixtures = ['test_users.json', 'test_blocks.json', 'test_word_infos.json']
+    
     @classmethod
     def setUpTestData(cls):
-        cls.test_user = get_user_model().objects.create_user(username='test_user', password='test_password', is_active=True)
-        cls.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
+        cls.User = get_user_model()
+        cls.test_user = cls.User.objects.first()
+        cls.test_word_info = WordInfo.objects.first()
         cls.test_user_word = UserWord.objects.create(user=cls.test_user, word=cls.test_word_info, points=50)
 
     def test_update_user_word_points_correct_answer(self):
@@ -63,44 +66,46 @@ class UpdateUserWordPointsTestCase(TestCase):
 
 
 class UpdateProfileExperienceTestCase(TestCase):
-    @classmethod
-    def setUpTestData(cls):
-        cls.user = get_user_model().objects.create_user(
-            username='test_user', password='test_password', is_active=True
-        )
-        cls.user_profile = cls.user.profile
-        cls.user_profile.experience = 50
-        cls.user_profile.save()
-
-    def test_update_profile_experience_default_increase(self):
-        update_profile_experience(self.user)
-        self.user_profile.refresh_from_db(fields=['experience'])
-        
-        self.assertEqual(self.user_profile.experience, 51)
-
-    def test_update_profile_experience_increase_by_10(self):
-        update_profile_experience(self.user, increase_by=10)
-        self.user_profile.refresh_from_db(fields=['experience'])
-
-        self.assertEqual(self.user_profile.experience, 60)
-
-
-class AddToLearnedTestCase(TestCase):
+    fixtures = ['test_users.json']
+    
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.client = Client()
+        cls.test_user = cls.User.objects.first()
+        cls.test_user_profile = cls.test_user.profile
+        cls.test_user_profile.experience = 50
+        cls.test_user_profile.save()
+
+    def test_update_profile_experience_default_increase(self):
+        update_profile_experience(self.test_user)
+        self.test_user_profile.refresh_from_db(fields=['experience'])
+        
+        self.assertEqual(self.test_user_profile.experience, 51)
+
+    def test_update_profile_experience_increase_by_10(self):
+        update_profile_experience(self.test_user, increase_by=10)
+        self.test_user_profile.refresh_from_db(fields=['experience'])
+
+        self.assertEqual(self.test_user_profile.experience, 60)
+
+
+class AddToLearnedTestCase(TestCase):
+    fixtures = [
+        'test_users.json', 'test_blocks.json',
+        'test_word_infos.json', 'test_user_words.json'
+    ]
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.User = get_user_model()
         cls.url = reverse('add_to_learned')
         
-        cls.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
+        cls.test_word_info = WordInfo.objects.first()
         cls.request_data = {'question_id': cls.test_word_info.id, 'is_last': 'true'}
 
-        cls.test_user = cls.User.objects.create_user(
-            username='test_user', password='test_password', is_active=True
-        )
-        cls.test_user_with_words = cls.User.objects.create_user(
-            username='test_user_with_words', password='test_password', is_active=True
-        )
+        test_users = cls.User.objects.all()
+        cls.test_user = test_users.first()
+        cls.test_user_no_words = test_users.get(username='test_user_no_words')
 
     def test_add_to_learned_as_anonymous_user_POST(self):
         response = self.client.post(self.url, self.request_data)
@@ -110,13 +115,13 @@ class AddToLearnedTestCase(TestCase):
         self.assertJSONEqual(response_content, {'is_last': True})
         
     def test_add_to_learned_as_authenticated_user_created_word_POST(self):
-        self.client.force_login(self.test_user)
+        self.client.force_login(self.test_user_no_words)
         response = self.client.post(self.url, self.request_data)
         response_content = response.content.decode('utf-8')
         
-        user_word = UserWord.objects.get(user=self.test_user, word=self.test_word_info)
+        user_word = UserWord.objects.get(user=self.test_user_no_words, word=self.test_word_info)
         
-        test_user_profile = self.test_user.profile
+        test_user_profile = self.test_user_no_words.profile
         test_user_profile.refresh_from_db(fields=['num_learned_words'])
         
         self.assertEqual(response.status_code, 200)
@@ -129,16 +134,14 @@ class AddToLearnedTestCase(TestCase):
         })
     
     def test_add_to_learned_as_authenticated_user_known_word_POST(self):
-        UserWord.objects.create(user=self.test_user_with_words, word=self.test_word_info, points=20)
-
-        self.client.force_login(self.test_user_with_words)
+        self.client.force_login(self.test_user)
         response = self.client.post(self.url, self.request_data)
         response_content = response.content.decode('utf-8')
 
-        user_word = UserWord.objects.get(user=self.test_user_with_words, word=self.test_word_info)
+        user_word = UserWord.objects.get(user=self.test_user, word=self.test_word_info)
 
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(user_word.points, 20)
+        self.assertEqual(user_word.points, 1)
         self.assertJSONEqual(response_content, {
             'is_last': True,
             'created': False,
@@ -147,25 +150,23 @@ class AddToLearnedTestCase(TestCase):
 
 
 class CheckAnswerTestCase(TestCase):
+    fixtures = [
+        'test_users.json', 'test_blocks.json',
+        'test_word_infos.json', 'test_user_words.json'
+    ]
+    
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.client = Client()
-
         cls.url = reverse('check_answer')
-        cls.test_block = Block.objects.create(name='Test Block')
-        cls.test_word_info = WordInfo.objects.create(name='test_name', translation='test')
-        cls.test_word_info.blocks.add(cls.test_block)
+        cls.test_block = Block.objects.first()
+        cls.test_word_info = WordInfo.objects.first()
 
-        cls.test_user = cls.User.objects.create_user(
-            username='test_user', password='test_password', is_active=True
-        )
+        cls.test_user = cls.User.objects.first()
+        cls.test_user_word = UserWord.objects.first()
         cls.test_user_profile = cls.test_user.profile
         cls.test_user_profile.experience = 50
         cls.test_user_profile.save()
-        cls.test_user_word = UserWord.objects.create(
-            user=cls.test_user, word=cls.test_word_info, points=1
-        )
     
     def test_check_answer_view_method_not_allowed_GET(self):
         response = self.client.get(self.url, {
@@ -179,7 +180,7 @@ class CheckAnswerTestCase(TestCase):
         response = self.client.post(self.url, {
             'quiz_type': 'wrong_type',
             'question_id': 1,
-            'answer': 'test',
+            'answer': 'test_translation',
         })
 
         self.assertEqual(response.status_code, 400)
@@ -188,14 +189,14 @@ class CheckAnswerTestCase(TestCase):
         response = self.client.post(self.url, {
             'quiz_type': 'multiple_choice',
             'question_id': self.test_word_info.id,
-            'answer': 'test',
+            'answer': 'test_translation',
         })
         response_content = response.content.decode('utf-8')
 
         self.assertEqual(response.status_code, 200)
         self.assertJSONEqual(response_content, {
             'is_correct': True,
-            'example_span': ''
+            'example_span': 'test_example'
         })
     
     def test_check_answer_multiple_choice_incorrect_answer_as_anonymous_user_POST(self):
@@ -220,7 +221,7 @@ class CheckAnswerTestCase(TestCase):
         response = self.client.post(self.url, {
             'quiz_type': 'multiple_choice',
             'question_id': self.test_word_info.id,
-            'answer': 'test',
+            'answer': 'test_translation',
         })
         response_content = response.content.decode('utf-8')
 
@@ -232,7 +233,7 @@ class CheckAnswerTestCase(TestCase):
         self.assertEqual(self.test_user_word.points - user_word_points_before, 2)
         self.assertJSONEqual(response_content, {
             'is_correct': True,
-            'example_span': ''
+            'example_span': 'test_example'
         })
 
     def test_check_answer_multiple_choice_incorrect_answer_as_authenticated_user_POST(self):
@@ -267,7 +268,7 @@ class CheckAnswerTestCase(TestCase):
         response = self.client.post(self.url, {
             'quiz_type': 'review',
             'question_id': self.test_user_word.id,
-            'answer': 'test',
+            'answer': 'test_translation',
         })
         response_content = response.content.decode('utf-8')
 
@@ -280,7 +281,7 @@ class CheckAnswerTestCase(TestCase):
         
         self.assertJSONEqual(response_content, {
             'is_correct': True,
-            'example_span': ''
+            'example_span': 'test_example'
         })
     
     def test_check_answer_review_incorrect_answer_as_authenticated_user_POST(self):

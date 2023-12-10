@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.test import Client, TestCase
+from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
@@ -9,13 +9,14 @@ from accounts.utils import send_activation_email
 
 
 class CheckUsernameExistsTestCase(TestCase):
+    fixtures = ['test_users.json']
+    
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.client = Client()
         cls.url = reverse('check_username_exists')
         cls.request_data = {'username': 'test_user'}
-        cls.test_user = cls.User.objects.create_user(username='test_user')
+        cls.test_user = cls.User.objects.first()
     
     def test_check_username_exists_method_not_allowed_POST(self):
         response = self.client.post(self.url, self.request_data)
@@ -40,7 +41,6 @@ class ActivateUserTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.client = Client()
         
         cls.test_user_act_success = cls.User.objects.create_user(
             username='test_user_activation_success', password='test_password'
@@ -118,14 +118,13 @@ class ActivateUserTestCase(TestCase):
 
 
 class SendActivationEmailTestCase(TestCase):
+    fixtures = ['test_users.json']
+    
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.client = Client()
-        cls.test_to_email = 'example@gmail.com'
-        cls.test_user = get_user_model().objects.create_user(
-            username='test_user', email=cls.test_to_email
-        )
+        cls.test_to_email = 'test@example.com'
+        cls.test_user = cls.User.objects.first()
     
     def test_send_activation_email_success(self):
         success = send_activation_email(user=self.test_user, to_email=self.test_to_email)

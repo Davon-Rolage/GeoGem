@@ -1,0 +1,66 @@
+[
+    {
+        "model": "word_bank.WordInfo",
+        "fields": {
+            "id": 1,
+            "name": "test_word",
+            "transliteration": "test_transliteration",
+            "translation": "test_translation",
+            "blocks": [1],
+            "example": "test_example",
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "word_bank.WordInfo",
+        "fields": {
+            "id": 2,
+            "name": "test_word2",
+            "transliteration": "test_transliteration2",
+            "translation": "test_translation2",
+            "blocks": [1],
+            "example": "test_example2",
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "word_bank.WordInfo",
+        "fields": {
+            "id": 3,
+            "name": "test_word_short_example",
+            "transliteration": "test_word_translit_short_example",
+            "translation": "test_word_transl_short_example",
+            "blocks": [1],
+            "example": "short_example",
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "word_bank.WordInfo",
+        "fields": {
+            "id": 4,
+            "name": "test_word_long_example",
+            "transliteration": "test_translit_long_example",
+            "translation": "test_transl_long_example",
+            "blocks": [1],
+            "example": "text_word_long_example",
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+    },
+    {
+        "model": "word_bank.WordInfo",
+        "fields": {
+            "id": 5,
+            "name": "test_word_no_example",
+            "transliteration": "test_no_example_translit",
+            "translation": "test_transl_no_example",
+            "blocks": [1],
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+    }
+]

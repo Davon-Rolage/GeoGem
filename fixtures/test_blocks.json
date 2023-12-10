@@ -1,0 +1,38 @@
+[
+    {
+        "model": "word_bank.Block",
+        "fields": {
+            "id": 1,
+            "name": "Test Block",
+            "slug": "test-block",
+            "description": "This is a test block.",
+            "theory": "Test Theory",
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+      },
+      {
+        "model": "word_bank.Block",
+        "fields": {
+            "id": 2,
+            "name": "Test Block 2",
+            "slug": "test-block-2",
+            "description": "This is a test block 2.",
+            "theory": "Test Theory 2",
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+      },
+      {
+        "model": "word_bank.Block",
+        "fields": {
+            "id": 3,
+            "name": "Test Block Custom Slug",
+            "slug": "test_custom_slug",
+            "description": "This is a test block with custom slug.",
+            "theory": "Test Theory custom slug",
+            "added_at": "2021-01-01T00:00:00Z",
+            "updated_at": "2021-01-01T00:00:00Z"
+        }
+      }
+]

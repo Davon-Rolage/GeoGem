@@ -113,7 +113,8 @@ The aspects of Django framework that were used during development of this projec
 - JavaScript, jQuery, Ajax requests & Chart.js
 - CSS & DataTables, Bootstrap v5.3.2 (makes for a visually-appealing and mobile-friendly interface)
 - django-recaptcha, email confirmation upon registration
-- unittests (models, views, templates and forms), coverage module
 - Docker and docker-compose.yml files
 - Environment variables
 - Customized admin page: SimpleListfilter, EmptyFieldListFilter
+- unittests (models, views, templates and forms), coverage module
+- Fixtures with test data
