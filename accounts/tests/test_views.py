@@ -2,10 +2,11 @@ from unittest import mock
 
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.urls import reverse
 
 
+@tag("accounts", "view", "view_index")
 class IndexViewTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -20,6 +21,7 @@ class IndexViewTestCase(TestCase):
         self.assertEqual(response.status_code, 405)
 
 
+@tag("accounts", "view", "view_signup")
 class SignupViewTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -63,6 +65,7 @@ class SignupViewTestCase(TestCase):
         self.assertIsNotNone(response.context['form'])
 
 
+@tag("accounts", "view", "view_login")
 class LoginViewTestCase(TestCase):
     fixtures = ['test_users.json']
     
@@ -119,6 +122,7 @@ class LoginViewTestCase(TestCase):
         self.assertIsNotNone(response.context['form'])
 
 
+@tag("accounts", "view", "view_logout")
 class LogoutViewTestCase(TestCase):
     fixtures = ['test_users.json']
     
@@ -146,8 +150,9 @@ class LogoutViewTestCase(TestCase):
         self.assertFalse(response.wsgi_request.user.is_authenticated)
 
 
-class MyProfileViewTestCase(TestCase):
-    fixtures = ['test_users.json']
+@tag("accounts", "view", "view_my_profile")
+class ProfileViewTestCase(TestCase):
+    fixtures = ['test_users.json', 'test_profiles.json']
     
     @classmethod
     def setUpTestData(cls):
@@ -178,6 +183,7 @@ class MyProfileViewTestCase(TestCase):
         self.assertIsNotNone(response.context['user_profile'])
         
 
+@tag("accounts", "view", "view_delete_user")
 class DeleteUserViewTestCase(TestCase):
     fixtures = ['test_users.json']
     
@@ -202,6 +208,7 @@ class DeleteUserViewTestCase(TestCase):
         self.assertFalse(self.User.objects.filter(pk=self.test_user_to_be_deleted.pk).exists())
 
 
+@tag("accounts", "view", "view_premium")
 class PremiumViewTestCase(TestCase):    
     @classmethod
     def setUpTestData(cls):
@@ -219,8 +226,9 @@ class PremiumViewTestCase(TestCase):
         self.assertEqual(response.status_code, 405)
 
 
+@tag("accounts", "view", "view_get_premium")
 class GetPremiumViewTestCase(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users.json', 'test_profiles.json']
     
     @classmethod
     def setUpTestData(cls):
@@ -231,8 +239,16 @@ class GetPremiumViewTestCase(TestCase):
         cls.test_user_premium = cls.User.objects.get(username='test_user_premium')
     
     def test_get_premium_view_method_not_allowed_GET(self):
+        self.client.force_login(self.test_user)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 405)
+        
+    def test_get_premium_view_as_anonymous_user_GET(self):
+        response = self.client.get(self.url, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed('accounts/login.html')
+        self.assertTemplateNotUsed('index.html')
 
     def test_get_premium_view_was_not_premium_POST(self):
         self.client.force_login(self.test_user)
@@ -255,8 +271,9 @@ class GetPremiumViewTestCase(TestCase):
         self.assertTrue(self.test_user_premium.is_premium)
 
 
+@tag("accounts", "view", "view_cancel_premium")
 class CancelPremiumViewTestCase(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users.json', 'test_profiles.json']
     
     @classmethod
     def setUpTestData(cls):

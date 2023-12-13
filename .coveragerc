@@ -1,0 +1,8 @@
+[run]
+branch = True
+omit = 
+    geogem/*
+    manage.py
+    word_bank/config.py
+    */tests/*
+    */migrations/*

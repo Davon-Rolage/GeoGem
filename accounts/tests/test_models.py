@@ -1,9 +1,12 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, tag
+
+from accounts.models import CustomUserToken
 
 
+@tag("accounts", "model", "model_custom_user")
 class CustomUserModelTestCase(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users.json', 'test_profiles.json']
     
     @classmethod
     def setUpTestData(cls):
@@ -33,11 +36,12 @@ class CustomUserModelTestCase(TestCase):
         self.assertTrue(self.test_user.profile)
     
     def test_custom_user_user_profile_does_not_exist_when_user_is_inactive(self):
-        self.assertFalse(self.test_user_inactive.profile)
+        self.assertFalse(hasattr(self.test_user_inactive, 'profile'))
 
 
-class MyProfileTestCase(TestCase):
-    fixtures = ['test_users.json']
+@tag("accounts", "model", "model_my_profile")
+class ProfileTestCase(TestCase):
+    fixtures = ['test_users.json', 'test_profiles.json']
     
     @classmethod
     def setUpTestData(cls):
@@ -96,4 +100,18 @@ class MyProfileTestCase(TestCase):
         self.assertEqual(self.test_user_profile.level, 100)
         self.assertEqual(self.test_user_profile.level_progress, 1)
         self.assertEqual(self.test_user_profile.xp_to_next_level, 0)
+
+
+@tag("accounts", "model", "model_custom_user_token")
+class CustomUserTokenTestCase(TestCase):
+    fixtures = ['test_users.json']
     
+    @classmethod
+    def setUpTestData(cls):
+        cls.User = get_user_model()
+        cls.test_user = cls.User.objects.first()
+        cls.test_user_token = CustomUserToken.objects.create(user=cls.test_user, token='test_token')
+        cls.token = cls.test_user_token.token
+    
+    def test_custom_user_token_str(self):
+        self.assertEqual(str(self.test_user_token), 'test_user - test_token')

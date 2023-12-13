@@ -1,9 +1,10 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, tag
 from django.urls import resolve, reverse
 
 from word_bank.views import *
 
 
+@tag("word_bank", "url", "url_word_bank")
 class WordbankUrlsTestCase(SimpleTestCase):
     
     def test_learn_url_resolves(self):

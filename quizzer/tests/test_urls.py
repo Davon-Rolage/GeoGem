@@ -1,9 +1,10 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, tag
 from django.urls import resolve, reverse
 
 from quizzer.views import *
 
 
+@tag("quizzer", "url", "url_quizzer")
 class QuizzerUrlsTestCase(SimpleTestCase):
     
     def test_quiz_learn_url_resolves(self):

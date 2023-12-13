@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.urls import reverse
 
 from word_bank.models import Block, UserWord, WordInfo
 
 
+@tag("quizzer", "view", "view_quiz_multiple_choice")
 class QuizMultipleChoiceViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -51,8 +52,17 @@ class QuizMultipleChoiceViewTestCase(TestCase):
         self.assertIsNotNone(words)
         self.assertIsInstance(words, list)
         self.assertEqual(num_words, self.test_block_num_words)
+    
+    def test_quiz_multiple_choice_view_when_block_has_no_words(self):
+        response = self.client.post(self.url, data={'learning_block': 'test-block-2'})
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'quizzer/quiz_empty.html')
+        self.assertTemplateNotUsed(response, self.template_name)
+        self.assertNotIn('words', response.context)
 
 
+@tag("quizzer", "view", "view_quiz_learn")
 class QuizLearnViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -109,6 +119,7 @@ class QuizLearnViewTestCase(TestCase):
         self.assertEqual(num_words, self.test_block_num_words)
         
 
+@tag("quizzer", "view", "view_quiz_review")
 class QuizReviewViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -149,8 +160,20 @@ class QuizReviewViewTestCase(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
+        self.assertIn('words', response.context)
+        self.assertEqual(len(response.context['words']), 2)
+    
+    def test_quiz_review_view_as_authenticated_user_no_review_words(self):
+        self.client.force_login(self.test_user)
+        response = self.client.post(self.url, data={'learning_block': 'test-block-2'})
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'quizzer/quiz_empty.html')
+        self.assertTemplateNotUsed(response, self.template_name)
+        self.assertNotIn('words', response.context)
 
 
+@tag("quizzer", "view", "view_quiz_results")
 class QuizResultsViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -187,6 +210,8 @@ class QuizResultsViewTestCase(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
+        self.assertIn('quiz_words', response.context)
+        self.assertEqual(len(response.context['quiz_words']), 1)
     
     def test_quiz_results_view_as_authenticated_user_POST(self):
         self.client.force_login(self.test_user)
@@ -197,4 +222,15 @@ class QuizResultsViewTestCase(TestCase):
         
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
+        self.assertIn('quiz_words', response.context)
+        self.assertEqual(len(response.context['quiz_words']), 1)
     
+    def test_quiz_results_view_no_words_supplied(self):
+        response = self.client.post(self.url, data=self.request_data)
+        
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, self.template_name)
+        self.assertIsNotNone(response.context['learning_block'])
+        self.assertIn('quiz_words', response.context)
+        self.assertEqual(len(response.context['quiz_words']), 0)
+        

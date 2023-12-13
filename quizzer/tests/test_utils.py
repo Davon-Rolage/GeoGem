@@ -1,11 +1,12 @@
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.urls import reverse
 
 from quizzer.utils import *
 from word_bank.models import Block, UserWord, WordInfo
 
 
+@tag("quizzer", "utils", "utils_update_user_word_points")
 class UpdateUserWordPointsTestCase(TestCase):
     fixtures = ['test_users.json', 'test_blocks.json', 'test_word_infos.json']
     
@@ -65,8 +66,9 @@ class UpdateUserWordPointsTestCase(TestCase):
         self.assertEqual(self.test_user_word.points, 0)
 
 
+@tag("quizzer", "utils", "utils_update_profile_experience")
 class UpdateProfileExperienceTestCase(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users.json', 'test_profiles.json']
     
     @classmethod
     def setUpTestData(cls):
@@ -89,10 +91,12 @@ class UpdateProfileExperienceTestCase(TestCase):
         self.assertEqual(self.test_user_profile.experience, 60)
 
 
+@tag("quizzer", "utils", "utils_add_to_learned")
 class AddToLearnedTestCase(TestCase):
     fixtures = [
-        'test_users.json', 'test_blocks.json',
-        'test_word_infos.json', 'test_user_words.json'
+        'test_users.json', 'test_profiles.json', 
+        'test_blocks.json', 'test_word_infos.json',
+        'test_user_words.json'
     ]
     
     @classmethod
@@ -106,6 +110,10 @@ class AddToLearnedTestCase(TestCase):
         test_users = cls.User.objects.all()
         cls.test_user = test_users.first()
         cls.test_user_no_words = test_users.get(username='test_user_no_words')
+    
+    def test_add_to_learned_method_not_allowed_GET(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 405)
 
     def test_add_to_learned_as_anonymous_user_POST(self):
         response = self.client.post(self.url, self.request_data)
@@ -149,10 +157,12 @@ class AddToLearnedTestCase(TestCase):
         })
 
 
+@tag("quizzer", "utils", "utils_check_answer")
 class CheckAnswerTestCase(TestCase):
     fixtures = [
-        'test_users.json', 'test_blocks.json',
-        'test_word_infos.json', 'test_user_words.json'
+        'test_users.json', 'test_profiles.json', 
+        'test_blocks.json', 'test_word_infos.json',
+        'test_user_words.json'
     ]
     
     @classmethod
@@ -309,6 +319,7 @@ class CheckAnswerTestCase(TestCase):
         })
 
 
+@tag("quizzer", "utils", "utils_populate_example_span")
 class PopulateExampleSpanTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -344,6 +355,7 @@ class PopulateExampleSpanTestCase(TestCase):
         self.assertIn(self.test_example_text, result)
 
 
+@tag("quizzer", "utils", "utils_shuffle_questions_order")
 class ShuffleQuestionsOrderTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):

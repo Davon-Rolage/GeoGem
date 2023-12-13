@@ -1,11 +1,16 @@
 from unittest import mock
 
 from django.contrib.auth import get_user_model
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from accounts.forms import CustomUserCreationForm, CustomUserLoginForm
+from geogem.gui_messages import GUI_MESSAGES
 
 
+GUI_MESSAGES_FORMS = GUI_MESSAGES['forms']
+
+
+@tag("accounts", "form", "form_custom_user_creation")
 class CustomUserCreationFormTestCase(TestCase):
     
     def create_invalid_form(self, error_fields):
@@ -39,47 +44,51 @@ class CustomUserCreationFormTestCase(TestCase):
             'password2': 'testpassword',
         })
         self.assertFalse(form.is_valid())
-        self.assertEqual('You must pass the reCAPTCHA test', form.errors['captcha'][1])
+        self.assertFormError(form, 'captcha', GUI_MESSAGES_FORMS['error_captcha'])
 
     def test_custom_user_creation_form_invalid_username_empty(self):
         form = self.create_invalid_form({'username': ''})
         
         self.assertFalse(form.is_valid())
-        self.assertEqual('This field is required.', form.errors['username'][0])
+        self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_username_required'])
 
     def test_custom_user_creation_form_invalid_username_contains_spaces(self):
-        form = self.create_invalid_form({'username': 'user with spaces'})
+        form = self.create_invalid_form({'username': 'a b c'})
         self.assertFalse(form.is_valid())
+        self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_username_contains_spaces'])
 
     def test_custom_user_creation_form_invalid_username_contains_invalid_chars(self):
         form = self.create_invalid_form({'username': 'user@name'})
         
         self.assertFalse(form.is_valid())
-        self.assertEqual('Username contains invalid characters', form.errors['username'][0])
+        self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_username_invalid_chars'])
 
     def test_custom_user_creation_form_invalid_username_too_short(self):
-        form = self.create_invalid_form({'username': 'ab'})
+        form = self.create_invalid_form({'username': 'a'})
         
         self.assertFalse(form.is_valid())
-        self.assertEqual('Username is too short', form.errors['username'][0])
+        self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_username_min_length'])
 
     def test_custom_user_creation_form_invalid_username_too_long(self):
         form = self.create_invalid_form({'username': 'a' * 16})
+
         self.assertFalse(form.is_valid())
+        self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_username_max_length'])
 
     def test_custom_user_creation_form_invalid_password_too_short(self):
         form = self.create_invalid_form({'password1': 'pass'})
         
         self.assertFalse(form.is_valid())
-        self.assertEqual('Password is too short', form.errors['password1'][0])
+        self.assertFormError(form, 'password1', GUI_MESSAGES_FORMS['error_password_min_length'])
 
     def test_custom_user_creation_form_invalid_passwords_do_not_match(self):
         form = self.create_invalid_form({'password2': 'mismatchedpassword'})
         
         self.assertFalse(form.is_valid())
-        self.assertEqual("The two password fields didn’t match.", form.errors['password2'][0])
+        self.assertFormError(form, 'password2', 'The two password fields didn’t match.')
 
 
+@tag("accounts", "form", "form_custom_user_login")
 class CustomUserLoginFormTestCase(TestCase):
     fixtures = ['test_users.json']
     
@@ -103,7 +112,7 @@ class CustomUserLoginFormTestCase(TestCase):
             'password': 'test_password',
         })
         self.assertFalse(form.is_valid())
-        self.assertEqual('You must pass the reCAPTCHA test', form.errors['captcha'][1])
+        self.assertFormError(form, 'captcha', GUI_MESSAGES_FORMS['error_captcha'])
     
     def test_custom_user_login_form_invalid_username(self):
         form = CustomUserLoginForm(data={
@@ -111,7 +120,7 @@ class CustomUserLoginFormTestCase(TestCase):
             'password': 'test_password',
         })
         self.assertFalse(form.is_valid())
-        self.assertEqual('Invalid username or password', form.errors['username'][0])
+        self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_invalid_credentials'])
 
     def test_custom_user_login_form_invalid_password(self):
         form = CustomUserLoginForm(data={
@@ -119,5 +128,5 @@ class CustomUserLoginFormTestCase(TestCase):
             'password': 'password_invalid',
         })
         self.assertFalse(form.is_valid())
-        self.assertEqual('Invalid username or password', form.errors['username'][0])
+        self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_invalid_credentials'])
     

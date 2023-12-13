@@ -1,13 +1,14 @@
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
 from django.views.generic import DeleteView, View
+from django.views.generic.edit import FormView
 
-from accounts.models import MyProfile
 from geogem.gui_messages import get_gui_messages
 from word_bank.models import UserWord
 
@@ -19,73 +20,53 @@ from .utils import *
 
 class IndexView(View):
     template_name = 'index.html'
-    gui_messages = get_gui_messages(['base', 'index'])
     
     def get(self, request):
         context = {
-            'gui_messages': self.gui_messages,
+            'gui_messages': get_gui_messages(['base', 'index']),
         }
         return render(request, self.template_name, context)
 
 
-class SignUpView(View):
+class SignUpView(FormView):
     template_name = 'accounts/signup.html'
     form_class = CustomUserCreationForm
-    gui_messages = get_gui_messages(['base', 'accounts'])
-        
-    def get(self, request):
-        form = self.form_class()
-        context = {
-            'gui_messages': self.gui_messages,
-            'form': form
-        }
-        return render(request, self.template_name, context)
+    success_url = reverse_lazy('learn')
     
-    def post(self, request):
-        form = self.form_class(request.POST)
-        if form.is_valid():
-            user = form.save(commit=False)
-            user.save()
-            if not user.is_active:
-                user_token = CustomUserToken.objects.create(
-                    user=user, 
-                    token=account_activation_token.make_token(user)
-                )
-                send_activation_email(request, user, user_token.token, form.cleaned_data.get('email'))
-            return HttpResponseRedirect(reverse('index'))
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['gui_messages'] = get_gui_messages(['base', 'accounts'])
+        return context
 
-        context = {
-            'gui_messages': self.gui_messages,
-            'form': form
-        }
-        return render(request, self.template_name, context)
-
-
-class LoginView(View):
-    template_name = 'accounts/login.html'
-    gui_messages = get_gui_messages(['base', 'accounts'])
-    
-    def get(self, request):
-        form = CustomUserLoginForm()
-        context = {
-            'gui_messages': self.gui_messages,
-            'form': form
-        }
-        return render(request, self.template_name, context)
-    
-    def post(self, request):
-        form = CustomUserLoginForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data.get('username')
-            password = form.cleaned_data.get('password')
-            login(request, authenticate(username=username, password=password))
-            return HttpResponseRedirect(reverse('index'))
+    def form_valid(self, form):
+        user = form.save(commit=False)
+        user.save()
+        user_token = CustomUserToken.objects.create(
+            user=user, 
+            token=account_activation_token.make_token(user)
+        )
+        if form.send_activation_email(self.request, user, user_token.token):
+            success_message = GUI_MESSAGES['messages']['email_sent'].format(user=user, to_email=form.cleaned_data.get('email'))
+            messages.success(self.request, success_message)
             
-        context = {
-            'gui_messages': self.gui_messages,
-            'form': form
-        }
-        return render(request, self.template_name, context)
+        return super().form_valid(form)
+
+
+class LoginView(FormView):
+    template_name = 'accounts/login.html'
+    form_class = CustomUserLoginForm
+    success_url = reverse_lazy('learn')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['gui_messages'] = get_gui_messages(['base', 'accounts'])
+        return context
+    
+    def form_valid(self, form):
+        username = form.cleaned_data.get('username')
+        password = form.cleaned_data.get('password')
+        login(self.request, authenticate(username=username, password=password))
+        return super().form_valid(form)
 
 
 def logout_view(request):
@@ -93,9 +74,8 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('index'))
 
 
-class MyProfileView(View):
+class ProfileView(View):
     template_name = 'accounts/my_profile.html'
-    gui_messages = get_gui_messages(['base', 'my_profile', 'tooltips'])
     
     def get(self, request):
         user = request.user
@@ -104,7 +84,7 @@ class MyProfileView(View):
             user_profile.num_learned_words = UserWord.objects.filter(user=request.user).count()
             
             context = {
-                'gui_messages': self.gui_messages,
+                'gui_messages': get_gui_messages(['base', 'my_profile', 'tooltips']),
                 'user_profile': user_profile
             }
             return render(request, self.template_name, context=context)
@@ -124,21 +104,20 @@ class DeleteUserView(SuccessMessageMixin, DeleteView):
 
 class PremiumView(View):
     template_name = 'word_bank/premium.html'
-    gui_messages = get_gui_messages(['base', 'premium'])
 
     def get(self, request):
         context = {
-            'gui_messages': self.gui_messages,
+            'gui_messages': get_gui_messages(['base', 'premium']),
         }
         return render(request, self.template_name, context)
 
 
-class GetPremiumView(View):
+class GetPremiumView(LoginRequiredMixin, View):
     model = CustomUser
 
     def post(self, request):
         user = request.user
-        if user.is_authenticated:
+        if not user.is_premium:
             user.is_premium = True
             user.save()
         return HttpResponseRedirect(reverse('learn'))

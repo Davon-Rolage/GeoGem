@@ -20,7 +20,7 @@
                         <h5 class="card-title">{{ learning_block.name }}</h5>
                         {% if quiz_type != 'learn' %}
                             <!-- Show score if the quiz type is not "learn" -->
-                            <p class="card-text"><h3><span id="quiz-score">{{ quiz_score }}</span> / {{ num_questions }}</h3></p>
+                            <p class="card-text"><h3><span id="quiz-score">{{ quiz_score|default:0 }}</span> / {{ num_questions|default:0 }}</h3></p>
                         {% endif %}
                         <p class="card-text-go-back">{{ gui_messages.go_back_to_block }} <a href="{% url 'block_detail' slug=learning_block.slug %}" class="text-decoration-none">{{ learning_block.name }}</a></p>
                         <p class="my-1"><a href="{% url 'learn' %}">{{ gui_messages.btn_go_to_index }}</a></p>

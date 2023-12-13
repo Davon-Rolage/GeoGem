@@ -1,8 +1,8 @@
 from random import sample
 
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 
-from accounts.models import MyProfile
 from word_bank.models import UserWord, WordInfo
 
 
@@ -25,33 +25,33 @@ def update_profile_experience(user, increase_by=1):
     user_profile.save()
 
 
+@require_POST
 def add_to_learned(request):
-    if request.method == "POST":
-        question_id = request.POST.get('question_id')
-        is_last = request.POST.get('is_last') == 'true'
-        word = WordInfo.objects.get(pk=question_id)
-        user = request.user
-        json_data = dict()
-        
-        if user.is_authenticated:
-            user_profile = user.profile
-            user_word, created = UserWord.objects.get_or_create(
-                user=user,
-                word=word
-            )
-            user_word.points += int(created)
-            if created:
-                user_profile.num_learned_words += 1
-                user_profile.save()
-                update_profile_experience(user, increase_by=1)
+    question_id = request.POST.get('question_id')
+    is_last = request.POST.get('is_last') == 'true'
+    word = WordInfo.objects.get(pk=question_id)
+    user = request.user
+    json_data = dict()
+    
+    if user.is_authenticated:
+        user_profile = user.profile
+        user_word, created = UserWord.objects.get_or_create(
+            user=user,
+            word=word
+        )
+        user_word.points += int(created)
+        if created:
+            user_profile.num_learned_words += 1
+            user_profile.save()
+            update_profile_experience(user, increase_by=1)
 
-            user_word.save()
-            json_data = {
-                'created': created,
-                'user_word_id': user_word.id,
-            }
-        json_data.update({'is_last': is_last})
-        return JsonResponse(json_data)
+        user_word.save()
+        json_data = {
+            'created': created,
+            'user_word_id': user_word.id,
+        }
+    json_data.update({'is_last': is_last})
+    return JsonResponse(json_data)
 
 
 def check_answer_multiple_choice(request):

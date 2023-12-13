@@ -1,9 +1,10 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, tag
 from django.urls import resolve, reverse
 
 from accounts.views import *
 
 
+@tag("accounts", "url", "url_accounts")
 class AccountsUrlsTestCase(SimpleTestCase):
     
     def test_signup_url_resolves(self):
@@ -24,7 +25,7 @@ class AccountsUrlsTestCase(SimpleTestCase):
 
     def test_my_profile_url_resolves(self):
         url = reverse('my_profile')
-        self.assertEqual(resolve(url).func.view_class, MyProfileView)
+        self.assertEqual(resolve(url).func.view_class, ProfileView)
 
     def test_delete_user_url_resolves(self):      
         url = reverse('delete_user', args=[1])

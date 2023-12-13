@@ -1,16 +1,13 @@
 from django.contrib import messages
-from django.contrib.sites.shortcuts import get_current_site
-from django.core.mail import send_mail
 from django.http import (HttpResponse, HttpResponseNotAllowed,
                          HttpResponseRedirect, JsonResponse)
-from django.template.loader import render_to_string
 from django.urls import reverse
 from django.views.generic import View
 
 from accounts.models import CustomUserToken
 from geogem.gui_messages import GUI_MESSAGES
 
-from .models import CustomUser
+from .models import CustomUser, Profile
 
 
 def check_username_exists(request):
@@ -35,6 +32,7 @@ class ActivateUserView(View):
             if not user_token_instance.is_expired:
                 user.is_active = True
                 user.save()
+                Profile.objects.create(user=user)
                 user_token_instance.delete()
                 messages.success(request, GUI_MESSAGES['messages']['activation_successful'])
                 return HttpResponseRedirect(reverse('login'))
@@ -46,30 +44,3 @@ class ActivateUserView(View):
             
         messages.error(request, GUI_MESSAGES['error_messages']['activation_failed'])
         return HttpResponseRedirect(reverse('signup'))
-    
-
-def send_activation_email(request=None, user=None, user_token=None, to_email=None):
-    mail_subject = GUI_MESSAGES['messages']['email_subject']
-    try:
-        message = render_to_string('accounts/activate_email.html', {
-            'username': user.username,
-            'domain': get_current_site(request).domain,
-            'token': user_token,
-            'protocol': 'https' if request.is_secure() else 'http'
-        })
-    except:
-        message = render_to_string('accounts/activate_email.html', {
-            'username': 'test_user',
-            'domain': 'test_domain',
-            'token': 'test_token',
-            'protocol': 'test_protocol'
-        })
-    email = send_mail(mail_subject, message, html_message=message, from_email=None, recipient_list=[to_email])
-    if email:
-        if all([request, user, email]):
-            success_message = GUI_MESSAGES['messages']['email_sent'].format(user=user, to_email=to_email)
-            messages.success(request, success_message)
-        return True
-    else:
-        messages.error(request, GUI_MESSAGES['error_messages']['email_sent'].format(to_email=to_email))
-        return False

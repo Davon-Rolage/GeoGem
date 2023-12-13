@@ -1,15 +1,17 @@
 from django.contrib.auth import get_user_model
 from django.db.models.query import QuerySet
-from django.test import TestCase
+from django.test import TestCase, tag
 from django.urls import reverse
 
 from word_bank.models import Block, UserWord, WordInfo
 
 
+@tag("word_bank", "view", "view_learn_list")
 class LearnListViewTestCase(TestCase):
     fixtures = [
-        'test_users.json', 'test_blocks.json',
-        'test_word_infos.json', 'test_user_words.json'
+        'test_users.json', 'test_profiles.json', 
+        'test_blocks.json', 'test_word_infos.json',
+        'test_user_words.json'
     ]
     
     @classmethod
@@ -45,6 +47,7 @@ class LearnListViewTestCase(TestCase):
         self.assertIn(self.test_block, response.context['learning_blocks'])
         
 
+@tag("word_bank", "view", "view_block_detail")
 class BlockDetailViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -97,6 +100,7 @@ class BlockDetailViewTestCase(TestCase):
         self.assertTrue(response.context['learning_block'].is_completed)
 
 
+@tag("word_bank", "view", "view_edit_blocks")
 class EditBlocksViewTestCase(TestCase):
     fixtures = ['test_users.json', 'test_blocks.json']
     
@@ -134,6 +138,7 @@ class EditBlocksViewTestCase(TestCase):
         self.assertIn(self.test_block, response.context['blocks'])
     
 
+@tag("word_bank", "view", "view_edit_block_detail")
 class EditBlockDetailViewTestCase(TestCase):
     fixtures = ['test_users.json', 'test_blocks.json', 'test_word_infos.json']
     
@@ -162,6 +167,7 @@ class EditBlockDetailViewTestCase(TestCase):
         self.assertIn(self.test_word_info, response.context['block_words'])
 
 
+@tag("word_bank", "view", "view_add_word_info")
 class AddWordInfoViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json', 'test_word_infos.json']
@@ -199,6 +205,7 @@ class AddWordInfoViewTestCase(TestCase):
         self.assertJSONEqual(response_content, {'success': True})
 
 
+@tag("word_bank", "view", "view_edit_word_info")
 class EditWordInfoViewTestCase(TestCase):
     fixtures = ['test_users.json', 'test_blocks.json', 'test_word_infos.json']
     
@@ -248,6 +255,7 @@ class EditWordInfoViewTestCase(TestCase):
         })
 
 
+@tag("word_bank", "view", "view_user_words")
 class UserWordsListViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -280,6 +288,7 @@ class UserWordsListViewTestCase(TestCase):
         self.assertIn(self.test_user_word, response_words)
 
 
+@tag("word_bank", "view", "view_user_block_detail")
 class UserBlockDetailViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -317,6 +326,7 @@ class UserBlockDetailViewTestCase(TestCase):
         self.assertEqual(response.status_code, 405)
 
 
+@tag("word_bank", "view", "view_about")
 class AboutViewTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -336,6 +346,7 @@ class AboutViewTestCase(TestCase):
         self.assertTemplateNotUsed(self.template_name)
 
 
+@tag("word_bank", "view", "view_reset_test_block")
 class ResetTestBlockViewTestCase(TestCase):
     fixtures = ['test_users.json']
     

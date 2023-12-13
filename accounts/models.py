@@ -20,14 +20,10 @@ class CustomUser(AbstractUser):
             self.is_active = True
             
         super().save(*args, **kwargs)
-    
-    @property
-    def profile(self):
-        return MyProfile.objects.get_or_create(user=self)[0] if self.is_active else None
    
 
 class CustomUserToken(models.Model):    
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
     token = models.CharField(max_length=255, unique=True)
     expire_date = models.DateTimeField(verbose_name="Token expire date")
 
@@ -44,9 +40,9 @@ class CustomUserToken(models.Model):
         return self.expire_date < timezone.now()
 
     
-class MyProfile(models.Model):
-    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    num_learned_words = models.IntegerField(default=0)
+class Profile(models.Model):
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
+    num_learned_words = models.PositiveIntegerField(default=0)
     experience = models.PositiveIntegerField(default=0)
 
     def __str__(self):

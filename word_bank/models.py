@@ -5,6 +5,7 @@ from datetime import datetime
 
 from django.db import models
 from django.template.defaultfilters import slugify
+from django.urls import reverse
 
 from accounts.models import CustomUser
 
@@ -23,10 +24,14 @@ class Block(models.Model):
     def __str__(self):
         return self.name
     
+    def get_absolute_url(self):
+        return reverse('block_detail', kwargs={'slug': self.slug})
+        
     def save(self, *args, **kwargs):
         self.name = self.name.strip() or 'New Block'
         self.slug = self.slug or slugify(self.name)
         super().save(*args, **kwargs)
+    
         
     def get_mastery_level(self, user):
         if user.is_authenticated:

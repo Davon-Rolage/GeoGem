@@ -6,6 +6,7 @@
             "name": "test_word",
             "transliteration": "test_transliteration",
             "translation": "test_translation",
+            "audio": "test_audio.mp3",
             "blocks": [1],
             "example": "test_example",
             "added_at": "2021-01-01T00:00:00Z",

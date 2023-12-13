@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-08 21:26+0400\n"
+"POT-Creation-Date: 2023-12-13 17:41+0400\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -259,32 +259,32 @@ msgid "You must pass the reCAPTCHA test"
 msgstr "Вы должны пройти капчу"
 
 #: .\geogem\gui_messages.py:104
+msgid "Username is required"
+msgstr "Имя пользователя обязательно"
+
+#: .\geogem\gui_messages.py:105
 msgid "Username cannot contain spaces"
 msgstr "Имя пользователя не может содержать пробелы"
 
-#: .\geogem\gui_messages.py:105
+#: .\geogem\gui_messages.py:106
 msgid "Username contains invalid characters"
 msgstr "Имя пользователя содержит недопустимые символы"
-
-#: .\geogem\gui_messages.py:106
-msgid "Username is too short"
-msgstr "Имя пользователя слишком короткое"
 
 #: .\geogem\gui_messages.py:107
 msgid "Username is too long"
 msgstr "Имя пользователя слишком длинное"
 
 #: .\geogem\gui_messages.py:108
-msgid "Email contains invalid characters"
-msgstr "Адрес электронной почты содержит недопустимые символы"
+msgid "Username is too short"
+msgstr "Имя пользователя слишком короткое"
 
 #: .\geogem\gui_messages.py:109
-msgid "Password is too short"
-msgstr "Пароль слишком короткий"
+msgid "Email is invalid"
+msgstr "Недействительный адрес электронной почты"
 
 #: .\geogem\gui_messages.py:110
-msgid "Passwords do not match"
-msgstr "Пароли не совпадают"
+msgid "Password is too short"
+msgstr "Пароль слишком короткий"
 
 #: .\geogem\gui_messages.py:111
 msgid "Invalid username or password"

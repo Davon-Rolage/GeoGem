@@ -40,7 +40,7 @@
                                 {{ gui_messages.total_words }} {{ user_profile.num_learned_words }}
                             </li>
                             <li>
-                                {{ gui_messages.date_joined }} {{ user.date_joined }}
+                                {{ gui_messages.date_joined }} {{ user.date_joined|date:"d.m.Y" }}
                             </li>
 
                             {% if user.is_premium %}

@@ -8,19 +8,15 @@ class BlockIsBasicListFilter(admin.SimpleListFilter):
     
     def lookups(self, request, model_admin):
         return [
-            ('basic', 'Basic'),
-            ('not_basic', 'Advanced'),
+            ('true', 'Basic'),
+            ('false', 'Not Basic'),
         ]
     
     def queryset(self, request, queryset):
-        if self.value() == 'basic':
-            return queryset.filter(
-                name__startswith='Basic'
-            )
-        if self.value() == 'not_basic':
-            return queryset.exclude(
-                name__startswith='Basic'
-            )
+        if self.value() == 'true':
+            return queryset.filter(name__startswith='Basic')
+        elif self.value() == 'false':
+            return queryset.exclude(name__startswith='Basic')
 
 class AdvancedUserWordMasteryLevelListFilter(admin.SimpleListFilter):
     title = 'Mastery level'
@@ -30,13 +26,10 @@ class AdvancedUserWordMasteryLevelListFilter(admin.SimpleListFilter):
         # Only show mastery levels that UserWords have
         exp_levels = [str(i) for i in range(7)]
         qs = model_admin.get_queryset(request)
-        for i, exp_level in enumerate(EXP_NEEDED_BY_WORD_MASTERY_LEVEL):
-            try:
-                if qs.filter(points__gte=exp_level, points__lt=EXP_NEEDED_BY_WORD_MASTERY_LEVEL[i+1]).exists():
-                    yield (exp_levels[i], exp_levels[i])
-
-            except IndexError:
-                pass
+        exp_needed = EXP_NEEDED_BY_WORD_MASTERY_LEVEL
+        for i in range(len(exp_needed) - 1):
+            if qs.filter(points__gte=exp_needed[i], points__lt=exp_needed[i+1]).exists():
+                yield (exp_levels[i], exp_levels[i])
     
     def queryset(self, request, queryset):
         if self.value():

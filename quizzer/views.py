@@ -108,10 +108,17 @@ class QuizResultsView(View):
         block.is_completed = block.is_fully_learned(user)
         quiz_type = request.POST.get('quiz_type')
 
-        quiz_words_ids = request.POST.get('quiz_words')
-        if quiz_words_ids:
-            quiz_words_ids = [int(word_id) for word_id in quiz_words_ids.split(',')]
+        quiz_words_ids = request.POST.get('quiz_words') or ''
+        if not quiz_words_ids:
+            context = {
+                'gui_messages': self.gui_messages,
+                'learning_block': block,
+                'quiz_type': quiz_type,
+                'quiz_words': [],
+            }
+            return render(request, self.template_name, context=context)
 
+        quiz_words_ids = [int(word_id) for word_id in quiz_words_ids.split(',')]
         quiz_score = int(request.POST.get('quiz_score'))
         num_questions = request.POST.get('num_questions')        
 

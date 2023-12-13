@@ -1,10 +1,11 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.models import AnonymousUser
-from django.test import TestCase
+from django.test import TestCase, tag
 
 from word_bank.models import Block, WordInfo
 
 
+@tag("word_bank", "model", "model_block")
 class BlockModelTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
@@ -69,6 +70,7 @@ class BlockModelTestCase(TestCase):
         self.assertFalse(test_user_block_fully_learned)
 
 
+@tag("word_bank", "model", "model_word_info")
 class WordInfoModelTestCase(TestCase):
     fixtures = ['test_users.json', 'test_blocks.json', 'test_word_infos.json']
     
@@ -84,6 +86,10 @@ class WordInfoModelTestCase(TestCase):
 
     def test_word_info_str(self):
         self.assertEqual(str(self.test_word_info_full), 'test_word_long_example - test_transl_long_example')
+    
+    def test_word_info_has_audio(self):        
+        self.assertTrue(self.test_word_info.has_audio())
+        self.assertFalse(self.test_word_info2.has_audio())
     
     def test_word_info_example_short_with_long_example(self):
         self.assertEqual(self.test_word_info_full.example_short(), 'text_word_long_...')
@@ -109,6 +115,7 @@ class WordInfoModelTestCase(TestCase):
         self.assertEqual(len(self.test_word_info.options), WordInfo.objects.count())
 
 
+@tag("word_bank", "model", "model_user_word")
 class UserWordModelTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',

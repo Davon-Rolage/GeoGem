@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 
 from .forms import CustomUserChangeForm, CustomUserCreationForm
-from .models import CustomUser, CustomUserToken, MyProfile
+from .models import CustomUser, CustomUserToken, Profile
 
 
 class CustomUserAdmin(UserAdmin, admin.ModelAdmin):
@@ -24,12 +24,12 @@ class CustomUserTokenAdmin(admin.ModelAdmin):
     sortable_by = ['user', 'token', 'expire_date', 'is_expired']
 
 
-class MyProfileAdmin(admin.ModelAdmin):
-    model = MyProfile
+class ProfileAdmin(admin.ModelAdmin):
+    model = Profile
     list_display = ['user', 'num_learned_words', 'experience']
     list_filter = ['user__is_premium']
 
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(CustomUserToken, CustomUserTokenAdmin)
-admin.site.register(MyProfile, MyProfileAdmin)
+admin.site.register(Profile, ProfileAdmin)

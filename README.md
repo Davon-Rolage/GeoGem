@@ -118,3 +118,4 @@ The aspects of Django framework that were used during development of this projec
 - Customized admin page: SimpleListfilter, EmptyFieldListFilter
 - unittests (models, views, templates and forms), coverage module
 - Fixtures with test data
+- Custom management commands

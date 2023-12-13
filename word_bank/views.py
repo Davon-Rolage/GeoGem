@@ -5,7 +5,6 @@ from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
 
-from accounts.models import MyProfile
 from geogem.gui_messages import get_gui_messages
 
 from .models import Block, UserWord, WordInfo
