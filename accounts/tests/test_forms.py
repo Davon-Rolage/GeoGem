@@ -1,6 +1,7 @@
 from unittest import mock
 
 from django.contrib.auth import get_user_model
+from django.core import mail
 from django.test import TestCase, tag
 
 from accounts.forms import CustomUserCreationForm, CustomUserLoginForm
@@ -112,9 +113,20 @@ class CustomUserLoginFormTestCase(TestCase):
             'password': 'test_password',
         })
         self.assertFalse(form.is_valid())
-        self.assertFormError(form, 'captcha', GUI_MESSAGES_FORMS['error_captcha'])
+        self.assertTrue(form.errors['captcha'][0] == GUI_MESSAGES_FORMS['error_captcha'])
     
-    def test_custom_user_login_form_invalid_username(self):
+    def test_custom_user_login_form_invalid_captcha_invalid_username(self):
+        form = CustomUserLoginForm(data={
+            'username': 'user_invalid',
+            'password': 'test_password',
+        })
+        self.assertFalse(form.is_valid())
+        self.assertTrue(form.errors['captcha'][0] == GUI_MESSAGES_FORMS['error_captcha'])
+        self.assertFormError(form, 'username', [])
+    
+    @mock.patch("captcha.fields.ReCaptchaField.clean")
+    def test_custom_user_login_form_invalid_username(self, mock_clean):
+        mock_clean.return_value = "testcaptcha"
         form = CustomUserLoginForm(data={
             'username': 'user_invalid',
             'password': 'test_password',
@@ -122,7 +134,9 @@ class CustomUserLoginFormTestCase(TestCase):
         self.assertFalse(form.is_valid())
         self.assertFormError(form, 'username', GUI_MESSAGES_FORMS['error_invalid_credentials'])
 
-    def test_custom_user_login_form_invalid_password(self):
+    @mock.patch("captcha.fields.ReCaptchaField.clean")
+    def test_custom_user_login_form_invalid_password(self, mock_clean):
+        mock_clean.return_value = 'testcaptcha'
         form = CustomUserLoginForm(data={
             'username': 'test_user',
             'password': 'password_invalid',

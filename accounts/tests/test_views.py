@@ -47,7 +47,7 @@ class SignupViewTestCase(TestCase):
         response = self.client.post(self.url, data=form_data, follow=True)
         
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'index.html')
+        self.assertTemplateUsed(response, 'word_bank/learn.html')
         self.assertIn('alert-success', response.content.decode('utf-8'))
     
     def test_signup_view_form_invalid_POST(self):
@@ -67,7 +67,7 @@ class SignupViewTestCase(TestCase):
 
 @tag("accounts", "view", "view_login")
 class LoginViewTestCase(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users.json', 'test_profiles.json']
     
     @classmethod
     def setUpTestData(cls):
@@ -93,7 +93,7 @@ class LoginViewTestCase(TestCase):
         response = self.client.post(self.url, data=form_data, follow=True)
         
         self.assertEqual(response.status_code, 200)
-        self.assertTemplateUsed(response, 'index.html')
+        self.assertTemplateUsed(response, 'word_bank/learn.html')
     
     def test_login_view_form_invalid_POST(self):
         form_data = {

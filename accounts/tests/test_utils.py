@@ -6,7 +6,6 @@ from django.urls import reverse
 from django.utils import timezone
 
 from accounts.models import CustomUserToken
-from accounts.utils import send_activation_email
 
 
 @tag("accounts", "utils", "utils_check_username_exists")
@@ -118,22 +117,3 @@ class ActivateUserTestCase(TestCase):
         
         login = self.client.login(username='test_user_expired', password='test_password')
         self.assertFalse(login)
-
-
-@tag("accounts", "utils", "utils_send_activation_email")
-class SendActivationEmailTestCase(TestCase):
-    fixtures = ['test_users.json']
-    
-    @classmethod
-    def setUpTestData(cls):
-        cls.User = get_user_model()
-        cls.test_to_email = 'test@example.com'
-        cls.test_user = cls.User.objects.first()
-    
-    def test_send_activation_email_success(self):
-        success = send_activation_email(user=self.test_user, to_email=self.test_to_email)
-        
-        self.assertTrue(success)
-        self.assertEqual(len(mail.outbox), 1)
-        self.assertEqual(mail.outbox[0].to, [self.test_to_email])
-        self.assertEqual(mail.outbox[0].subject, 'Confirm your account on GeoGem')

@@ -16,7 +16,6 @@ class BlockModelTestCase(TestCase):
     def setUpTestData(cls):
         cls.User = get_user_model()
         
-
         test_blocks = Block.objects.all()
         cls.test_block = test_blocks.first()
         cls.test_block_custom_slug = test_blocks.get(name='Test Block Custom Slug')
@@ -30,6 +29,9 @@ class BlockModelTestCase(TestCase):
         
     def test_block_str(self):
         self.assertEqual(str(self.test_block_default_slug), 'Test Block Default Slug')
+    
+    def test_block_get_absolute_url(self):
+        self.assertEqual(self.test_block.get_absolute_url(), '/en/learn/test-block/')
 
     def test_block_default_slug_is_assigned_on_save(self):
         self.assertEqual(self.test_block_default_slug.slug, 'test-block-default-slug')

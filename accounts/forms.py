@@ -69,8 +69,9 @@ class CustomUserCreationForm(UserCreationForm):
     def clean(self):
         cleaned_data = super().clean()
         
-        username = cleaned_data.get('username')
         username_allowed_chars = ascii_letters + digits + '.+-_'
+        username = cleaned_data.get('username')
+        email = cleaned_data.get('email')
         password1 = cleaned_data.get('password1')
         password2 = cleaned_data.get('password2')
         
@@ -99,21 +100,12 @@ class CustomUserCreationForm(UserCreationForm):
     def send_activation_email(self, request=None, user=None, user_token=None):
         mail_subject = GUI_MESSAGES['messages']['email_subject']
         to_email = self.cleaned_data.get('email')
-        try:
-            message = render_to_string('accounts/activate_email.html', {
-                'username': user.username,
-                'domain': get_current_site(request).domain,
-                'token': user_token,
-                'protocol': 'https' if request.is_secure() else 'http'
-            })
-        except:
-            message = render_to_string('accounts/activate_email.html', {
-                'username': 'test_user',
-                'domain': 'test_domain',
-                'token': 'test_token',
-                'protocol': 'test_protocol'
-            })
-            
+        message = render_to_string('accounts/activate_email.html', {
+            'username': user.username,
+            'domain': get_current_site(request).domain,
+            'token': user_token,
+            'protocol': 'https' if request.is_secure() else 'http'
+        })
         success = send_mail(mail_subject, message, html_message=message, from_email=None, recipient_list=[to_email])
         return success
 
