@@ -37,18 +37,27 @@ class SignUpView(FormView):
         context = super().get_context_data(**kwargs)
         context['gui_messages'] = get_gui_messages(['base', 'accounts'])
         return context
-
+    
     def form_valid(self, form):
         user = form.save(commit=False)
         user.save()
-        user_token = CustomUserToken.objects.create(
-            user=user, 
-            token=account_activation_token.make_token(user)
+        email = form.cleaned_data.get('email')
+        CustomUserToken.objects.create(
+            user=user,
+            token=account_activation_token.make_token(user),
         )
-        if form.send_activation_email(self.request, user, user_token.token):
-            success_message = GUI_MESSAGES['messages']['email_sent'].format(user=user, to_email=form.cleaned_data.get('email'))
-            messages.success(self.request, success_message)
-            
+        domain = self.request.get_host()
+        protocol = self.request.scheme
+        form.send_activation_email( # pragma: no cover
+            user_id=user.id,
+            domain=domain,
+            protocol=protocol,
+            to_email=email,
+        )
+        success_message = GUI_MESSAGES['messages']['email_sent'].format(
+            user=user, to_email=email
+        )
+        messages.success(self.request, success_message) # pragma: no cover
         return super().form_valid(form)
 
 
@@ -74,22 +83,17 @@ def logout_view(request):
     return HttpResponseRedirect(reverse('index'))
 
 
-class ProfileView(View):
+class ProfileView(LoginRequiredMixin, View):
     template_name = 'accounts/my_profile.html'
     
     def get(self, request):
         user = request.user
-        if user.is_authenticated:
-            user_profile = user.profile
-            user_profile.num_learned_words = UserWord.objects.filter(user=request.user).count()
-            
-            context = {
-                'gui_messages': get_gui_messages(['base', 'my_profile', 'tooltips']),
-                'user_profile': user_profile
-            }
-            return render(request, self.template_name, context=context)
-
-        return HttpResponseRedirect(reverse('login'))
+        user_profile = user.profile        
+        context = {
+            'gui_messages': get_gui_messages(['base', 'my_profile', 'tooltips']),
+            'user_profile': user_profile
+        }
+        return render(request, self.template_name, context=context)
 
 
 class DeleteUserView(SuccessMessageMixin, DeleteView):

@@ -13,7 +13,7 @@ class CustomUser(AbstractUser):
     is_active = models.BooleanField(default=False)
     
     def __str__(self):
-        return self.username
+        return self.get_username()
     
     def save(self, *args, **kwargs):
         if self.is_staff or self.is_superuser:
@@ -28,29 +28,28 @@ class CustomUserToken(models.Model):
     expire_date = models.DateTimeField(verbose_name="Token expire date")
 
     def __str__(self):
-        return self.user.username + ' - ' + self.token
+        return self.user.get_username() + ' - ' + self.token
     
     def save(self, *args, **kwargs):
         if not self.expire_date:
             self.expire_date = timezone.now() + timezone.timedelta(days=3)
         super().save(*args, **kwargs)
-    
-    @property
-    def is_expired(self):
-        return self.expire_date < timezone.now()
 
     
 class Profile(models.Model):
     user = models.OneToOneField(CustomUser, on_delete=models.CASCADE, primary_key=True)
-    num_learned_words = models.PositiveIntegerField(default=0)
     experience = models.PositiveIntegerField(default=0)
 
     def __str__(self):
-        return f'Profile {self.user.username}'
+        return f'Profile {self.user.get_username()}'
     
     def save(self, *args, **kwargs):
         self.experience = max(self.experience, 0)
         super().save(*args, **kwargs)
+        
+    @property
+    def num_learned_words(self):
+        return self.user.userword_set.count()
 
     @property
     def level(self):

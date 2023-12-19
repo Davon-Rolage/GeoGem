@@ -29,18 +29,13 @@ class ActivateUserView(View):
         try:
             user_token_instance = CustomUserToken.objects.get(token=token)
             user = user_token_instance.user
-            if not user_token_instance.is_expired:
-                user.is_active = True
-                user.save()
-                Profile.objects.create(user=user)
-                user_token_instance.delete()
-                messages.success(request, GUI_MESSAGES['messages']['activation_successful'])
-                return HttpResponseRedirect(reverse('login'))
-            else:
-                user_token_instance.delete()
+            user.is_active = True
+            user.save()
+            Profile.objects.create(user=user)
+            user_token_instance.delete()
+            messages.success(request, GUI_MESSAGES['messages']['activation_successful'])
+            return HttpResponseRedirect(reverse('login'))
         
         except CustomUserToken.DoesNotExist:
-            pass
-            
-        messages.error(request, GUI_MESSAGES['error_messages']['activation_failed'])
-        return HttpResponseRedirect(reverse('signup'))
+            messages.error(request, GUI_MESSAGES['error_messages']['activation_failed'])
+            return HttpResponseRedirect(reverse('signup'))

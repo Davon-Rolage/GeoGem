@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.messages import get_messages
-from django.core import mail
+from django.core.management import call_command
 from django.test import TestCase, tag
 from django.urls import reverse
 from django.utils import timezone
@@ -54,13 +54,13 @@ class ActivateUserTestCase(TestCase):
             username='test_user_expired', password='test_password'
         )
         cls.test_token_success = CustomUserToken.objects.create(
-            user=cls.test_user_act_success, token='test_token'
+            user=cls.test_user_act_success, token='valid_token'
         ).token
         CustomUserToken.objects.create(user=cls.test_user_invalid, token='test_token_invalid')
 
         expire_date = timezone.now() - timezone.timedelta(days=30)
         CustomUserToken.objects.create(
-            user=cls.test_user_expired, token='test_token_expired', expire_date=expire_date
+            user=cls.test_user_expired, token='expired_token', expire_date=expire_date
         )
     
     def test_activate_user_method_not_allowed_POST(self):
@@ -102,18 +102,9 @@ class ActivateUserTestCase(TestCase):
         login = self.client.login(username='test_user_invalid', password='test_password')
         self.assertFalse(login)
     
-    def test_activate_user_failed_expired_token_GET(self):
-        url = reverse('activate_user', args=['test_token_expired'])
-        response = self.client.get(url)
-        
-        self.test_user_expired.refresh_from_db()
-        
-        self.assertEqual(response.status_code, 302)
-        self.assertFalse(self.test_user_expired.is_active)
-        self.assertFalse(CustomUserToken.objects.filter(token='test_token_expired').exists())
-        messages = list(get_messages(response.wsgi_request))
-        self.assertEqual(len(messages), 1)
-        self.assertEqual(str(messages[0]), 'Activation link is invalid! Please try again.')
-        
-        login = self.client.login(username='test_user_expired', password='test_password')
-        self.assertFalse(login)
+    def test_command_deletes_expired_tokens_only(self):
+        # Call the management command
+        call_command('delete_expired_tokens')
+
+        self.assertFalse(CustomUserToken.objects.filter(token='expired_token').exists())
+        self.assertTrue(CustomUserToken.objects.filter(token='valid_token').exists())

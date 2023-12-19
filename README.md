@@ -9,84 +9,123 @@
 </div>
 
 
-# Test User Experience
+## Test User Experience
 You can test user experience with these login credentials:
-> Username: TestUserGeogem<br>
-> Password: 5xPzUpKFZiQcHRa
+
+| Username | Password |
+|----------|----------|
+| TestUserGeogem | 5xPzUpKFZiQcHRa |
 
 
-# Installation
+## Installation
 1. Create a virtual environment and activate it:
 ```
-python -m venv venv && venv\scripts\activate
+python3 -m venv venv && source venv/bin/activate
 ```
 2. Install required dependencies:
 ```
-python -m pip install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 3. Create a `.env` file in the root directory of the project:
 ```
-DJANGO_SECRET_KEY='your_django_secret_key'
+DJANGO_SECRET_KEY=your_django_secret_key
 
-POSTGRES_DB='your_postgres_db_name'
-POSTGRES_USER='your_postgres_db_user'
-POSTGRES_PASSWORD='postgres_db_password'
-POSTGRES_HOST='localhost or the same as PG_CONTAINER_NAME'
-PG_CONTAINER_NAME='postgres_container_name'
-GEOGEM_CONTAINER_NAME='web_container_name'
-PGDATA='/data/geogem-postgres'
+SQL_ENGINE=django.db.backends.postgresql
+SQL_DATABASE=geogem
+SQL_USER=geogem
+SQL_PASSWORD=your_password
+SQL_HOST=postgres
+SQL_PORT=5432
+PGDATA=/data/geogem-postgres
+PG_CONTAINER_NAME=geogem-postgres
 
-EMAIL_FROM='email_from'
-EMAIL_HOST_USER='your_email_host_user'
-EMAIL_HOST_PASSWORD='your_email_host_password'
+CELERY_BROKER=redis://redis:6379/0
+CELERY_BACKEND=redis://redis:6379/0
 
-RECAPTCHA_PUBLIC_KEY='your_recaptcha_public_key'
-RECAPTCHA_PRIVATE_KEY='your_recaptcha_private_key'
+WEB_CONTAINER_NAME=geogem
+REDIS_CONTAINER_NAME=geogem-redis
+CELERY_BEAT_CONTAINER_NAME=geogem-celery-beat
+CELERY_WORKER_CONTAINER_NAME=geogem-celery-worker
 
-ALLOWED_HOSTS=127.0.0.1
-CSRF_TRUSTED_ORIGINS=http://127.0.0.1
+EMAIL_FROM=example@example.com
+EMAIL_HOST_USER=example@example.com
+EMAIL_HOST_PASSWORD=your_password
+
+# These are official recaptcha test keys which are used during development
+RECAPTCHA_PUBLIC_KEY=6LeIxAcTAAAAAJcZVRqyHh71UMIEGNQ_MXjiZKhI
+RECAPTCHA_PRIVATE_KEY=6LeIxAcTAAAAAGG-vFI1TnRWxMZNFuojJ4WifJWe
+
+ALLOWED_HOSTS=127.0.0.1 localhost
+CSRF_TRUSTED_ORIGINS=http://127.0.0.1 http://localhost
 
 DEBUG=1
 ```
-4. Don't run `docker-compose up -d --build` for ***local*** development. Create a `postgres` image from `postgres_image` folder:
+> By default, `django-admin startproject` creates an insecure `SECRET_KEY` (see [Django docs](https://docs.djangoproject.com/en/5.0/ref/checks/#:~:text=connections%20to%20HTTPS.-,security.W009,-%3A%20Your%20SECRET_KEY%20has)). Generate a secure django secret key for your project:
 ```
-cd postgres_image && docker build -t geogem/postgres/dev .
+python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
 ```
-5. Create a docker volume:
+4. Create a Docker volume:
 ```
 docker volume create geogem_postgres_data
 ```
-6. Run only a `postgres` container on port `5432`:
+5. Build and start Docker containers with local services:
 ```
-docker run --name=geogem-postgres-dev -dp 5432:5432 -v geogem_postgres_data:/data/geogem-postgres -e POSTGRES_DB=your_db_name -e POSTGRES_USER=your_db_user -e POSTGRES_PASSWORD=your_db_password geogem/postgres/dev
+sudo docker-compose up -d --build
 ```
-7. Go back to the project's root directory, make migrations and migrate:
+> [!NOTE]  
+> Celery [doesn't support](https://docs.celeryq.dev/en/stable/faq.html#does-celery-support-windows) Windows since version 4, so you can either run Celery in Docker containers (our case) or use a UNIX system to run each Celery process manually, each from a different terminal window:
 ```
-cd .. && python manage.py makemigrations && python manage.py migrate
+celery -A geogem worker -l INFO
+celery -A geogem beat -l INFO
 ```
-8. Create a super user:
+6. Make migrations and migrate:
 ```
-python manage.py createsuperuser
+python3 manage.py makemigrations && python3 manage.py migrate
 ```
-9. Run local server:
+7. Create a super user:
 ```
-python manage.py runserver
+python3 manage.py createsuperuser
+```
+8. Manually create a profile for the super user:
+```
+python3 manage.py shell
+
+from django.contrib.auth import get_user_model
+from accounts.models import Profile
+
+User = get_user_model()
+super_user = User.objects.get(is_superuser=True)
+Profile.objects.create(user=super_user)
+
+exit()
+```
+9. Before deploying to production, set `DEBUG` to False in `.env` by not assigning any value to DEBUG:
+```
+DEBUG=
+```
+10. Start a development web server:
+```
+python3 manage.py runserver
 ```
 
 
 ## Dump database (Georgian characters)
 `python -Xutf8 manage.py dumpdata > data.json` doesn't correctly encode Georgian characters in `utf-8`, so use `django-dump-load-utf8` library to dump your database:
 ```
-python manage.py dumpdatautf8 --output data.json
+python3 manage.py dumpdatautf8 --output data.json
 ```
 Load the database with Georgian characters:
 ```
-python manage.py loaddatautf8 data.json
+python3 manage.py loaddatautf8 data.json
 ```
 
 
-# Tests
-All tests are located in every app's `tests` folder. Current code coverage is `98%`.<br>
+## Tests
+> [!NOTE] 
+> Before running tests, set `SQL_HOST=localhost` in `.env`
+
+All tests are located in every app's `tests` folder.
+<br>
 `coverage` tool is used for measuring code coverage. To make tests run faster, the `geogem/test_settings.py` is used which includes a more simple password hasher algorithm:
 ```
 coverage run manage.py test --settings=geogem.test_settings
@@ -102,9 +141,9 @@ coverage html
 Head to the created `htmlcov` folder and open `index.html` with `Live server`
 
 
-# Tech Stack
+## Tech Stack
 The aspects of Django framework that were used during development of this project:
-- Class-based views (View, DetailView, ListView, DeleteView)
+- Class-based views (View, DetailView, FormView, ListView, DeleteView)
 - Django CustomUser, forms (UserChangeForm, UserCreationForm)
 - Mixins (LoginRequiredMixin, SuccessMessageMixin)
 - Internationalization (English, Russian)
@@ -119,3 +158,5 @@ The aspects of Django framework that were used during development of this projec
 - unittests (models, views, templates and forms), coverage module
 - Fixtures with test data
 - Custom management commands
+- Celery workers (sending activation emails in the background)
+- Celery beat (deleting expired tokens at midnight)

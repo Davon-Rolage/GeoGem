@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 
@@ -20,8 +21,8 @@ EMAIL_USE_TLS = True
 
 DEBUG = True if os.environ.get('DEBUG') else False
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(',')
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(',')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(' ')
 
 INTERNAL_IPS = [
     '127.0.0.1',
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'quizzer',
     'django_dump_load_utf8',
     'debug_toolbar',
+    'django_celery_beat',
 ]
 
 MIDDLEWARE = [
@@ -75,14 +77,14 @@ TEMPLATES = [
 WSGI_APPLICATION = 'geogem.wsgi.application'
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': os.environ.get('POSTGRES_DB'),
-        'USER': os.environ.get('POSTGRES_USER'),
-        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
-        'PORT': 5432
-    },
+    "default": {
+        "ENGINE": os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME": os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER": os.environ.get("SQL_USER", "user"),
+        "PASSWORD": os.environ.get("SQL_PASSWORD", "password"),
+        "HOST": os.environ.get("SQL_HOST", "localhost"),
+        "PORT": os.environ.get("SQL_PORT", "5432"),
+    }
 }
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -102,7 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Paris'
 
 USE_I18N = True
 
@@ -135,3 +137,14 @@ SILENCED_SYSTEM_CHECKS = ['captcha.recaptcha_test_key_error']
 FIXTURE_DIRS = [
     BASE_DIR / 'fixtures',
 ]
+
+CELERY_BROKER_URL = os.environ.get("CELERY_BROKER", "redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("CELERY_BACKEND", "redis://redis:6379/0")
+CELERY_TIMEZONE = 'Europe/Paris'
+
+CELERY_BEAT_SCHEDULE = {
+    'delete_expired_tokens_at_midnight': {
+        'task': 'accounts.tasks.delete_expired_tokens_task',
+        'schedule': crontab(hour=0, minute=0),
+    },
+}

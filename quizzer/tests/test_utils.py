@@ -130,7 +130,6 @@ class AddToLearnedTestCase(TestCase):
         user_word = UserWord.objects.get(user=self.test_user_no_words, word=self.test_word_info)
         
         test_user_profile = self.test_user_no_words.profile
-        test_user_profile.refresh_from_db(fields=['num_learned_words'])
         
         self.assertEqual(response.status_code, 200)
         self.assertEqual(test_user_profile.num_learned_words, 1)

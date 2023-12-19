@@ -41,8 +41,6 @@ def add_to_learned(request):
         )
         user_word.points += int(created)
         if created:
-            user_profile.num_learned_words += 1
-            user_profile.save()
             update_profile_experience(user, increase_by=1)
 
         user_word.save()
