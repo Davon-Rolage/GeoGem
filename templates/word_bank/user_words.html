@@ -1,7 +1,6 @@
 {% extends 'base.html' %}
 
 {% block content %}
-
 <div class="container-wrapper">
     <div class="container-fluid px-5 py-4">
         <h class="display-6">{{ gui_messages.my_words_title }}</h>
@@ -35,7 +34,7 @@
                         <td>{{ word.mastery_level }}</td>
                         <td>{{ word.word.transliteration }}</td>
                         <td>{{ word.word.translation }}</td>
-                        <td>{% if word.word.example %}{{ word.word.example }}{% else %}-{% endif %}</td>
+                        <td>{% firstof word.word.example '-' %}</td>
                     </tr>
                 {% endfor %}
             </tbody>

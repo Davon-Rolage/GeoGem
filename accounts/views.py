@@ -10,7 +10,6 @@ from django.views.generic import DeleteView, View
 from django.views.generic.edit import FormView
 
 from geogem.gui_messages import get_gui_messages
-from word_bank.models import UserWord
 
 from .forms import CustomUserCreationForm, CustomUserLoginForm
 from .models import CustomUser
@@ -75,6 +74,14 @@ class LoginView(FormView):
         username = form.cleaned_data.get('username')
         password = form.cleaned_data.get('password')
         login(self.request, authenticate(username=username, password=password))
+        
+        stay_signed_in = form.cleaned_data.get('stay_signed_in')
+        if stay_signed_in:
+            self.request.session.set_expiry(None) # default 14 days
+        else:
+            self.request.session.set_expiry(0) # until browser is closed
+            # Some browsers, like Chrome, can interfere with session expiration on browser close:
+            # https://docs.djangoproject.com/en/4.2/topics/http/sessions/#browser-length-sessions-vs-persistent-sessions
         return super().form_valid(form)
 
 

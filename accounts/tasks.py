@@ -26,7 +26,12 @@ def send_activation_email_task(user_id=None, domain=None, protocol=None, to_emai
         from_email=None, recipient_list=[to_email]
     )
     
+
 @shared_task
 def delete_expired_tokens_task():
     call_command('delete_expired_tokens')
-    
+
+
+@shared_task
+def clean_out_expired_sessions_task():
+    call_command('clearsessions')

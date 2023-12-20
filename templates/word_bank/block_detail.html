@@ -64,7 +64,10 @@
                         <!-- Block mastery level text -->
                         <div class="row">
                             <nobr>
-                                <a href="{% url 'user_block_detail' learning_block.slug %}">{{ gui_messages.label_block_mastery_level }}</a> {{ block_mastery_level|floatformat:2 }} / 6
+                                <a href="{% url 'user_block_words' learning_block.slug %}">{{ gui_messages.label_block_mastery_level }}</a> 
+                                <span class="ms-2">
+                                    {{ block_mastery_level|floatformat:-2 }} / 6
+                                </span>
                                 <span class="tt" data-bs-toggle="tooltip" title="{{ gui_messages.block_mastery_level_help }}">
                                     <i class="fa-solid fa-circle-info"></i>
                                 </span>

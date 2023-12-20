@@ -33,6 +33,8 @@ GUI_MESSAGES = {
         'password_forgot': _('Forgot Password?'),
         # Translators: this is an input form element
         'email': _('Email'),
+        # Translators:this is a checkbox on the login page
+        'stay_signed_in': _('Stay signed in'),
         # Translators: this appears on the login page
         "do_not_have_account": _("Don't have an account?"),
         # Translators: this appears on the login page
@@ -176,6 +178,8 @@ GUI_MESSAGES = {
         'title_updated_at': _('Updated at'),
         # Translators: this is a column title
         'title_added_at': _('Added at'),
+        # Translators: this is written when the user has no words learned in the block
+        'no_words_in_user_block': _('No words learned in this block'),
     },
     'my_words_title': {
         'my_words_title': _('My Words'),

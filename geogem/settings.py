@@ -147,4 +147,8 @@ CELERY_BEAT_SCHEDULE = {
         'task': 'accounts.tasks.delete_expired_tokens_task',
         'schedule': crontab(hour=0, minute=0),
     },
+    'clean_out_expired_sessions_at_midnight': {
+        'task': 'accounts.tasks.clean_out_expired_sessions_task',
+        'schedule': crontab(hour=0, minute=0),
+    },
 }

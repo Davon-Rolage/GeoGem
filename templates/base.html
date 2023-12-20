@@ -78,7 +78,7 @@
               <a class="nav-link" href="{% url 'about' %}">{{ gui_messages.about }}</a>
             </li>
 
-            <li class="nav-item {% if not user.is_staff %}d-none{% endif %}">
+            <li class="nav-item {{ user.is_staff|yesno:',d-none' }}">
               <a class="nav-link" href="{% url 'premium' %}">{{ gui_messages.premium }}</a>
             </li>
             <li>

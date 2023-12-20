@@ -21,7 +21,7 @@
                 <h1>{{ learning_block.name }}</h1>
 
                 {% for word in words %}
-                    <div class="question position-relative" id="word{{ forloop.counter }}" {% if forloop.first %}style="display:block;"{% else %}style="display:none;"{% endif %}>
+                    <div id="word{{ forloop.counter }}" class="question position-relative {{ forloop.first|yesno:',display-none' }}">
                         <form class="question_form_multiple_choice px-4 py-3 bg-white rounded-3" action="{% url 'check_answer' %}" method="POST">
                             {% csrf_token %}
 
@@ -55,7 +55,7 @@
                             <div class="row justify-content-between">
                                 <!-- Button back -->
                                 <div class="col text-start p-0">
-                                    <input type="button" onclick="move(0)" class="btn btn-primary" {% if forloop.first %}hidden{% endif %} value="{{ gui_messages.btn_previous }}">
+                                    <input type="button" onclick="move(0)" class="btn btn-primary" {{ forloop.first|yesno:"hidden" }} value="{{ gui_messages.btn_previous }}">
                                 </div>
                                 <div class="col text-end p-0">
                                     {% if not forloop.last %}

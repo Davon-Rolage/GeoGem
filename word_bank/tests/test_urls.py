@@ -19,9 +19,9 @@ class WordbankUrlsTestCase(SimpleTestCase):
         url = reverse('user_words')
         self.assertEqual(resolve(url).func.view_class, MyWordsListView)
     
-    def test_user_block_detail_url_resolves(self):
-        url = reverse('user_block_detail', args=['test-block'])
-        self.assertEqual(resolve(url).func.view_class, UserBlockDetailView)
+    def test_user_block_words_url_resolves(self):
+        url = reverse('user_block_words', args=['test-block'])
+        self.assertEqual(resolve(url).func.view_class, UserBlockWordsListView)
     
     def test_add_word_info_url_resolves(self):
         url = reverse('add_word_info')

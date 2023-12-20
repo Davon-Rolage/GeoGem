@@ -68,9 +68,9 @@ python -c 'from django.core.management.utils import get_random_secret_key; print
 ```
 docker volume create geogem_postgres_data
 ```
-5. Build and start Docker containers with local services:
+5. Build and start Docker containers with Celery services:
 ```
-sudo docker-compose up -d --build
+sudo docker-compose -f docker-compose-redis.yml up -d --build
 ```
 > [!NOTE]  
 > Celery [doesn't support](https://docs.celeryq.dev/en/stable/faq.html#does-celery-support-windows) Windows since version 4, so you can either run Celery in Docker containers (our case) or use a UNIX system to run each Celery process manually, each from a different terminal window:
@@ -122,11 +122,20 @@ python3 manage.py loaddatautf8 data.json
 
 ## Tests
 > [!NOTE] 
-> Before running tests, set `SQL_HOST=localhost` in `.env`
+> Before running tests, set `SQL_HOST=localhost` in `.env`<br>
+> Stop and remove containers that were started with `docker-compose-redis`:
+```
+docker-compose -f docker-compose-redis.yml down
+```
+Start only a `postgres` container and run a local development server:
+```
+docker-compose -f docker-compose-lite.yml up -d --build
+python manage.py runserver
+```
 
 All tests are located in every app's `tests` folder.
 <br>
-`coverage` tool is used for measuring code coverage. To make tests run faster, the `geogem/test_settings.py` is used which includes a more simple password hasher algorithm:
+`coverage` tool is used for measuring code coverage. To make tests run faster, the `geogem/test_settings.py` is used which includes a simpler password hasher algorithm:
 ```
 coverage run manage.py test --settings=geogem.test_settings
 ```
@@ -144,7 +153,7 @@ Head to the created `htmlcov` folder and open `index.html` with `Live server`
 ## Tech Stack
 The aspects of Django framework that were used during development of this project:
 - Class-based views (View, DetailView, FormView, ListView, DeleteView)
-- Django CustomUser, forms (UserChangeForm, UserCreationForm)
+- Django CustomUser, forms (UserLoginForm, UserCreationForm)
 - Mixins (LoginRequiredMixin, SuccessMessageMixin)
 - Internationalization (English, Russian)
 - Static and media files
@@ -157,6 +166,6 @@ The aspects of Django framework that were used during development of this projec
 - Customized admin page: SimpleListfilter, EmptyFieldListFilter
 - unittests (models, views, templates and forms), coverage module
 - Fixtures with test data
-- Custom management commands
+- Custom management commands (report number of users and user words)
 - Celery workers (sending activation emails in the background)
-- Celery beat (deleting expired tokens at midnight)
+- Celery beat (deleting expired tokens and sessions at midnight)

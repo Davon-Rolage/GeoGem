@@ -133,6 +133,14 @@ class CustomUserLoginForm(forms.Form):
         error_messages={
             'required': GUI_MESSAGES_FORMS['error_captcha'],
         })
+    stay_signed_in = forms.BooleanField(required=False, widget=forms.CheckboxInput(
+        attrs={
+            'class': 'form-check-input shadow-none',
+            'id': 'stay-signed-in',
+            'type': 'checkbox',
+        }
+    ))
+    
     
     def clean(self):
         cleaned_data = super().clean()

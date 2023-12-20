@@ -288,8 +288,8 @@ class UserWordsListViewTestCase(TestCase):
         self.assertIn(self.test_user_word, response_words)
 
 
-@tag("word_bank", "view", "view_user_block_detail")
-class UserBlockDetailViewTestCase(TestCase):
+@tag("word_bank", "view", "view_user_block_words")
+class UserBlockWordsListViewTestCase(TestCase):
     fixtures = [
         'test_users.json', 'test_blocks.json',
         'test_word_infos.json', 'test_user_words.json'
@@ -298,30 +298,30 @@ class UserBlockDetailViewTestCase(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
-        cls.url = reverse('user_block_detail', args=['test-block'])
-        cls.template_name = 'word_bank/user_block_detail.html'
+        cls.url = reverse('user_block_words', args=['test-block'])
+        cls.template_name = 'word_bank/user_block_words.html'
 
         cls.test_user = cls.User.objects.first()
         cls.test_user_word_count = UserWord.objects.filter(user=cls.test_user).count()
 
-    def test_user_block_detail_view_as_anonymous_user_GET(self):
+    def test_user_block_words_view_as_anonymous_user_GET(self):
         response = self.client.get(self.url)
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
-        self.assertEqual(len(response.context['words']), 0)
+        self.assertEqual(len(response.context['user_words']), 0)
 
-    def test_user_block_detail_view_as_authenticated_user_GET(self):
+    def test_user_block_words_view_as_authenticated_user_GET(self):
         self.client.force_login(self.test_user)
         response = self.client.get(self.url)
-        response_words = response.context['words']
+        response_words = response.context['user_words']
 
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
         self.assertIsInstance(response_words, QuerySet)
         self.assertEqual(len(response_words), self.test_user_word_count)
         
-    def test_user_block_detail_view_method_not_allowed_POST(self):
+    def test_user_block_words_view_method_not_allowed_POST(self):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 405)
 
