@@ -20,11 +20,11 @@ You can test user experience with these login credentials:
 ## Installation
 1. Create a virtual environment and activate it:
 ```
-python3 -m venv venv && source venv/bin/activate
+python -m venv venv && venv\Scripts\activate
 ```
 2. Install required dependencies:
 ```
-python3 -m pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
 3. Create a `.env` file in the root directory of the project:
 ```
@@ -70,7 +70,7 @@ docker volume create geogem_postgres_data
 ```
 5. Build and start Docker containers with Celery services:
 ```
-sudo docker-compose -f docker-compose-redis.yml up -d --build
+docker-compose -f docker-compose-redis.yml up -d --build
 ```
 > [!NOTE]  
 > Celery [doesn't support](https://docs.celeryq.dev/en/stable/faq.html#does-celery-support-windows) Windows since version 4, so you can either run Celery in Docker containers (our case) or use a UNIX system to run each Celery process manually, each from a different terminal window:
@@ -80,15 +80,15 @@ celery -A geogem beat -l INFO
 ```
 6. Make migrations and migrate:
 ```
-python3 manage.py makemigrations && python3 manage.py migrate
+python manage.py makemigrations && python manage.py migrate
 ```
 7. Create a super user:
 ```
-python3 manage.py createsuperuser
+python manage.py createsuperuser
 ```
 8. Manually create a profile for the super user:
 ```
-python3 manage.py shell
+python manage.py shell
 
 from django.contrib.auth import get_user_model
 from accounts.models import Profile
@@ -103,31 +103,28 @@ exit()
 ```
 DEBUG=
 ```
-10. Start a development web server:
-```
-python3 manage.py runserver
-```
+10. There's no need to manually start a development server with `python manage.py runserver` if you ran `docker-compose -f docker-compose-redis.yml up -d --build` - the web server is started within the container which is available at `127.0.0.1:8005`. However, it is easier and less time consuming to *develop* with `docker-compose-lite.yml` up and manually starting a dev server with `python manage.py runserver` (don't forget to set `SQL_HOST=localhost` in `.env`)
 
 
 ## Dump database (Georgian characters)
 `python -Xutf8 manage.py dumpdata > data.json` doesn't correctly encode Georgian characters in `utf-8`, so use `django-dump-load-utf8` library to dump your database:
 ```
-python3 manage.py dumpdatautf8 --output data.json
+python manage.py dumpdatautf8 --output data.json
 ```
 Load the database with Georgian characters:
 ```
-python3 manage.py loaddatautf8 data.json
+python manage.py loaddatautf8 data.json
 ```
 
 
 ## Tests
 > [!NOTE] 
 > Before running tests, set `SQL_HOST=localhost` in `.env`<br>
-> Stop and remove containers that were started with `docker-compose-redis`:
+> Stop and remove containers that were started with `docker-compose-redis.yml`:
 ```
 docker-compose -f docker-compose-redis.yml down
 ```
-Start only a `postgres` container and run a local development server:
+Up `docker-compose -f docker-compose-lite.yml` and run a local development server:
 ```
 docker-compose -f docker-compose-lite.yml up -d --build
 python manage.py runserver
@@ -160,7 +157,9 @@ The aspects of Django framework that were used during development of this projec
 - ORM with PostgreSQL
 - JavaScript, jQuery, Ajax requests & Chart.js
 - CSS & DataTables, Bootstrap v5.3.2 (makes for a visually-appealing and mobile-friendly interface)
-- django-recaptcha, email confirmation upon registration
+- django-recaptcha
+- Email confirmation upon registration
+- Reset forgotten password feature
 - Docker and docker-compose.yml files
 - Environment variables
 - Customized admin page: SimpleListfilter, EmptyFieldListFilter

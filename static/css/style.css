@@ -59,18 +59,17 @@ body {
 }
 
 .alert-error {
-  position: absolute;
   z-index: 100;
-  top: 10%;
-  left: 40%;
-  width: 20%;
+  margin: 0 auto !important;
+  width: fit-content;
   color: #58151c;
   background-color: #f8d7da;
   border-color: #f1aeb5;
 }
+
 .alert-success {
-  position: absolute;
   z-index: 100;
+  margin: 0 auto !important;
   width: fit-content;
 }
 

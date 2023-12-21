@@ -1,7 +1,8 @@
+from django.contrib.auth import get_user_model
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
-from word_bank.models import CustomUser, UserWord, WordInfo
+from word_bank.models import UserWord, WordInfo
 
 
 class Command(BaseCommand):
@@ -16,7 +17,7 @@ class Command(BaseCommand):
         self.stdout.write("Total number of word infos:", ending=" ")
         self.stdout.write(self.style.SUCCESS(str(num_word_infos)))
 
-        num_users = CustomUser.objects.count()
+        num_users = get_user_model().objects.count()
         self.stdout.write("Total number of users:", ending=" ")
         self.stdout.write(self.style.SUCCESS(f"{num_users:>7}"))
         

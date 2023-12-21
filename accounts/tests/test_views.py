@@ -29,7 +29,7 @@ class SignupViewTestCase(TestCase):
     def setUpTestData(cls):
         cls.url = reverse('signup')
         cls.template_name = 'accounts/signup.html'
-        cls.success_message = GUI_MESSAGES['messages']['email_sent'].format(
+        cls.success_message = GUI_MESSAGES['messages']['activation_email_sent'].format(
             user='test_user', to_email='test@example.com'
         )
     
@@ -170,7 +170,7 @@ class ProfileViewTestCase(TestCase):
     def setUpTestData(cls):
         cls.User = get_user_model()
         cls.url = reverse('my_profile')
-        cls.template_name = 'accounts/my_profile.html'
+        cls.template_name = 'accounts/profile.html'
         cls.test_user = cls.User.objects.first()
     
     def test_my_profile_view_method_not_allowed_POST(self):

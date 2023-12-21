@@ -21,6 +21,16 @@ GUI_MESSAGES = {
         'register_title': _('Register'),
         # Translators: this is a register button
         'register_button': _('Register'),
+        # Translators: this is a reset password title
+        'password_reset_title': _('Reset Password'),
+        # Translators: this is a reset password description
+        'password_reset_description': _('Please enter the email associated with your account.'),
+        # Translators: this is a reset password button
+        'password_reset_button': _('Reset Password'),
+        # Translators: this is a set new password title
+        'set_new_password_title': _('Set New Password'),
+        # Translators: this is a set new password button
+        'set_new_password_button': _('Set New Password'),
         # Translators: this is an input form element
         'username': _('Username'),
         # Translators: this is an error message
@@ -92,13 +102,17 @@ GUI_MESSAGES = {
     'messages': {
         'badge_earned': _('You have earned a badge! Check out your profile!'),
         'user_deleted': _('The user has been successfully deleted'),
-        'email_subject': _('Confirm your account on GeoGem'),
-        'email_sent': _('<b>{user}</b>, please check your email <b>{to_email}</b> to activate your account.'),
+        'email_subject_activation': _('Confirm your account on GeoGem'),
+        'email_subject_password_reset': _('Reset your password on GeoGem'),
+        'activation_email_sent': _('<b>{user}</b>, please check your email <b>{to_email}</b> to activate your account.'),
+        'password_reset_email_sent': _('Please check your email <b>{to_email}</b> to reset your password.'),
         'activation_successful': _('Thank you for confirming your email. You can now sign in to your account.'),
+        'password_reset_successful': _('Your password has been reset.'),
     },
     'error_messages': {
         'email_sent': _('Problem sending email to <b>{to_email}</b>, please try again.'),
         'activation_failed': _('Activation link is invalid! Please try again.'),
+        'password_reset_failed': _('Password reset link is invalid! Please try again.'),
         'all_fields_required': _('Please fill out all the required fields.'),
     },
     'forms': {        
@@ -109,7 +123,9 @@ GUI_MESSAGES = {
         'error_username_max_length': _('Username is too long'),
         'error_username_min_length': _('Username is too short'),
         'error_email_invalid': _('Email is invalid'),
+        'error_email_doesnt_exist': _('There is no user associated with this email'),
         'error_password_min_length': _('Password is too short'),
+        'error_password_mismatch': _('Passwords do not match'),
         'error_invalid_credentials': _('Invalid username or password'),
     },
     'my_profile': {

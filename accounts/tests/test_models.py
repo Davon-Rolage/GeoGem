@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.test import TestCase, tag
 
-from accounts.models import CustomUserToken
+from accounts.models import CustomUserToken, CustomUserTokenType
 
 
 @tag("accounts", "model", "model_custom_user")
@@ -104,13 +104,18 @@ class ProfileTestCase(TestCase):
 
 @tag("accounts", "model", "model_custom_user_token")
 class CustomUserTokenTestCase(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users.json', 'test_token_types.json']
     
     @classmethod
     def setUpTestData(cls):
         cls.User = get_user_model()
         cls.test_user = cls.User.objects.first()
-        cls.test_user_token = CustomUserToken.objects.create(user=cls.test_user, token='test_token')
+        token_type = CustomUserTokenType.objects.get(name='User activation')
+        cls.test_user_token = CustomUserToken.objects.create(
+            user=cls.test_user,
+            token='test_token',
+            token_type=token_type
+        )
         cls.token = cls.test_user_token.token
     
     def test_custom_user_token_str(self):

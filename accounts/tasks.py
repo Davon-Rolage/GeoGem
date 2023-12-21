@@ -6,17 +6,36 @@ from django.template.loader import render_to_string
 
 from geogem.gui_messages import GUI_MESSAGES
 
-from .models import CustomUserToken
+from .models import CustomUserToken, CustomUserTokenType
 
 
 @shared_task
 def send_activation_email_task(user_id=None, domain=None, protocol=None, to_email=None):
-    mail_subject = GUI_MESSAGES['messages']['email_subject']
+    mail_subject = GUI_MESSAGES['messages']['email_subject_activation']
+    token_type = CustomUserTokenType.objects.get(name='User activation')
     user = get_user_model().objects.get(id=user_id)
-    user_token = CustomUserToken.objects.get(user=user).token
+    user_token = CustomUserToken.objects.get(user=user, token_type=token_type).token
 
     message = render_to_string('accounts/activate_email.html', {
         'username': user.get_username(),
+        'domain': domain,
+        'token': user_token,
+        'protocol': protocol
+    })
+    send_mail(
+        mail_subject, message, html_message=message,
+        from_email=None, recipient_list=[to_email]
+    )
+    
+
+@shared_task
+def send_password_reset_email_task(user_id=None, domain=None, protocol=None, to_email=None):
+    mail_subject = GUI_MESSAGES['messages']['email_subject_password_reset']
+    token_type = CustomUserTokenType.objects.get(name='Password reset')
+    user = get_user_model().objects.get(id=user_id)
+    user_token = CustomUserToken.objects.get(user=user, token_type=token_type).token
+    
+    message = render_to_string('accounts/password_reset_email.html', {
         'domain': domain,
         'token': user_token,
         'protocol': protocol

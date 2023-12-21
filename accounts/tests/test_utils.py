@@ -5,12 +5,12 @@ from django.test import TestCase, tag
 from django.urls import reverse
 from django.utils import timezone
 
-from accounts.models import CustomUserToken
+from accounts.models import CustomUserToken, CustomUserTokenType
 
 
 @tag("accounts", "utils", "utils_check_username_exists")
 class CheckUsernameExistsTestCase(TestCase):
-    fixtures = ['test_users.json']
+    fixtures = ['test_users.json', 'test_token_types.json']
     
     @classmethod
     def setUpTestData(cls):
@@ -53,8 +53,9 @@ class ActivateUserTestCase(TestCase):
         cls.test_user_expired = cls.User.objects.create_user(
             username='test_user_expired', password='test_password'
         )
+        token_type = CustomUserTokenType.objects.get(name='User activation')
         cls.test_token_success = CustomUserToken.objects.create(
-            user=cls.test_user_act_success, token='valid_token'
+            user=cls.test_user_act_success, token='valid_token', token_type=token_type
         ).token
         CustomUserToken.objects.create(user=cls.test_user_invalid, token='test_token_invalid')
 

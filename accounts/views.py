@@ -1,6 +1,7 @@
 from django.contrib import messages
-from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth import authenticate, get_user_model, login, logout
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import HttpResponseRedirect
 from django.shortcuts import render
@@ -11,9 +12,9 @@ from django.views.generic.edit import FormView
 
 from geogem.gui_messages import get_gui_messages
 
-from .forms import CustomUserCreationForm, CustomUserLoginForm
-from .models import CustomUser
-from .tokens import account_activation_token
+from .forms import *
+from .models import CustomUserTokenType
+from .tokens import generate_user_token
 from .utils import *
 
 
@@ -31,6 +32,7 @@ class SignUpView(FormView):
     template_name = 'accounts/signup.html'
     form_class = CustomUserCreationForm
     success_url = reverse_lazy('learn')
+    token_type = CustomUserTokenType.objects.get(name='User activation')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -43,7 +45,8 @@ class SignUpView(FormView):
         email = form.cleaned_data.get('email')
         CustomUserToken.objects.create(
             user=user,
-            token=account_activation_token.make_token(user),
+            token=generate_user_token(user.id),
+            token_type=self.token_type,
         )
         domain = self.request.get_host()
         protocol = self.request.scheme
@@ -53,7 +56,7 @@ class SignUpView(FormView):
             protocol=protocol,
             to_email=email,
         )
-        success_message = GUI_MESSAGES['messages']['email_sent'].format(
+        success_message = GUI_MESSAGES['messages']['activation_email_sent'].format(
             user=user, to_email=email
         )
         messages.success(self.request, success_message) # pragma: no cover
@@ -91,7 +94,7 @@ def logout_view(request):
 
 
 class ProfileView(LoginRequiredMixin, View):
-    template_name = 'accounts/my_profile.html'
+    template_name = 'accounts/profile.html'
     
     def get(self, request):
         user = request.user
@@ -104,12 +107,96 @@ class ProfileView(LoginRequiredMixin, View):
 
 
 class DeleteUserView(SuccessMessageMixin, DeleteView):
-    model = CustomUser
+    model = get_user_model()
     success_url = reverse_lazy('index')    
     success_message = GUI_MESSAGES['messages']['user_deleted']
 
     def form_valid(self, form):
         messages.success(self.request, self.success_message)
+        return super().form_valid(form)
+
+
+class PasswordResetView(FormView):
+    template_name = 'accounts/password_reset.html'
+    form_class = PasswordResetForm
+    success_url = reverse_lazy('learn')
+    token_generator = PasswordResetTokenGenerator()
+    token_type = CustomUserTokenType.objects.get(name='Password reset')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['gui_messages'] = get_gui_messages(['base', 'accounts'])
+        return context
+    
+    def form_valid(self, form):
+        email = form.cleaned_data.get('email')
+        user = get_user_model().objects.get(email=email)
+        CustomUserToken.objects.filter(
+            user=user,
+            token_type=self.token_type
+        ).delete()
+        CustomUserToken.objects.create(
+            user=user,
+            token=self.token_generator.make_token(user),
+            token_type=self.token_type,
+        )
+        domain = self.request.get_host()
+        protocol = self.request.scheme
+        form.send_password_reset_email( # pragma: no cover
+            user_id=user.id,
+            domain=domain,
+            protocol=protocol,
+            to_email=email,
+        )
+        success_message = GUI_MESSAGES['messages']['password_reset_email_sent'].format(
+            to_email=email
+        )
+        messages.success(self.request, success_message) # pragma: no cover
+        return super().form_valid(form)
+
+
+class PasswordResetCheckView(View):
+    token_generator = PasswordResetTokenGenerator()
+    
+    def get(self, request, token):
+        try:
+            user_token = CustomUserToken.objects.get(token=token)
+            user = user_token.user
+            
+        except (ValueError, CustomUserToken.DoesNotExist):
+            messages.error(request, GUI_MESSAGES['error_messages']['password_reset_failed'])
+            user = None
+            
+        except signing.BadSignature:
+            messages.error(request, GUI_MESSAGES['error_messages']['password_reset_failed'])
+            user_token.delete()
+            user = None
+            
+        if user is not None and self.token_generator.check_token(user, token):
+            return HttpResponseRedirect(reverse('set_password', args=[token]))
+
+        return HttpResponseRedirect(reverse('login'))
+
+class SetPasswordView(FormView):
+    template_name = 'accounts/password_set.html'
+    form_class = SetPasswordForm
+    success_url = reverse_lazy('login')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['gui_messages'] = get_gui_messages(['base', 'accounts'])
+        return context
+    
+    def form_valid(self, form):
+        token = self.kwargs.get('token')
+        token_instance = CustomUserToken.objects.get(token=token)
+        user = token_instance.user
+        
+        user.set_password(form.cleaned_data.get('password1'))
+        user.save()
+        
+        messages.success(self.request, GUI_MESSAGES['messages']['password_reset_successful'])
+        token_instance.delete()
         return super().form_valid(form)
 
 
@@ -124,7 +211,7 @@ class PremiumView(View):
 
 
 class GetPremiumView(LoginRequiredMixin, View):
-    model = CustomUser
+    model = get_user_model()
 
     def post(self, request):
         user = request.user
@@ -135,7 +222,7 @@ class GetPremiumView(LoginRequiredMixin, View):
     
 
 class CancelPremiumView(View):
-    model = CustomUser
+    model = get_user_model()
 
     def post(self, request):
         user = request.user
