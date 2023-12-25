@@ -16,6 +16,8 @@ class IndexViewTestCase(TestCase):
     
     def test_index_view_GET(self):
         response = self.client.get(self.url)
+
+        self.assertIsNotNone(response.context['gui_messages'])
         self.assertEqual(response.status_code, 200)
     
     def test_index_view_method_not_allowed_POST(self):

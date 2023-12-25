@@ -32,7 +32,7 @@ class ActivateUserView(View):
         token = kwargs.get('token')
         try:
             user_token_instance = CustomUserToken.objects.get(token=token)
-            payload = verify_user_token(user_token_instance.user.id, token, max_age=timedelta(seconds=3))
+            payload = verify_user_token(user_token_instance.user.id, token, max_age=timedelta(days=3))
             
             user_id = payload.get('user_id')
             user = get_user_model().objects.get(id=user_id)

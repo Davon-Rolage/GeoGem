@@ -7,7 +7,8 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse, reverse_lazy
 from django.utils.translation import gettext as _
-from django.views.generic import DeleteView, View
+from django.views.generic import DeleteView, RedirectView, View
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
 from geogem.gui_messages import get_gui_messages
@@ -18,14 +19,13 @@ from .tokens import generate_user_token
 from .utils import *
 
 
-class IndexView(View):
+class IndexView(TemplateView):
     template_name = 'index.html'
     
-    def get(self, request):
-        context = {
-            'gui_messages': get_gui_messages(['base', 'index']),
-        }
-        return render(request, self.template_name, context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['gui_messages'] = get_gui_messages(['base', 'index'])
+        return context
 
 
 class SignUpView(FormView):
@@ -155,27 +155,28 @@ class PasswordResetView(FormView):
         return super().form_valid(form)
 
 
-class PasswordResetCheckView(View):
+class PasswordResetCheckView(RedirectView):
     token_generator = PasswordResetTokenGenerator()
-    
-    def get(self, request, token):
+
+    def get_redirect_url(self, token):
         try:
             user_token = CustomUserToken.objects.get(token=token)
             user = user_token.user
-            
+
         except (ValueError, CustomUserToken.DoesNotExist):
-            messages.error(request, GUI_MESSAGES['error_messages']['password_reset_failed'])
+            messages.error(self.request, GUI_MESSAGES['error_messages']['password_reset_failed'])
             user = None
-            
+
         except signing.BadSignature:
-            messages.error(request, GUI_MESSAGES['error_messages']['password_reset_failed'])
+            messages.error(self.request, GUI_MESSAGES['error_messages']['password_reset_failed'])
             user_token.delete()
             user = None
-            
-        if user is not None and self.token_generator.check_token(user, token):
-            return HttpResponseRedirect(reverse('set_password', args=[token]))
 
-        return HttpResponseRedirect(reverse('login'))
+        if user is not None and self.token_generator.check_token(user, token):
+            return reverse('set_password', args=[token])
+
+        return reverse('login')
+
 
 class SetPasswordView(FormView):
     template_name = 'accounts/password_set.html'

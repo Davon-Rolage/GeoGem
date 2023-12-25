@@ -4,6 +4,7 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from django.utils.decorators import method_decorator
 from django.views.generic import DetailView, ListView, View
+from django.views.generic.base import TemplateView
 
 from geogem.gui_messages import get_gui_messages
 
@@ -69,13 +70,10 @@ class BlockDetailView(DetailView):
         return context
 
 
+@method_decorator(staff_member_required, name='dispatch')
 class EditBlocksView(View):
     template_name = 'word_bank/blocks_table.html'
     model = Block
-    
-    @method_decorator(staff_member_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
     
     def get(self, request):
         blocks = Block.objects.all().order_by('-updated_at')
@@ -89,13 +87,10 @@ class EditBlocksView(View):
         return render(request, self.template_name, context=context)
 
 
+@method_decorator(staff_member_required, name='dispatch')
 class EditBlockDetailView(DetailView):
     template_name = 'word_bank/block_edit.html'
     model = Block
-    
-    @method_decorator(staff_member_required)
-    def dispatch(self, request, *args, **kwargs):
-        return super().dispatch(request, *args, **kwargs)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -109,10 +104,10 @@ class EditBlockDetailView(DetailView):
         return context
 
 
+@method_decorator(staff_member_required, name='dispatch')
 class AddWordInfoView(View):
     model = WordInfo
     
-    @method_decorator(staff_member_required)
     def post(self, request):
         learning_block_id = request.POST.get('learning_block_id')
         word = self.model.objects.create(
@@ -127,10 +122,10 @@ class AddWordInfoView(View):
         })
 
 
+@method_decorator(staff_member_required, name='dispatch')
 class EditWordInfoView(View):
     model = WordInfo
     
-    @method_decorator(staff_member_required)
     def post(self, request, *args, **kwargs):
         word_id = request.POST.get('word_id')
         word = self.model.objects.get(pk=word_id)
@@ -168,12 +163,12 @@ class UserBlockWordsListView(ListView):
     context_object_name = 'user_words'
     model = UserWord
     
-    def get_queryset(self, **kwargs):
+    def get_queryset(self):
         user = self.request.user
         slug = self.kwargs['slug']
         learning_block = Block.objects.get(slug=slug)
         if user.is_authenticated:
-            return UserWord.objects.filter(user=user, word__blocks=learning_block).order_by('-added_at')
+            return self.model.objects.filter(user=user, word__blocks=learning_block).order_by('-added_at')
 
         return []
     
@@ -185,18 +180,17 @@ class UserBlockWordsListView(ListView):
         return context
     
 
-class AboutView(View):
+class AboutView(TemplateView):
     template_name = 'word_bank/about.html'
 
-    def get(self, request):
-        context = {
-            'gui_messages': get_gui_messages(['base', 'about']),
-        }
-        return render(request, self.template_name, context)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['gui_messages'] = get_gui_messages(['base', 'about'])
+        return context
     
 
+@method_decorator(staff_member_required, name='dispatch')
 class ResetTestBlockView(View):
-    @method_decorator(staff_member_required)
     def post(self, request):
         user = request.user
         test_words = UserWord.objects.filter(user=user, word__blocks__id=0)

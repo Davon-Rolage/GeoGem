@@ -149,7 +149,7 @@ Head to the created `htmlcov` folder and open `index.html` with `Live server`
 
 ## Tech Stack
 The aspects of Django framework that were used during development of this project:
-- Class-based views (View, DetailView, FormView, ListView, DeleteView)
+- Class-based views (View, DetailView, FormView, ListView, DeleteView, TemplateView, RedirectView)
 - Django CustomUser, forms (UserLoginForm, UserCreationForm)
 - Mixins (LoginRequiredMixin, SuccessMessageMixin)
 - Internationalization (English, Russian)
@@ -157,13 +157,13 @@ The aspects of Django framework that were used during development of this projec
 - ORM with PostgreSQL
 - JavaScript, jQuery, Ajax requests & Chart.js
 - CSS & DataTables, Bootstrap v5.3.2 (makes for a visually-appealing and mobile-friendly interface)
-- django-recaptcha
-- Email confirmation upon registration
-- Reset forgotten password feature
+- Django-recaptcha
+- Email Confirmation Upon Registration
+- Reset Forgotten Password feature
 - Docker and docker-compose.yml files
 - Environment variables
 - Customized admin page: SimpleListfilter, EmptyFieldListFilter
-- unittests (models, views, templates and forms), coverage module
+- Unit Tests (models, views, templates and forms), coverage module
 - Fixtures with test data
 - Custom management commands (report number of users and user words)
 - Celery workers (sending activation emails in the background)
