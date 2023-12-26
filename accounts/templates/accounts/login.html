@@ -46,18 +46,18 @@
 								</div>
 							</div>
 
-							<!-- Remember Me and Forgot Password -->
+							<!-- Stay signed in and Forgot Password -->
 							<div class="row my-3 justify-content-center">
-								<!-- Remember Me checkbox -->
-								<div class="col-10 col-md-3">
+								<!-- Stay signed in checkbox -->
+								<div class="col-6 col-md-3">
 									<div class="form-check form-switch">
 										{{ form.stay_signed_in }}
-										<label id="stay-signed-in-label" class="form-check-label" for="flexSwitchCheckDefault">{{ gui_messages.stay_signed_in }}</label>
+										<label id="stay-signed-in-label" class="form-check-label" for="stay-signed-in">{{ gui_messages.stay_signed_in }}</label>
 									</div>
 								</div>
 								
 								<!-- Forgot Password link -->
-								<div class="col-10 col-md-3 text-end">
+								<div class="col-6 col-md-3 text-end">
 									<a href="{% url 'password_reset' %}" class="text-danger text-decoration-none">{{ gui_messages.password_forgot }}</a>
 								</div>
 
@@ -100,7 +100,5 @@
 		</div>
 	</div>
 </div>
-
-<script src="{% static 'accounts/js/login.js' %}"></script>
 
 {% endblock %}

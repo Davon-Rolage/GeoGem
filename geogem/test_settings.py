@@ -117,7 +117,10 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static']
+    STATICFILES_DIRS = [
+        BASE_DIR / 'static',
+        BASE_DIR / 'accounts' / 'static',
+    ]
 else:
     STATIC_ROOT = BASE_DIR / 'static'
 
@@ -150,6 +153,10 @@ CELERY_TIMEZONE = 'Europe/Paris'
 CELERY_BEAT_SCHEDULE = {
     'delete_expired_tokens_at_midnight': {
         'task': 'accounts.tasks.delete_expired_tokens_task',
+        'schedule': crontab(hour=0, minute=0),
+    },
+    'clean_out_expired_sessions_at_midnight': {
+        'task': 'accounts.tasks.clean_out_expired_sessions_task',
         'schedule': crontab(hour=0, minute=0),
     },
 }

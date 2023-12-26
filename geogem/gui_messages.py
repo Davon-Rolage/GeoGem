@@ -22,15 +22,15 @@ GUI_MESSAGES = {
         # Translators: this is a register button
         'register_button': _('Register'),
         # Translators: this is a reset password title
-        'password_reset_title': _('Reset Password'),
+        'password_reset_title': _('Forgot Password'),
         # Translators: this is a reset password description
         'password_reset_description': _('Please enter the email associated with your account.'),
         # Translators: this is a reset password button
-        'password_reset_button': _('Reset Password'),
-        # Translators: this is a set new password title
-        'set_new_password_title': _('Set New Password'),
+        'password_reset_button': _('Reset password'),
+        # Translators: this is an "Enter new password" title
+        'enter_new_password_title': _('Enter new password'),
         # Translators: this is a set new password button
-        'set_new_password_button': _('Set New Password'),
+        'change_password_button': _('Change password'),
         # Translators: this is an input form element
         'username': _('Username'),
         # Translators: this is an error message
@@ -38,9 +38,9 @@ GUI_MESSAGES = {
         # Translators: this is an input form element
         'password': _('Password'),
         # Translators: this is an input form element
-        'password_repeat': _('Repeat Password'),
+        'password_repeat': _('Repeat password'),
         # Translators: this is an input form element
-        'password_forgot': _('Forgot Password?'),
+        'password_forgot': _('Forgot password?'),
         # Translators: this is an input form element
         'email': _('Email'),
         # Translators:this is a checkbox on the login page
@@ -124,7 +124,8 @@ GUI_MESSAGES = {
         'error_username_min_length': _('Username is too short'),
         'error_email_invalid': _('Email is invalid'),
         'error_email_doesnt_exist': _('There is no user associated with this email'),
-        'error_password_min_length': _('Password is too short'),
+        'error_email_already_exists': _('This email is already in use'),
+        'error_password_min_length': _('Password is too short (min 8)'),
         'error_password_mismatch': _('Passwords do not match'),
         'error_invalid_credentials': _('Invalid username or password'),
     },

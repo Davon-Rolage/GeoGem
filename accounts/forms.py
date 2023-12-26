@@ -14,6 +14,7 @@ from .tasks import *
 
 
 GUI_MESSAGES_FORMS = GUI_MESSAGES['forms']
+ERROR_FIELD_CLASS = 'form-control border-danger shadow-none'
 
 
 class CustomUserCreationForm(UserCreationForm):
@@ -76,30 +77,36 @@ class CustomUserCreationForm(UserCreationForm):
         if username and not all(char in username_allowed_chars for char in username):
             if ' ' in username:
                 self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_username_contains_spaces']))
-                self.fields['username'].widget.attrs.update({'class': 'form-control border-danger'})
+                self.fields['username'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
             else:
                 self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_username_invalid_chars']))
-                self.fields['username'].widget.attrs.update({'class': 'form-control border-danger'})
+                self.fields['username'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
             
         if username and len(username) < 3:
             self.add_error('username', ValidationError(GUI_MESSAGES_FORMS['error_username_min_length']))
-            self.fields['username'].widget.attrs.update({'class': 'form-control border-danger'})
+            self.fields['username'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
 
         if password1 and len(password1) < 8:
             self.add_error('password1', ValidationError(GUI_MESSAGES_FORMS['error_password_min_length']))
-            self.fields['password1'].widget.attrs.update({'class': 'form-control border-danger'})
+            self.fields['password1'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
 
         if password1 and password1 != password2:
-            self.fields['password2'].widget.attrs.update({'class': 'form-control border-danger'})
+            self.fields['password2'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
+
+        email_exists = get_user_model().objects.filter(email=email).exists()
+        if email_exists:
+            self.add_error('email', ValidationError(GUI_MESSAGES_FORMS['error_email_already_exists']))
+            self.fields['email'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
         
         return cleaned_data
 
-    def send_activation_email(self, user_id=None, domain=None, protocol=None, to_email=None):
+    def send_activation_email(self, user_id=None, domain=None, protocol=None, to_email=None, language=None):
         send_activation_email_task.delay(
             user_id=user_id, 
             domain=domain, 
             protocol=protocol, 
-            to_email=to_email
+            to_email=to_email,
+            language=language
         )
 
 
@@ -121,15 +128,16 @@ class PasswordResetForm(forms.Form):
             email_exists = get_user_model().objects.filter(email=email).exists()
             if not email_exists:
                 self.add_error('email', ValidationError(GUI_MESSAGES_FORMS['error_email_doesnt_exist']))
-                self.fields['email'].widget.attrs.update({'class': 'form-control border-danger'})
+                self.fields['email'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
         return cleaned_data
 
-    def send_password_reset_email(self, user_id=None, domain=None, protocol=None, to_email=None):
+    def send_password_reset_email(self, user_id=None, domain=None, protocol=None, to_email=None, language=None):
         send_password_reset_email_task.delay(
             user_id=user_id,
             domain=domain, 
             protocol=protocol, 
-            to_email=to_email
+            to_email=to_email,
+            language=language
         )
 
 
@@ -155,11 +163,11 @@ class SetPasswordForm(forms.Form):
         
         if password1 and len(password1) < 8:
             self.add_error('password1', ValidationError(GUI_MESSAGES_FORMS['error_password_min_length']))
-            self.fields['password1'].widget.attrs.update({'class': 'form-control border-danger'})
+            self.fields['password1'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
 
         if password1 and password1 != password2:
             self.add_error('password2', ValidationError(GUI_MESSAGES_FORMS['error_password_mismatch']))
-            self.fields['password2'].widget.attrs.update({'class': 'form-control border-danger'})
+            self.fields['password2'].widget.attrs.update({'class': ERROR_FIELD_CLASS})
 
         return cleaned_data
 

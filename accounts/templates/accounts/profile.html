@@ -43,11 +43,13 @@
                                 {{ gui_messages.date_joined }} {{ user.date_joined|date:"d.m.Y" }}
                             </li>
 
-                            {% if user.is_premium %}
-                                <li>{{ gui_messages.has_premium }}</li>
-                            {% else %}
-                                <li>{{ gui_messages.no_premium }} <a href="{% url 'premium' %}">{{ gui_messages.upgrade_to_premium }}</a></li>
-                            {% endif %}
+                            {% comment "When premium existence is justified, uncomment" %}
+                                {% if user.is_premium %}
+                                    <li>{{ gui_messages.has_premium }}</li>
+                                {% else %}
+                                    <li>{{ gui_messages.no_premium }} <a href="{% url 'premium' %}">{{ gui_messages.upgrade_to_premium }}</a></li>
+                                {% endif %}
+                            {% endcomment %}
                             
                             </h5>
                         </ul>

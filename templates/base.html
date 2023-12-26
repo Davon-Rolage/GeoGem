@@ -82,7 +82,7 @@
               <a class="nav-link" href="{% url 'premium' %}">{{ gui_messages.premium }}</a>
             </li>
             <li>
-              <div class="ms-5 text-center">
+              <div class="mx-5 text-center">
                 {% if user.is_authenticated %}
 
                   {{ gui_messages.greetings }} {% if user.is_premium %}<img id="premium-badge-icon" src="{% static 'images/badges/badge_premium.png' %}" alt="premium_badge">{% endif %}

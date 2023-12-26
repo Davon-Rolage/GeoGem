@@ -1,4 +1,4 @@
-// AJAX for checking if the username is already taken
+// AJAX for checking whether the username is already taken
 const usernameInput = $("#floatingInputGroupUsername");
 const usernameTakenError = $("#username-taken-error");
 

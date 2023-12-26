@@ -99,11 +99,15 @@ Profile.objects.create(user=super_user)
 
 exit()
 ```
-9. Before deploying to production, set `DEBUG` to False in `.env` by not assigning any value to DEBUG:
+9. Collect all the static files into a single `static` directory:
+```
+python manage.py collectstatic
+```
+10. Before deploying to production, set `DEBUG` to False in `.env` by not assigning any value to DEBUG:
 ```
 DEBUG=
 ```
-10. There's no need to manually start a development server with `python manage.py runserver` if you ran `docker-compose -f docker-compose-redis.yml up -d --build` - the web server is started within the container which is available at `127.0.0.1:8005`. However, it is easier and less time consuming to *develop* with `docker-compose-lite.yml` up and manually starting a dev server with `python manage.py runserver` (don't forget to set `SQL_HOST=localhost` in `.env`)
+11. There's no need to manually start a development server with `python manage.py runserver` if you ran `docker-compose -f docker-compose-redis.yml up -d --build` - the web server is started within the container which is available at `127.0.0.1:8005`. However, it is easier and less time consuming to *develop* with `docker-compose-lite.yml` up and manually starting a dev server with `python manage.py runserver` (don't forget to set `SQL_HOST=localhost` in `.env`)
 
 
 ## Dump database (Georgian characters)

@@ -50,11 +50,13 @@ class SignUpView(FormView):
         )
         domain = self.request.get_host()
         protocol = self.request.scheme
+        language = self.request.LANGUAGE_CODE
         form.send_activation_email( # pragma: no cover
             user_id=user.id,
             domain=domain,
             protocol=protocol,
             to_email=email,
+            language=language
         )
         success_message = GUI_MESSAGES['messages']['activation_email_sent'].format(
             user=user, to_email=email
@@ -142,11 +144,13 @@ class PasswordResetView(FormView):
         )
         domain = self.request.get_host()
         protocol = self.request.scheme
+        language = self.request.LANGUAGE_CODE
         form.send_password_reset_email( # pragma: no cover
             user_id=user.id,
             domain=domain,
             protocol=protocol,
             to_email=email,
+            language=language
         )
         success_message = GUI_MESSAGES['messages']['password_reset_email_sent'].format(
             to_email=email
