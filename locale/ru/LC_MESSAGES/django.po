@@ -364,7 +364,7 @@ msgstr "Пользователя с таким адресом электронн
 
 #: .\geogem\gui_messages.py:127
 msgid "This email is already in use"
-msgstr "Этот адрес электронный почты занят"
+msgstr "Этот адрес электронной почты занят"
 
 #: .\geogem\gui_messages.py:128
 msgid "Password is too short (min 8)"

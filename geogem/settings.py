@@ -5,7 +5,7 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv(dotenv_path='.env.dev')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -21,8 +21,8 @@ EMAIL_USE_TLS = True
 
 DEBUG = True if os.environ.get('DEBUG') else False
 
-ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split(' ')
-CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split(' ')
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', '').split()
+CSRF_TRUSTED_ORIGINS = os.environ.get('CSRF_TRUSTED_ORIGINS', '').split()
 
 INTERNAL_IPS = [
     '127.0.0.1',

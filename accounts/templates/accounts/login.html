@@ -58,7 +58,7 @@
 								
 								<!-- Forgot Password link -->
 								<div class="col-6 col-md-3 text-end">
-									<a href="{% url 'password_reset' %}" class="text-danger text-decoration-none">{{ gui_messages.password_forgot }}</a>
+									<a href="{% url 'accounts:password_reset' %}" class="text-danger text-decoration-none">{{ gui_messages.password_forgot }}</a>
 								</div>
 
 							</div>
@@ -93,7 +93,7 @@
 
 					<!-- Register Now -->
 					<div class="row py-3 justify-content-center text-center">
-						<h5>{{ gui_messages.do_not_have_account }} <span><a href="{% url 'signup' %}" class="text-danger">{{ gui_messages.register_now }}</a></span></h5>
+						<h5>{{ gui_messages.do_not_have_account }} <span><a href="{% url 'accounts:signup' %}" class="text-danger">{{ gui_messages.register_now }}</a></span></h5>
 					</div>
 				</div>
 			</div>

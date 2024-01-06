@@ -5,7 +5,7 @@ services:
     image: postgres:15
     container_name: ${PG_CONTAINER_NAME}
     restart: unless-stopped
-    env_file: ./.env
+    env_file: ./.env.dev
     volumes:
       - postgres_data_geogem:/data/geogem-postgres
     networks:

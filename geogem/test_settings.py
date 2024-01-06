@@ -10,7 +10,7 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 
 
-load_dotenv()
+load_dotenv(dotenv_path='.env.dev')
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 

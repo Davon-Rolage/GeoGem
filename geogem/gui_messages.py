@@ -78,7 +78,7 @@ GUI_MESSAGES = {
         # Translators: this appears in the navbar
         'greetings': _('Hi'),
         # Translators: this is a navbar item
-        'my_profile': _('My Profile'),
+        'profile': _('My Profile'),
         # Translators: this is a navbar item
         'logout': _('Log out'),
         # Translators: this is a navbar item
@@ -101,7 +101,7 @@ GUI_MESSAGES = {
     },
     'messages': {
         'badge_earned': _('You have earned a badge! Check out your profile!'),
-        'user_deleted': _('The user has been successfully deleted'),
+        'user_deactivated': _('The user has been successfully deleted'),
         'email_subject_activation': _('Confirm your account on GeoGem'),
         'email_subject_password_reset': _('Reset your password on GeoGem'),
         'activation_email_sent': _('<b>{user}</b>, please check your email <b>{to_email}</b> to activate your account.'),
@@ -129,7 +129,7 @@ GUI_MESSAGES = {
         'error_password_mismatch': _('Passwords do not match'),
         'error_invalid_credentials': _('Invalid username or password'),
     },
-    'my_profile': {
+    'profile': {
         'welcome': _('Welcome'),
         'home': _('Home'),
         'profile': _('Profile'),

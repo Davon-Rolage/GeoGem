@@ -7,10 +7,9 @@ from django.urls import reverse
 from django.utils.timezone import timedelta
 from django.views.generic import View
 
-from accounts.models import CustomUserToken
 from geogem.gui_messages import GUI_MESSAGES
 
-from .models import Profile
+from .models import CustomUserToken, Profile
 from .tokens import verify_user_token
 
 
@@ -25,7 +24,7 @@ def check_username_exists(request):
 
     return HttpResponseNotAllowed(['GET'])
     
-    
+
 class ActivateUserView(View):
     
     def get(self, request, *args, **kwargs):
@@ -41,13 +40,13 @@ class ActivateUserView(View):
             Profile.objects.create(user=user)
             user_token_instance.delete()
             messages.success(request, GUI_MESSAGES['messages']['activation_successful'])
-            return HttpResponseRedirect(reverse('login'))
+            return HttpResponseRedirect(reverse('accounts:login'))
         
         except CustomUserToken.DoesNotExist:
             messages.error(request, GUI_MESSAGES['error_messages']['activation_failed'])
-            return HttpResponseRedirect(reverse('signup'))
+            return HttpResponseRedirect(reverse('accounts:signup'))
 
-        except signing.BadSignature:
+        except signing.BadSignature: # pragma: no cover
             messages.error(request, GUI_MESSAGES['error_messages']['activation_failed'])
             user_token_instance.user.delete()
-            return HttpResponseRedirect(reverse('signup'))
+            return HttpResponseRedirect(reverse('accounts:signup'))

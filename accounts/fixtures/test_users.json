@@ -15,7 +15,7 @@
         "id": 2,
         "username": "test_user_staff",
         "password": "pbkdf2_sha256$600000$aJ6y5LjAvuLyzul0EDuTrn$jH1y8JEBpDKmtvZfCWpkledQN2gKs8Oikelw87bSGM4=",
-        "email": "test@example.com",
+        "email": "test2@example.com",
         "is_staff": true,
         "is_active": true
       }
@@ -26,7 +26,7 @@
         "id": 3,
         "username": "test_superuser",
         "password": "pbkdf2_sha256$600000$aJ6y5LjAvuLyzul0EDuTrn$jH1y8JEBpDKmtvZfCWpkledQN2gKs8Oikelw87bSGM4=",
-        "email": "test@example.com",
+        "email": "test3@example.com",
         "is_superuser": true,
         "is_active": true
       }
@@ -37,7 +37,7 @@
         "id": 4,
         "username": "test_user_no_words",
         "password": "pbkdf2_sha256$600000$aJ6y5LjAvuLyzul0EDuTrn$jH1y8JEBpDKmtvZfCWpkledQN2gKs8Oikelw87bSGM4=",
-        "email": "test@example.com",
+        "email": "test4@example.com",
         "is_active": true
       }
     },
@@ -47,7 +47,7 @@
         "id": 5,
         "username": "test_user_has_words",
         "password": "pbkdf2_sha256$600000$aJ6y5LjAvuLyzul0EDuTrn$jH1y8JEBpDKmtvZfCWpkledQN2gKs8Oikelw87bSGM4=",
-        "email": "test@example.com",
+        "email": "test5@example.com",
         "is_active": true
       }
     },
@@ -57,7 +57,7 @@
         "id": 6,
         "username": "test_user_all_words_learned",
         "password": "pbkdf2_sha256$600000$aJ6y5LjAvuLyzul0EDuTrn$jH1y8JEBpDKmtvZfCWpkledQN2gKs8Oikelw87bSGM4=",
-        "email": "test@example.com",
+        "email": "test6@example.com",
         "is_active": true
       }
     },
@@ -67,7 +67,7 @@
         "id": 7,
         "username": "test_user_premium",
         "password": "pbkdf2_sha256$600000$aJ6y5LjAvuLyzul0EDuTrn$jH1y8JEBpDKmtvZfCWpkledQN2gKs8Oikelw87bSGM4=",
-        "email": "test@example.com",
+        "email": "test7@example.com",
         "is_premium": true,
         "is_active": true
       }
@@ -78,7 +78,7 @@
         "id": 99999,
         "username": "test_user_to_be_deleted",
         "password": "pbkdf2_sha256$600000$aJ6y5LjAvuLyzul0EDuTrn$jH1y8JEBpDKmtvZfCWpkledQN2gKs8Oikelw87bSGM4=",
-        "email": "test@example.com",
+        "email": "test99999@example.com",
         "is_active": true
       }
     }

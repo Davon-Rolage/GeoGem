@@ -39,7 +39,7 @@ class CustomUserModelTestCase(TestCase):
         self.assertFalse(hasattr(self.test_user_inactive, 'profile'))
 
 
-@tag("accounts", "model", "model_my_profile")
+@tag("accounts", "model", "model_profile")
 class ProfileTestCase(TestCase):
     fixtures = ['test_users.json', 'test_profiles.json']
     
@@ -49,7 +49,7 @@ class ProfileTestCase(TestCase):
         cls.test_user = cls.User.objects.first()
         cls.test_user_profile = cls.test_user.profile
 
-    def test_my_profile_default_values_equal_zero(self):
+    def test_profile_default_values_equal_zero(self):
         self.assertEqual(str(self.test_user_profile), 'Profile test_user')
         self.assertEqual(self.test_user_profile.num_learned_words, 0)
         self.assertEqual(self.test_user_profile.experience, 0)
@@ -57,7 +57,7 @@ class ProfileTestCase(TestCase):
         self.assertEqual(self.test_user_profile.level_progress, 0)
         self.assertEqual(self.test_user_profile.xp_to_next_level, 1)
     
-    def test_my_profile_properties_are_correct(self):
+    def test_profile_properties_are_correct(self):
         self.test_user_profile.experience = 70
         self.test_user_profile.save()
 
@@ -66,7 +66,7 @@ class ProfileTestCase(TestCase):
         self.assertAlmostEqual(self.test_user_profile.level_progress, 0.667, places=3)
         self.assertEqual(self.test_user_profile.xp_to_next_level, 10)
 
-    def test_my_profile_properties_change_on_experience_change(self):
+    def test_profile_properties_change_on_experience_change(self):
         self.test_user_profile.experience = 49
         self.test_user_profile.save()
 
@@ -83,7 +83,7 @@ class ProfileTestCase(TestCase):
         self.assertEqual(self.test_user_profile.level_progress, 0)
         self.assertEqual(self.test_user_profile.xp_to_next_level, 30)
     
-    def test_my_profile_experience_is_negative(self):
+    def test_profile_experience_is_negative(self):
         self.test_user_profile.experience = -1
         self.test_user_profile.save()
 
@@ -92,7 +92,7 @@ class ProfileTestCase(TestCase):
         self.assertEqual(self.test_user_profile.level_progress, 0)
         self.assertEqual(self.test_user_profile.xp_to_next_level, 1)
     
-    def test_my_profile_experience_overflow_million(self):
+    def test_profile_experience_overflow_million(self):
         self.test_user_profile.experience = 1_000_000
         self.test_user_profile.save()
 
@@ -120,3 +120,22 @@ class CustomUserTokenTestCase(TestCase):
     
     def test_custom_user_token_str(self):
         self.assertEqual(str(self.test_user_token), 'test_user - test_token')
+
+
+@tag("model", "model_custom_user_token_type")
+class CustomUserTokenTypeTestCase(TestCase):
+    fixtures = ['token_types.json']
+    
+    @classmethod
+    def setUpTestData(cls):
+        cls.token_type = CustomUserTokenType.objects.first()
+    
+    def test_custom_user_token_type_str(self):
+        self.assertEqual(str(self.token_type), self.token_type.name)
+    
+    def test_custom_user_token_type_list_all(self):
+        token_types = CustomUserTokenType.objects.all()
+        self.assertEqual(len(token_types), 4)
+        names = [tt.name for tt in token_types]
+        self.assertEqual(names, ['User activation', 'Password reset', 'Username change', 'Email change'])
+        

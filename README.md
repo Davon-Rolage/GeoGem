@@ -1,6 +1,6 @@
 <div align = "center">
 
-<img src="./static/images/logo.png"></img>
+<img src="./static/images/logo.webp"></img>
 
 <p>Unearth Hidden Gems of Georgian Language and Culture</p>
 
@@ -60,6 +60,15 @@ CSRF_TRUSTED_ORIGINS=http://127.0.0.1 http://localhost
 
 DEBUG=1
 ```
+* Create a `.env.dev` with the same values as `.env` except `SQL_HOST` and `WORKERS_RUNNING`:
+```
+SQL_HOST=localhost
+WORKERS_RUNNING=
+
+# You may remove these variables at all
+```
+`.env.dev` is utilized in conjunction with `docker-compose-lite.yml`, which includes only a PostgreSQL container with port 5432 exposed. The `WORKERS_RUNNING` environment variable is used to skip tests involving Celery workers, such as sending emails during account activation.
+
 > By default, `django-admin startproject` creates an insecure `SECRET_KEY` (see [Django docs](https://docs.djangoproject.com/en/5.0/ref/checks/#:~:text=connections%20to%20HTTPS.-,security.W009,-%3A%20Your%20SECRET_KEY%20has)). Generate a secure django secret key for your project:
 ```
 python -c 'from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())'
@@ -70,7 +79,7 @@ docker volume create geogem_postgres_data
 ```
 5. Build and start Docker containers with Celery services:
 ```
-docker-compose -f docker-compose-redis.yml up -d --build
+docker-compose up -d --build
 ```
 > [!NOTE]  
 > Celery [doesn't support](https://docs.celeryq.dev/en/stable/faq.html#does-celery-support-windows) Windows since version 4, so you can either run Celery in Docker containers (our case) or use a UNIX system to run each Celery process manually, each from a different terminal window:
@@ -82,11 +91,15 @@ celery -A geogem beat -l INFO
 ```
 python manage.py makemigrations && python manage.py migrate
 ```
-7. Create a super user:
+7. Load data for token types from a fixture:
+```
+python manage.py loaddata accounts/fixtures/token_types.json
+```
+8. Create a super user:
 ```
 python manage.py createsuperuser
 ```
-8. Manually create a profile for the super user:
+9. Manually create a profile for the super user:
 ```
 python manage.py shell
 
@@ -99,15 +112,19 @@ Profile.objects.create(user=super_user)
 
 exit()
 ```
-9. Collect all the static files into a single `static` directory:
+10. Collect all the static files into a single `static` directory:
 ```
 python manage.py collectstatic
 ```
-10. Before deploying to production, set `DEBUG` to False in `.env` by not assigning any value to DEBUG:
+11. Before deploying to production, set `DEBUG` to False in `.env` by not assigning any value to DEBUG:
 ```
 DEBUG=
 ```
-11. There's no need to manually start a development server with `python manage.py runserver` if you ran `docker-compose -f docker-compose-redis.yml up -d --build` - the web server is started within the container which is available at `127.0.0.1:8005`. However, it is easier and less time consuming to *develop* with `docker-compose-lite.yml` up and manually starting a dev server with `python manage.py runserver` (don't forget to set `SQL_HOST=localhost` in `.env`)
+* If your `docker-compose.yml` is up, webserver will be available at `http://127.0.0.1:8005`
+* If your `docker-compose-lite.yml` is up, start a development server:
+```
+python manage.py runserver
+```
 
 
 ## Dump database (Georgian characters)
@@ -122,21 +139,23 @@ python manage.py loaddatautf8 data.json
 
 
 ## Tests
-> [!NOTE] 
-> Before running tests, set `SQL_HOST=localhost` in `.env`<br>
-> Stop and remove containers that were started with `docker-compose-redis.yml`:
+There are 205 test functions. Current code coverage is 96% (Celery tasks and admin page functions are not tested).
+<br>
+`coverage` tool is used to measure code coverage.
+You will get correct results if you run tests within `geogem` Docker container:
 ```
-docker-compose -f docker-compose-redis.yml down
-```
-Up `docker-compose -f docker-compose-lite.yml` and run a local development server:
-```
-docker-compose -f docker-compose-lite.yml up -d --build
-python manage.py runserver
-```
+docker exec -it geogem bash
 
+# OR
+
+docker-compose exec -it web bash
+```
+```
+coverage run manage.py test
+```
 All tests are located in every app's `tests` folder.
 <br>
-`coverage` tool is used for measuring code coverage. To make tests run faster, the `geogem/test_settings.py` is used which includes a simpler password hasher algorithm:
+To make tests run faster, `geogem/test_settings.py` is used which includes a simpler password hashing algorithm:
 ```
 coverage run manage.py test --settings=geogem.test_settings
 ```
@@ -154,7 +173,7 @@ Head to the created `htmlcov` folder and open `index.html` with `Live server`
 ## Tech Stack
 The aspects of Django framework that were used during development of this project:
 - Class-based views (View, DetailView, FormView, ListView, DeleteView, TemplateView, RedirectView)
-- Django CustomUser, forms (UserLoginForm, UserCreationForm)
+- CustomUser model, forms (UserLoginForm, UserCreationForm)
 - Mixins (LoginRequiredMixin, SuccessMessageMixin)
 - Internationalization (English, Russian)
 - Static and media files
@@ -165,10 +184,10 @@ The aspects of Django framework that were used during development of this projec
 - Email Confirmation Upon Registration
 - Reset Forgotten Password feature
 - Docker and docker-compose.yml files
-- Environment variables
+- Environment variables (separate .env files for development and production)
 - Customized admin page: SimpleListfilter, EmptyFieldListFilter
 - Unit Tests (models, views, templates and forms), coverage module
 - Fixtures with test data
 - Custom management commands (report number of users and user words)
-- Celery workers (sending activation emails in the background)
+- Celery workers (sending links for email confirmation and password reset in the background)
 - Celery beat (deleting expired tokens and sessions at midnight)

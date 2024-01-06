@@ -47,7 +47,7 @@
                                 {% if user.is_premium %}
                                     <li>{{ gui_messages.has_premium }}</li>
                                 {% else %}
-                                    <li>{{ gui_messages.no_premium }} <a href="{% url 'premium' %}">{{ gui_messages.upgrade_to_premium }}</a></li>
+                                    <li>{{ gui_messages.no_premium }} <a href="{% url 'accounts:premium' %}">{{ gui_messages.upgrade_to_premium }}</a></li>
                                 {% endif %}
                             {% endcomment %}
                             
@@ -57,7 +57,7 @@
 
                     <!-- Profile -->
                     <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
-                        <form action="{% url 'delete_user' user.id %}" method="post">
+                        <form action="{% url 'accounts:deactivate_user' %}" method="post">
                             {% csrf_token %}
                             <!-- Disable test user account deletion -->
                             {% if user.username == 'TestUserGeogem' %}

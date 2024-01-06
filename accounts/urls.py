@@ -3,6 +3,8 @@ from django.urls import path
 from .views import *
 
 
+app_name = 'accounts'
+
 urlpatterns = [
     path('signup/', SignUpView.as_view(), name='signup'),
     path('check-username-exists/', check_username_exists, name='check_username_exists'),
@@ -14,8 +16,8 @@ urlpatterns = [
     path('password-reset-check/<str:token>/', PasswordResetCheckView.as_view(), name='password_reset_check'),
     path('set-password/<str:token>/', SetPasswordView.as_view(), name='set_password'),
 
-    path('my-profile/', ProfileView.as_view(), name='my_profile'),
-    path('my-profile/<int:pk>/delete/', DeleteUserView.as_view(), name='delete_user'),
+    path('profile/', ProfileView.as_view(), name='profile'),
+    path('profile/deactivate/', DeactivateUserView.as_view(), name='deactivate_user'),
     path('premium/', PremiumView.as_view(), name='premium'),
     path('get-premium/', GetPremiumView.as_view(), name='get_premium'),
     path('cancel-premium/', CancelPremiumView.as_view(), name='cancel_premium'),

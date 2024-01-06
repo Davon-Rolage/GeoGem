@@ -36,7 +36,7 @@
     
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
         <a href="{% url 'index' %}">
-          <img class="logo mx-3" src="{% static 'images/logo.png' %}" alt="logo">
+          <img class="logo mx-3" src="{% static 'images/logo.webp' %}" alt="logo">
         </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
           <span class="navbar-toggler-icon"></span>
@@ -48,16 +48,16 @@
             <div class="dropdown mx-auto">
               <button type="button" id="btn-language-dropdown" class="btn btn-outline-secondary dropdown-toggle shadow-none" data-bs-toggle="dropdown" aria-expanded="true">
                 {% if request.LANGUAGE_CODE == 'en' %}
-                <img class="image-flag me-1" src="{% static 'images/flags/usa_uk.png' %}" alt="flag_usa_uk">English
+                <img class="image-flag me-1" src="{% static 'images/flags/usa_uk.webp' %}" alt="flag_usa_uk">English
                 {% elif request.LANGUAGE_CODE == 'ru' %}
-                <img class="image-flag me-1" src="{% static 'images/flags/russia.png' %}" alt="flag_russia">Русский
+                <img class="image-flag me-1" src="{% static 'images/flags/russia.webp' %}" alt="flag_russia">Русский
                 <!-- Add new languages here -->
 
                 {% endif %}
               </button>
               <ul class="dropdown-menu" aria-labelledby="btn-language-dropdown">
-                <a class="dropdown-item" href="/en/{{ request.path|remove_language }}"><img class="image-flag me-1" src="{% static 'images/flags/usa_uk.png' %}" alt="flag_usa_uk">English</a>
-                <a class="dropdown-item" href="/ru/{{ request.path|remove_language }}"><img class="image-flag me-1" src="{% static 'images/flags/russia.png' %}" alt="flag_russia">Русский</a>
+                <a class="dropdown-item" href="/en/{{ request.path|remove_language }}"><img class="image-flag me-1" src="{% static 'images/flags/usa_uk.webp' %}" alt="flag_usa_uk">English</a>
+                <a class="dropdown-item" href="/ru/{{ request.path|remove_language }}"><img class="image-flag me-1" src="{% static 'images/flags/russia.webp' %}" alt="flag_russia">Русский</a>
                 <!-- Add new languages here -->
                 
               </ul>
@@ -79,7 +79,7 @@
             </li>
 
             <li class="nav-item {{ user.is_staff|yesno:',d-none' }}">
-              <a class="nav-link" href="{% url 'premium' %}">{{ gui_messages.premium }}</a>
+              <a class="nav-link" href="{% url 'accounts:premium' %}">{{ gui_messages.premium }}</a>
             </li>
             <li>
               <div class="mx-5 text-center">
@@ -88,15 +88,15 @@
                   {{ gui_messages.greetings }} {% if user.is_premium %}<img id="premium-badge-icon" src="{% static 'images/badges/badge_premium.png' %}" alt="premium_badge">{% endif %}
                   {{ user.username }}!
                   
-                  <a href="{% url 'my_profile' %}">{{ gui_messages.my_profile }}</a>
+                  <a href="{% url 'accounts:profile' %}">{{ gui_messages.profile }}</a>
                   ·
-                  <a href="{% url 'logout' %}">{{ gui_messages.logout }}</a>
+                  <a href="{% url 'accounts:logout' %}">{{ gui_messages.logout }}</a>
     
                 {% else %}
                 <div class="login_register my-2">
-                  <a href="{% url 'login' %}">{{ gui_messages.login }}</a>
+                  <a href="{% url 'accounts:login' %}">{{ gui_messages.login }}</a>
                   ·
-                  <a href="{% url 'signup' %}">{{ gui_messages.register }}</a>
+                  <a href="{% url 'accounts:signup' %}">{{ gui_messages.register }}</a>
                 </div>
                 {% endif %}
             </li>

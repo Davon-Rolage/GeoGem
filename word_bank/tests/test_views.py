@@ -183,6 +183,7 @@ class AddWordInfoViewTestCase(TestCase):
         cls.test_user_staff = cls.User.objects.get(username='test_user_staff')
     
     def test_add_word_info_view_GET(self):
+        self.client.force_login(self.test_user_staff)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 405)
     
@@ -224,6 +225,7 @@ class EditWordInfoViewTestCase(TestCase):
         cls.test_user_staff = cls.User.objects.get(username='test_user_staff')
 
     def test_edit_word_info_view_method_not_allowed_GET(self):
+        self.client.force_login(self.test_user_staff)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 405)
         
@@ -359,6 +361,7 @@ class ResetTestBlockViewTestCase(TestCase):
         cls.test_user_staff = cls.User.objects.get(username='test_user_staff')
     
     def test_reset_test_block_view_GET(self):
+        self.client.force_login(self.test_user_staff)
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 405)
     
